@@ -3,5 +3,7 @@ Django==4.2
 django-filter==23.2
 djangorestframework==3.14.0
 pytz==2023.3
+ruff==0.0.284
 sqlparse==0.4.4
 typing_extensions==4.7.1
+tzdata==2023.3
