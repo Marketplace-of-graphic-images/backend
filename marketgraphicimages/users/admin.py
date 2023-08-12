@@ -11,6 +11,7 @@ class CommentAdmin(admin.ModelAdmin):
         "email",
         "first_name",
         "last_name",
+        "phone_number",
     )
     search_fields = (
         "username",

@@ -4,6 +4,8 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from phonenumber_field.modelfields import PhoneNumberField
+
 from core.validators import date_is_past
 
 
@@ -86,6 +88,11 @@ class User(AbstractUser):
     is_active = models.BooleanField(
         verbose_name=_('Active'),
         default=False,
+    )
+    phone_number = PhoneNumberField(
+        blank=True,
+        verbose_name=_('Number phone'),
+        help_text=_('Enter your Number phone'),
     )
 
     objects = CustomUserManager()
