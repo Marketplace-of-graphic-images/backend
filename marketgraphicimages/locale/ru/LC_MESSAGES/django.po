@@ -21,7 +21,7 @@ msgstr ""
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 #: .\core\validators.py:8
 msgid "Date is not correct."
-msgstr ""
+msgstr "Дата введена не верно."
 
 #: .\users\models.py:14
 msgid "Username"
