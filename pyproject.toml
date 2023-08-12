@@ -20,4 +20,4 @@ exclude = [
 
 [tool.ruff.isort]
 combine-as-imports = true
-known-local-folder = ["images", "users", "api"]
+known-local-folder = ["images", "users", "api", "core"]
