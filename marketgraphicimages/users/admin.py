@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
+from .models import Subscription
+
 User = get_user_model()
 
 
@@ -11,6 +13,7 @@ class CommentAdmin(admin.ModelAdmin):
         "email",
         "first_name",
         "last_name",
+        "phone_number",
     )
     search_fields = (
         "username",
@@ -21,3 +24,19 @@ class CommentAdmin(admin.ModelAdmin):
         "email",
     )
     empty_value_display = "---пусто---"
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'author',
+    )
+    search_fields = (
+        'user',
+        'author',
+    )
+    list_filter = (
+        'user',
+        'author',
+    )

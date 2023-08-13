@@ -31,6 +31,7 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
     'django_filters',
     'rest_framework',
+    'phonenumber_field',
 )
 
 LOCAL_APPS = (
@@ -38,6 +39,7 @@ LOCAL_APPS = (
     'images',
     'users',
     'core',
+    'tags',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

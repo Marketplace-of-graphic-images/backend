@@ -4,6 +4,8 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from phonenumber_field.modelfields import PhoneNumberField
+
 from core.validators import date_is_past
 
 
@@ -87,6 +89,11 @@ class User(AbstractUser):
         verbose_name=_('Active'),
         default=False,
     )
+    phone_number = PhoneNumberField(
+        blank=True,
+        verbose_name=_('Number phone'),
+        help_text=_('Enter your Number phone'),
+    )
 
     objects = CustomUserManager()
 
@@ -97,3 +104,35 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username[:15]
+
+
+class UserConnection(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        help_text='Выберите из списка пользователя',
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Subscription(UserConnection):
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+        verbose_name='Автор',
+        help_text='Выберите автора из списка',
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_subscription',
+                fields=['user', 'author'],
+            ),
+        ]
