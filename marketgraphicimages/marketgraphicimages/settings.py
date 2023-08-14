@@ -34,6 +34,7 @@ THIRD_PARTY_APPS = (
     'rest_framework',
     'phonenumber_field',
     'drf_yasg',
+    'djoser',
 )
 
 LOCAL_APPS = (
@@ -150,4 +151,12 @@ EMAIL_BACKEND_NAME = "sistem@server.ru"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'SEND_CONFIRMATION_EMAIL': True,
+    'SERIALIZERS': {},
 }

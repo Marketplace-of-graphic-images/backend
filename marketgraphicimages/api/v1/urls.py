@@ -13,6 +13,8 @@ auth_url = [
 ]
 
 urlpatterns = [
+    path("", include("djoser.urls")),
+    path("auth/", include("djoser.urls.jwt")),
     path("auth/", include(auth_url)),
     path("", include(v1_router.urls)),
 ]
