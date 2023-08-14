@@ -41,7 +41,7 @@ class Image(models.Model):
 
 
 class ImageConnection(models.Model):
-    recipe = models.ForeignKey(
+    image = models.ForeignKey(
         Image,
         on_delete=models.CASCADE,
         verbose_name='Изображение',
@@ -58,7 +58,7 @@ class FavoriteImage(ImageConnection, UserConnection):
         constraints = [
             models.UniqueConstraint(
                 name='unique_favorite',
-                fields=['image', 'user'],
+                fields=('image', 'user'),
             ),
         ]
         verbose_name = 'Любимое изображение'
@@ -70,7 +70,7 @@ class ShoppingCartImage(ImageConnection, UserConnection):
         constraints = [
             models.UniqueConstraint(
                 name='unique_shopping_cart',
-                fields=['image', 'user'],
+                fields=('image', 'user'),
             ),
         ]
         verbose_name = 'Купленное изображение'
