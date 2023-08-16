@@ -1,9 +1,12 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.validators import ASCIIUsernameValidator
-from django.core.validators import MinLengthValidator
+from django.core.validators import (
+    MaxValueValidator,
+    MinLengthValidator,
+    MinValueValidator,
+)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
 from phonenumber_field.modelfields import PhoneNumberField
 
 from core.validators import date_is_past
@@ -94,6 +97,15 @@ class User(AbstractUser):
         verbose_name=_('Number phone'),
         help_text=_('Enter your Number phone'),
     )
+    author = models.BooleanField(
+        verbose_name=_('Author'),
+        default=False,
+    )
+    confirmation_code = models.IntegerField(
+        verbose_name=_('Confirmation code'),
+        null=True,
+        validators=[MinValueValidator(100000), MaxValueValidator(999999)],
+    )
 
     objects = CustomUserManager()
 
@@ -104,6 +116,10 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username[:15]
+
+    @property
+    def is_author(self):
+        return self.author
 
 
 class UserConnection(models.Model):
@@ -133,6 +149,6 @@ class Subscription(UserConnection):
         constraints = [
             models.UniqueConstraint(
                 name='unique_subscription',
-                fields=['user', 'author'],
+                fields=('user', 'author'),
             ),
         ]
