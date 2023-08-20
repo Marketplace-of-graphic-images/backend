@@ -1,10 +1,15 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from api.v1.views import auth_confirmation, auth_signup_post, get_token_post
+from api.v1.views import (
+    CustomUserViewSet,
+    auth_confirmation,
+    auth_signup_post,
+    get_token_post,
+)
 
 v1_router = DefaultRouter()
-# v1_router.register("users", UsersViewSet)
+v1_router.register("users", CustomUserViewSet)
 
 auth_url = [
     path("signin/", get_token_post, name="signin"),
@@ -13,8 +18,8 @@ auth_url = [
 ]
 
 urlpatterns = [
-    path("", include("djoser.urls")),
-    path("auth/", include("djoser.urls.jwt")),
     path("auth/", include(auth_url)),
     path("", include(v1_router.urls)),
+    # path("", include("djoser.urls")),
+    path("auth/", include("djoser.urls.jwt")),
 ]

@@ -114,3 +114,39 @@ def get_token_post(request):
         "token": str(access_token),
     }
     return Response(out_put_messege, status=status.HTTP_200_OK)
+
+
+# from django.utils.timezone import now
+# from djoser.serializers import PasswordSerializer
+# from djoser.views import UserViewSet
+# from rest_framework.decorators import action
+
+
+# class CustomUserViewSet(UserViewSet):
+
+#     @action(["post"], detail=False)
+#     def reset_password(self, request, *args, **kwargs):
+#         serializer = SendCodeResetSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         user = serializer.get_user()
+
+#         if user:
+#             send_email_with_confirmation_code(request)
+
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+#     @action(["post"], detail=False)
+#     def reset_password_confirm_code(self, request, *args, **kwargs):
+#         pass
+
+#     @action(["post"], detail=False)
+#     def reset_password_confirm(self, request, *args, **kwargs):
+#         serializer = PasswordSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         serializer.user.set_password(serializer.data["new_password"])
+#         if hasattr(serializer.user, "last_login"):
+#             serializer.user.last_login = now()
+#         serializer.user.save()
+
+#         return Response(status=status.HTTP_204_NO_CONTENT)
