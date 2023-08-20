@@ -58,7 +58,6 @@ def get_img_from_google(search_name: str = 'Природа'):
     API_KEY = 'AIzaSyA8uUxNe7Bzg_GvPTfIX0g48KsHUYD53fM'
     PROJECT_CX = '13bf908ff1a6242d2'
     gis = GoogleImagesSearch(API_KEY, PROJECT_CX)
-    my_bytes_io = io.BytesIO()
 
     _search_params = {
         'q': search_name,
@@ -66,6 +65,11 @@ def get_img_from_google(search_name: str = 'Природа'):
     }
 
     gis.search(search_params=_search_params)
+    return gis
+
+
+def show_img(gis):
+    my_bytes_io = io.BytesIO()
 
     for image in gis.results():
         my_bytes_io.seek(0)
