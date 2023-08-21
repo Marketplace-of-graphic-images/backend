@@ -64,20 +64,20 @@ class ConfirmationSerializer(serializers.ModelSerializer):
 
 
 class AuthSignInSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
+    email = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ('username', 'password')
+        fields = ('email', 'password')
 
     def validate(self, data):
         """
         Validates the given data by checking if a user with the provided
-        username exists and if the provided password is correct for that user.
+        email exists and if the provided password is correct for that user.
 
         Parameters:
-            - data (dict): A dictionary containing the username and password
+            - data (dict): A dictionary containing the email and password
             to be validated.
 
         Returns:
@@ -86,7 +86,7 @@ class AuthSignInSerializer(serializers.Serializer):
         Raises:
             - ValidationError: If the provided credentials are invalid.
         """
-        user = User.objects.filter(username=data.get("username"))
+        user = User.objects.filter(email=data.get("email"))
         if user.exists() and user.first().check_password(data.get("password")):
             return user.first()
         raise ValidationError(_("Invalid credentials"))

@@ -12,36 +12,36 @@ from phonenumber_field.modelfields import PhoneNumberField
 from core.validators import date_is_past
 
 
-class CustomUserManager(UserManager):
-    def create_superuser(
-        self, username: str, email: str, password: str, **extra_fields
-    ):
-        """
-        Creates a superuser with the given username, email, password,
-        and any additional fields.
+# class CustomUserManager(UserManager):
+#     def create_superuser(
+#         self, username: str, email: str, password: str, **extra_fields
+#     ):
+#         """
+#         Creates a superuser with the given username, email, password,
+#         and any additional fields.
 
-        Args:
-            username (str): The username for the superuser.
-            email (str): The email address for the superuser.
-            password (str): The password for the superuser.
-            **extra_fields: Additional fields for the superuser.
+#         Args:
+#             username (str): The username for the superuser.
+#             email (str): The email address for the superuser.
+#             password (str): The password for the superuser.
+#             **extra_fields: Additional fields for the superuser.
 
-        Returns:
-            User: The created superuser.
-        """
+#         Returns:
+#             User: The created superuser.
+#         """
 
-        user = self._create_user(username, email, password, **extra_fields)
-        user.set_password(password)
-        user.is_superuser = True
-        user.is_staff = True
-        user.is_active = True
-        user.save()
+#         user = self._create_user(username, email, password, **extra_fields)
+#         user.set_password(password)
+#         user.is_superuser = True
+#         user.is_staff = True
+#         user.is_active = True
+#         user.save()
 
-        return user
+#         return user
 
 
 class User(AbstractUser):
-
+    """Пользователь."""
     username = models.CharField(
         max_length=30,
         verbose_name=_('Username'),
@@ -66,37 +66,6 @@ class User(AbstractUser):
             'unique': _('User with such an email already exists'),
         },
     )
-    first_name = models.CharField(
-        max_length=53,
-        blank=True,
-        validators=[ASCIIUsernameValidator(),
-                    MinLengthValidator(limit_value=1)],
-        verbose_name=_('Name'),
-        help_text=_('Enter your name'),
-    )
-    last_name = models.CharField(
-        max_length=100,
-        blank=True,
-        validators=[ASCIIUsernameValidator(),
-                    MinLengthValidator(limit_value=1)],
-        verbose_name=_('Surname'),
-        help_text=_('Enter your surname'),
-    )
-    birthdate = models.DateField(
-        null=True,
-        verbose_name=_('Date of birth'),
-        validators=[date_is_past],
-        help_text=_('Enter your date of birth'),
-    )
-    is_active = models.BooleanField(
-        verbose_name=_('Active'),
-        default=False,
-    )
-    phone_number = PhoneNumberField(
-        blank=True,
-        verbose_name=_('Number phone'),
-        help_text=_('Enter your Number phone'),
-    )
     author = models.BooleanField(
         verbose_name=_('Author'),
         default=False,
@@ -107,48 +76,66 @@ class User(AbstractUser):
         validators=[MinValueValidator(100000), MaxValueValidator(999999)],
     )
 
-    objects = CustomUserManager()
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username',)
 
     class Meta:
         verbose_name = _('User')
         verbose_name_plural = _('Users')
         ordering = ('email',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=('username', 'email'),
+                name='unique user'
+            )
+        ]
 
     def __str__(self):
         return self.username[:15]
 
-    @property
-    def is_author(self):
-        return self.author
-
-
-class UserConnection(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-        help_text='Выберите из списка пользователя',
+class ConfirmationCode(models.Model):
+    email = models.EmailField(
+        max_length=254,
+        verbose_name='Email',
+        unique=True,
+    )
+    code = models.CharField(
+        max_length=6,
     )
 
-    class Meta:
-        abstract = True
+
+    # @property
+    # def is_author(self):
+    #     return self.author
 
 
-class Subscription(UserConnection):
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='subscriptions',
-        verbose_name='Автор',
-        help_text='Выберите автора из списка',
-    )
+# class UserConnection(models.Model):
+#     user = models.ForeignKey(
+#         User,
+#         on_delete=models.CASCADE,
+#         verbose_name='Пользователь',
+#         help_text='Выберите из списка пользователя',
+#     )
 
-    class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        constraints = [
-            models.UniqueConstraint(
-                name='unique_subscription',
-                fields=('user', 'author'),
-            ),
-        ]
+#     class Meta:
+#         abstract = True
+
+
+# class Subscription(UserConnection):
+#     author = models.ForeignKey(
+#         User,
+#         on_delete=models.CASCADE,
+#         related_name='subscriptions',
+#         verbose_name='Автор',
+#         help_text='Выберите автора из списка',
+#     )
+
+#     class Meta:
+#         verbose_name = 'Подписка'
+#         verbose_name_plural = 'Подписки'
+#         constraints = [
+#             models.UniqueConstraint(
+#                 name='unique_subscription',
+#                 fields=('user', 'author'),
+#             ),
+#         ]

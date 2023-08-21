@@ -1,42 +1,38 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-
-from .models import Subscription
+from django.contrib.auth.admin import UserAdmin
 
 User = get_user_model()
 
 
 @admin.register(User)
-class CommentAdmin(admin.ModelAdmin):
+class UserAdmin(UserAdmin):
     list_display = (
-        "username",
-        "email",
-        "first_name",
-        "last_name",
-        "phone_number",
+        'username',
+        'email',
     )
     search_fields = (
         "username",
-        "email",
+        'email',
     )
     list_filter = (
-        "username",
-        "email",
+        'username',
+        'email',
     )
-    empty_value_display = "---пусто---"
+    empty_value_display = '---пусто---'
 
 
-@admin.register(Subscription)
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = (
-        'user',
-        'author',
-    )
-    search_fields = (
-        'user',
-        'author',
-    )
-    list_filter = (
-        'user',
-        'author',
-    )
+# @admin.register(Subscription)
+# class SubscriptionAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'user',
+#         'author',
+#     )
+#     search_fields = (
+#         'user',
+#         'author',
+#     )
+#     list_filter = (
+#         'user',
+#         'author',
+#     )
