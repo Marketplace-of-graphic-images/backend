@@ -16,7 +16,7 @@ auth_url = [
 urlpatterns = [
     path("auth/", include(auth_url)),
     path("", include(v1_router.urls)),
-    path('auth/social/', include('djoser.social.urls')),
+    path('auth/social/', include('djoser.social.urls')), # Провайдер "yandex-oauth2"
     path("auth/", include("djoser.urls.jwt")),
     path('accounts/profile/', RedirectSocial.as_view()),
 ]
