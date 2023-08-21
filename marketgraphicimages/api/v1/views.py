@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from django.views import View
+from django.http import JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -114,3 +116,11 @@ def get_token_post(request):
         "token": str(access_token),
     }
     return Response(out_put_messege, status=status.HTTP_200_OK)
+
+
+class RedirectSocial(View):
+
+    def get(self, request, *args, **kwargs):
+        code, state = str(request.GET['code']), str(request.GET['state'])
+        json_obj = {'code': code, 'state': state}
+        return JsonResponse(json_obj)
