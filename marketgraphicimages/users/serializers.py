@@ -22,7 +22,8 @@ class EmailAndTokenSerializer(serializers.Serializer):
             raise ValidationError(
                 {"email": [self.error_messages[key_error]]}, code=key_error
             )
-        is_token_valid = user.code_owner.get(confirmation_code=confirmation_code)
+        is_token_valid = user.code_owner.get(
+            confirmation_code=confirmation_code)
         if is_token_valid:
             """is_token_valid.is_confirmed = True
             is_token_valid.save()"""
@@ -43,9 +44,11 @@ class PasswordSerializer(serializers.Serializer):
         data['user'] = user
         # why assert? There are ValidationError / fail everywhere
         assert user is not None
-        token = user.code_owner.get().confirmation_code
-        if not user.code_owner.get(token=token).is_confirmed:
-            raise serializers.ValidationError({'token': 'код не подтвержден'})
+        confirmation_code = user.code_owner.get().confirmation_code
+        if not user.code_owner.get(confirmation_code=confirmation_code
+                                   ).is_confirmed:
+            raise serializers.ValidationError(
+                {'confirmation_code': 'код не подтвержден'})
         try:
             validate_password(data["new_password"], user)
         except django_exceptions.ValidationError as e:
