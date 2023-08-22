@@ -129,7 +129,8 @@ class UserViewSet(UserViewSet):
         )
         if serializer.is_valid(raise_exception=True):
             user = User.objects.get(email=request.email)
-            is_token_valid = user.code_owner.get(token=request.confirmation_code)
+            is_token_valid = user.code_owner.get(
+                confirmation_code=request.confirmation_code)
             is_token_valid.is_confirmed = True
             is_token_valid.save()
             return Response(status=status.HTTP_200_OK)
