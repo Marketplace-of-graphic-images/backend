@@ -1,10 +1,10 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from api.v1.views import auth_confirmation, auth_signup_post, get_token_post
+from api.v1.views import auth_confirmation, auth_signup_post, get_token_post, UserViewSet
 
 v1_router = DefaultRouter()
-# v1_router.register("users", UsersViewSet)
+v1_router.register("users", UserViewSet)
 
 auth_url = [
     path("signin/", get_token_post, name="signin"),

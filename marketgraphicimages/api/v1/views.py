@@ -1,19 +1,21 @@
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from django.utils.timezone import now
+from djoser.compat import get_user_email
+from djoser.conf import settings
+from djoser.views import UserViewSet
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.v1.serializers import (
-    AuthSignInSerializer,
-    AuthSignUpSerializer,
-    ConfirmationSerializer,
-)
+from api.v1.serializers import (AuthSignInSerializer, AuthSignUpSerializer,
+                                ConfirmationSerializer)
 from core.utils import send_email_with_confirmation_code
+from users.serializers import EmailAndTokenSerializer
 
 User = get_user_model()
 
@@ -114,3 +116,37 @@ def get_token_post(request):
         "token": str(access_token),
     }
     return Response(out_put_messege, status=status.HTTP_200_OK)
+
+
+class UserViewSet(UserViewSet):
+    @action(methods=['post', ], detail=False, permission_classes=(AllowAny, ))
+    def reset_password_confirm_code(self, request, *args, **kwargs):
+
+        serializer = EmailAndTokenSerializer(data={
+                'email': request.email,
+                'token': request.token,
+            }
+        )
+        if serializer.is_valid(raise_exception=True):
+            is_token_valid = request.user.code_owner.get(token=request.token)
+            is_token_valid.is_confirmed = True
+            is_token_valid.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post', ], detail=False)
+    def reset_password_confirm(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.user.set_password(serializer.data["new_password"])
+        serializer.user.code_owner.all().delete()
+        if hasattr(serializer.user, "last_login"):
+            serializer.user.last_login = now()
+        serializer.user.save()
+
+        if settings.PASSWORD_CHANGED_EMAIL_CONFIRMATION:
+            context = {"user": serializer.user}
+            to = [get_user_email(serializer.user)]
+            settings.EMAIL.password_changed_confirmation(self.request, context).send(to)
+        return Response(status=status.HTTP_204_NO_CONTENT)

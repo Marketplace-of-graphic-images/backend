@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from .models import Subscription
+from .models import Subscription, UserConfirmationCode
 
 User = get_user_model()
 
@@ -39,4 +39,20 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_filter = (
         'user',
         'author',
+    )
+
+
+@admin.register(UserConfirmationCode)
+class UserConfirmationCodeAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'token',
+    )
+    search_fields = (
+        'user',
+        'token',
+    )
+    list_filter = (
+        'user',
+        'token',
     )
