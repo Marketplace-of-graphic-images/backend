@@ -46,13 +46,14 @@ class SubscriptionAdmin(admin.ModelAdmin):
 class UserConfirmationCodeAdmin(admin.ModelAdmin):
     list_display = (
         'user',
-        'token',
+        'confirmation_code',
+        'is_confirmed',
     )
     search_fields = (
         'user',
-        'token',
+        'confirmation_code',
     )
     list_filter = (
         'user',
-        'token',
+        'confirmation_code',
     )

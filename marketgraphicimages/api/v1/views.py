@@ -124,29 +124,31 @@ class UserViewSet(UserViewSet):
 
         serializer = EmailAndTokenSerializer(data={
                 'email': request.email,
-                'token': request.token,
+                'confirmation_code': request.confirmation_code,
             }
         )
         if serializer.is_valid(raise_exception=True):
-            is_token_valid = request.user.code_owner.get(token=request.token)
+            user = User.objects.get(email=request.email)
+            is_token_valid = user.code_owner.get(token=request.confirmation_code)
             is_token_valid.is_confirmed = True
             is_token_valid.save()
             return Response(status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['post', ], detail=False)
+    @action(['post'], detail=False)
     def reset_password_confirm(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        email = serializer.data['email']
+        user = User.objects.get(email=email)
+        user.set_password(serializer.data["new_password"])
+        user.code_owner.all().delete()
+        """if hasattr(user, "last_login"):
+            user.last_login = now()"""
+        user.save()
 
-        serializer.user.set_password(serializer.data["new_password"])
-        serializer.user.code_owner.all().delete()
-        if hasattr(serializer.user, "last_login"):
-            serializer.user.last_login = now()
-        serializer.user.save()
-
-        if settings.PASSWORD_CHANGED_EMAIL_CONFIRMATION:
-            context = {"user": serializer.user}
-            to = [get_user_email(serializer.user)]
-            settings.EMAIL.password_changed_confirmation(self.request, context).send(to)
+        """if settings.PASSWORD_CHANGED_EMAIL_CONFIRMATION:
+            context = {"user": user}
+            to = [get_user_email(user)]
+            settings.EMAIL.password_changed_confirmation(self.request, context).send(to)"""
         return Response(status=status.HTTP_204_NO_CONTENT)

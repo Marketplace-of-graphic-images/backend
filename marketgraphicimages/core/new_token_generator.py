@@ -7,7 +7,7 @@ class SixDigitCodeGenerator(PasswordResetTokenGenerator):
         number = randint(1000000, 9999999) % 1000000
         token = "{:06d}".format(number)
         user.code_owner.all().delete()
-        user.code_owner.create(token=token)
+        user.code_owner.create(confirmation_code=token)
         return token
 
 

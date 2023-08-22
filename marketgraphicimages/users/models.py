@@ -6,7 +6,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
-from core.create_confirmation_code import generate_confirmation_code
 from core.validators import date_is_past
 
 
@@ -158,7 +157,7 @@ class UserConfirmationCode(models.Model):
         on_delete=models.CASCADE,
         related_name='code_owner',
     )
-    token = models.CharField(
+    confirmation_code = models.CharField(
         max_length=6,
     )
     is_confirmed = models.BooleanField(

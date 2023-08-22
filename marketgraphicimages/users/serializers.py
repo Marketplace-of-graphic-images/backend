@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions as django_exceptions
@@ -8,12 +9,12 @@ User = get_user_model()
 
 
 class EmailAndTokenSerializer(serializers.Serializer):
-    token = serializers.CharField()
+    confirmation_code = serializers.CharField()
     email = serializers.EmailField()
 
     def validate(self, data):
         email = data.get("email", "")
-        token = data.get("token", "")
+        confirmation_code = data.get("confirmation_code", "")
         try:
             user = User.objects.get(email=email)
         except (User.DoesNotExist, ValueError, TypeError, OverflowError):
@@ -21,7 +22,7 @@ class EmailAndTokenSerializer(serializers.Serializer):
             raise ValidationError(
                 {"email": [self.error_messages[key_error]]}, code=key_error
             )
-        is_token_valid = user.code_owner.get(token=token)
+        is_token_valid = user.code_owner.get(confirmation_code=confirmation_code)
         if is_token_valid:
             """is_token_valid.is_confirmed = True
             is_token_valid.save()"""
@@ -35,17 +36,20 @@ class EmailAndTokenSerializer(serializers.Serializer):
 
 class PasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(style={"input_type": "password"})
+    email = serializers.EmailField()
 
-    def validate(self, attrs):
-        user = (User.objects.get(email=getattr(self, "email", None)) or
-                User.objects.get(email=self.context["request"].email))
+    def validate(self, data):
+        user = User.objects.get(email=data.get('email'))
+        data['user'] = user
         # why assert? There are ValidationError / fail everywhere
         assert user is not None
-        token = getattr(self, "token", None) or self.context["request"].token
+        token = user.code_owner.get().confirmation_code
         if not user.code_owner.get(token=token).is_confirmed:
             raise serializers.ValidationError({'token': 'код не подтвержден'})
         try:
-            validate_password(attrs["new_password"], user)
+            validate_password(data["new_password"], user)
         except django_exceptions.ValidationError as e:
             raise serializers.ValidationError({"new_password": list(e.messages)})
-        return super().validate(attrs)
+        return super().validate(data)
+
+
