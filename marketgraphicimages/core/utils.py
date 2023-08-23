@@ -1,12 +1,16 @@
 import io
 import random
+from random import randint
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from google_images_search import GoogleImagesSearch
 from PIL import Image
+
+from passlib.context import CryptContext
 
 User = get_user_model()
 
@@ -53,6 +57,34 @@ def create_confirmation_code(request):
     return confirmation_code
 
 
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
+
+def hash_value(value: str) -> str:
+    """Hashing value using multiple algorithms."""
+    return pwd_context.hash(value)
+
+
+def verify_value(value: str, hash_value: str) -> bool:
+    """Verifying value using multiple algorithms."""
+    return pwd_context.verify(value, hash_value)
+
+
+class SixDigitCodeGenerator(PasswordResetTokenGenerator):
+    """The make_token method generates a six-digit confirmation 
+    code and returns it.
+    The method encrypts confirmation code and writes it to the database.
+    """
+    def make_token(self, user):
+        number = randint(1000000, 9999999) % 1000000
+        token = "{:06d}".format(number)
+        user.code_owner.update_or_create(confirmation_code=hash_value(token))
+        return token
+
+
+six_digit_code_generator = SixDigitCodeGenerator()
+
+
 def get_img_from_google(search_name: str = 'Природа'):
 
     API_KEY = 'AIzaSyA8uUxNe7Bzg_GvPTfIX0g48KsHUYD53fM'
@@ -79,3 +111,4 @@ def show_img(gis):
         my_bytes_io.seek(0)
         temp_img = Image.open(my_bytes_io)
         temp_img.show()
+

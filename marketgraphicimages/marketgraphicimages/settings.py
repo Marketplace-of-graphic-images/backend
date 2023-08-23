@@ -2,6 +2,10 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,6 +25,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 DJANGO_APPS = (
+    'corsheaders',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -35,6 +40,8 @@ THIRD_PARTY_APPS = (
     'phonenumber_field',
     'drf_yasg',
     'djoser',
+    'social_django',
+    'rest_framework_simplejwt',
 )
 
 LOCAL_APPS = (
@@ -55,6 +62,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'marketgraphicimages.urls'
@@ -62,7 +72,7 @@ ROOT_URLCONF = 'marketgraphicimages.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,6 +80,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -153,10 +165,35 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
 }
 
+white_list = [
+    'http://127.0.0.1:8000/',
+    'http://127.0.0.1:8000/api/v1/accounts/profile/',
+]
+
 DJOSER = {
-    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': '#/activate/{uid}/{token}',
-    'SEND_CONFIRMATION_EMAIL': False,
-    'SERIALIZERS': {},
+    'LOGIN_FIELD': 'email',
+    'SEND_CONFIRMATION_EMAIL': True,
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
+    'SERIALIZERS': {
+        'password_reset_confirm': 'users.serializers.PasswordSerializer',
+        'password_reset_confirm_code': 'users.serializers.EmailAndTokenSerializer',
+    },
+    'EMAIL': {
+        'password_reset': 'users.new_password_reset_email.PasswordResetEmail',
+    },
+    'PERMISSIONS': {
+        'password_reset_confirm_code': ['rest_framework.permissions.AllowAny'],
+    },
+    'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': white_list,
 }
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.yandex.YandexOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+
+SOCIAL_AUTH_YANDEX_OAUTH2_KEY = os.getenv('YANDEX_KEY')
+
+SOCIAL_AUTH_YANDEX_OAUTH2_SECRET = os.getenv('YANDEX_SECRET')
