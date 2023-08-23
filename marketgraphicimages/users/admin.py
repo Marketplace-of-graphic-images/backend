@@ -6,7 +6,7 @@ User = get_user_model()
 
 
 @admin.register(User)
-class UserAdmin(UserAdmin):
+class CustomUserAdmin(UserAdmin):
     list_display = (
         'username',
         'email',
@@ -20,19 +20,3 @@ class UserAdmin(UserAdmin):
         'email',
     )
     empty_value_display = '---пусто---'
-
-
-# @admin.register(Subscription)
-# class SubscriptionAdmin(admin.ModelAdmin):
-#     list_display = (
-#         'user',
-#         'author',
-#     )
-#     search_fields = (
-#         'user',
-#         'author',
-#     )
-#     list_filter = (
-#         'user',
-#         'author',
-#     )

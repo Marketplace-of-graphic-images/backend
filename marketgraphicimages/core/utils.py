@@ -1,11 +1,11 @@
-import random
+from random import randint
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
 
 from users.models import ConfirmationCode
+
 User = get_user_model()
 
 SUBJECT_EMAIL = "Confirmation code for 'domen_name'"
@@ -39,18 +39,14 @@ def create_confirmation_code(request):
         username and email.
 
     Returns:
-        str: The generated confirmation code.
-
-    Raises:
-        Http404: If the user with the given username and email is not found.
+        int: The generated confirmation code.
     """
-    # username = request.data.get("username")
     email = request.data.get("email")
-    # user = get_object_or_404(User, username=username, email=email)
-    confirmation_obj = ConfirmationCode.objects.get_or_create(email=email)
-    confirmation_code = str(random.randint(100000, 999999))
-    confirmation_obj.code = confirmation_code
+    number = randint(1000000, 9999999) % 1000000
+    confirmation_code= "{:06d}".format(number)
+    confirmation_obj, _ = ConfirmationCode.objects.get_or_create(
+        email=email,
+        confirmation_code=confirmation_code
+    )
     confirmation_obj.save()
-    # user.confirmation_code = confirmation_code
-    # user.save()
     return confirmation_code
