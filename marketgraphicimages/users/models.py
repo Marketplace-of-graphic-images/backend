@@ -66,16 +66,14 @@ class User(AbstractUser):
     first_name = models.CharField(
         max_length=53,
         blank=True,
-        validators=[ASCIIUsernameValidator(),
-                    MinLengthValidator(limit_value=1)],
+        validators=[MinLengthValidator(limit_value=1)],
         verbose_name=_('Name'),
         help_text=_('Enter your name'),
     )
     last_name = models.CharField(
         max_length=100,
         blank=True,
-        validators=[ASCIIUsernameValidator(),
-                    MinLengthValidator(limit_value=1)],
+        validators=[MinLengthValidator(limit_value=1)],
         verbose_name=_('Surname'),
         help_text=_('Enter your surname'),
     )
@@ -87,7 +85,7 @@ class User(AbstractUser):
     )
     is_active = models.BooleanField(
         verbose_name=_('Active'),
-        default=False,
+        default=True,
     )
     phone_number = PhoneNumberField(
         blank=True,

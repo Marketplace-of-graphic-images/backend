@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.views import View
+from django.http import JsonResponse
 from djoser.conf import settings
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -7,6 +9,14 @@ from rest_framework.response import Response
 
 
 User = get_user_model()
+
+
+class RedirectSocial(View):
+
+    def get(self, request, *args, **kwargs):
+        code, state = str(request.GET['code']), str(request.GET['state'])
+        json_obj = {'code': code, 'state': state}
+        return JsonResponse(json_obj)
 
 
 class UserViewSet(UserViewSet):
