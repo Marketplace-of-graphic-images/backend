@@ -1,10 +1,7 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.validators import ASCIIUsernameValidator
-from django.core.validators import (
-    MaxValueValidator,
-    MinLengthValidator,
-    MinValueValidator,
-)
+from django.core.validators import (MaxValueValidator, MinLengthValidator,
+                                    MinValueValidator)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
@@ -150,3 +147,17 @@ class Subscription(UserConnection):
                 fields=('user', 'author'),
             ),
         ]
+
+
+class UserConfirmationCode(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='code_owner',
+    )
+    confirmation_code = models.CharField(
+        max_length=6,
+    )
+    is_confirmed = models.BooleanField(
+        default=False,
+    )
