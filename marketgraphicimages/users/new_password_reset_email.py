@@ -1,9 +1,10 @@
 from templated_mail.mail import BaseEmailMessage
 
-from core.new_token_generator import six_digit_code_generator
+from core.utils import six_digit_code_generator
 
 
 class PasswordResetEmail(BaseEmailMessage):
+    """Sends a confirmation code to the user."""
     template_name = "email/password_reset.html"
 
     def get_context_data(self):

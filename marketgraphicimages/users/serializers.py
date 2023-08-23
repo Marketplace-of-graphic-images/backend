@@ -3,6 +3,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions as django_exceptions
 from rest_framework import serializers
 
+from core.utils import verify_value
+
 User = get_user_model()
 
 
@@ -19,9 +21,11 @@ class EmailAndTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {'email': 'invalid_email'},
             )
-        is_token_valid = user.code_owner.get(
-            confirmation_code=confirmation_code)
-        if is_token_valid:
+        data['user_confirm_code'] = user.code_owner.get()
+        """is_token_valid = user.code_owner.get(
+            confirmation_code=confirmation_code)"""
+        if verify_value(confirmation_code,
+                        data['user_confirm_code'].confirmation_code):
             return data
         else:
             raise serializers.ValidationError(
