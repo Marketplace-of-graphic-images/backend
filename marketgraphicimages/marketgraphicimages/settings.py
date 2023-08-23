@@ -62,7 +62,7 @@ ROOT_URLCONF = 'marketgraphicimages.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -154,9 +154,16 @@ SIMPLE_JWT = {
 }
 
 DJOSER = {
-    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'SEND_CONFIRMATION_EMAIL': True,
-    'SERIALIZERS': {},
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
+    'SERIALIZERS': {
+        'password_reset_confirm': 'users.serializers.PasswordSerializer',
+        'password_reset_confirm_code': 'users.serializers.EmailAndTokenSerializer',
+    },
+    'EMAIL': {
+        'password_reset': 'users.new_password_reset_email.PasswordResetEmail',
+    },
+    'PERMISSIONS': {
+        'password_reset_confirm_code': ['rest_framework.permissions.AllowAny'],
+    },
 }
