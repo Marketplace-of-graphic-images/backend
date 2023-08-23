@@ -51,9 +51,12 @@ class UserConfirmationCodeAdmin(admin.ModelAdmin):
     )
     search_fields = (
         'user',
-        'confirmation_code',
     )
     list_filter = (
         'user',
+    )
+    readonly_fields = (
+        'user',
         'confirmation_code',
+        'is_confirmed',
     )

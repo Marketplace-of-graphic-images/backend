@@ -159,7 +159,7 @@ class UserConfirmationCode(models.Model):
         related_name='code_owner',
     )
     confirmation_code = models.CharField(
-        max_length=6,
+        max_length=100,
     )
     is_confirmed = models.BooleanField(
         default=False,

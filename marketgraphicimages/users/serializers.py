@@ -9,6 +9,10 @@ User = get_user_model()
 
 
 class EmailAndTokenSerializer(serializers.Serializer):
+    """Validate email and confirmation code.
+    Сhecks the confirmation code.
+    """
+    
     confirmation_code = serializers.CharField()
     email = serializers.EmailField()
 
@@ -22,8 +26,6 @@ class EmailAndTokenSerializer(serializers.Serializer):
                 {'email': 'invalid_email'},
             )
         data['user_confirm_code'] = user.code_owner.get()
-        """is_token_valid = user.code_owner.get(
-            confirmation_code=confirmation_code)"""
         if verify_value(confirmation_code,
                         data['user_confirm_code'].confirmation_code):
             return data
@@ -34,16 +36,21 @@ class EmailAndTokenSerializer(serializers.Serializer):
 
 
 class PasswordSerializer(serializers.Serializer):
+    """Сhecks that the confirmation code is confirmed.
+    Validate email and password.
+    """
     new_password = serializers.CharField(style={'input_type': 'password'})
     email = serializers.EmailField()
 
     def validate(self, data):
-        user = User.objects.get(email=data.get('email'))
-        data['user'] = user
-        assert user is not None
-        confirmation_code = user.code_owner.get().confirmation_code
-        if not user.code_owner.get(confirmation_code=confirmation_code
-                                   ).is_confirmed:
+        try:
+            user = User.objects.get(email=data.get('email'))
+            data['user'] = user
+        except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+            raise serializers.ValidationError(
+                {'email': 'invalid_email'},
+            )
+        if not user.code_owner.get().is_confirmed:
             raise serializers.ValidationError(
                 {'confirmation_code': 'confirmation code is not confirmed'}
             )
@@ -51,6 +58,6 @@ class PasswordSerializer(serializers.Serializer):
             validate_password(data["new_password"], user)
         except django_exceptions.ValidationError as e:
             raise serializers.ValidationError(
-                {"new_password": list(e.messages)}
+                {'new_password': list(e.messages)}
             )
         return super().validate(data)
