@@ -90,3 +90,15 @@ class AuthSignInSerializer(serializers.Serializer):
         if user.exists() and user.first().check_password(data.get("password")):
             return user.first()
         raise ValidationError(_("Invalid credentials"))
+
+
+# from djoser.serializers import UserFunctionsMixin, get_user_email_field_name
+
+
+# class SendCodeResetSerializer(serializers.Serializer, UserFunctionsMixin):
+
+#     email = serializers.EmailField(required=True)
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.email_field = get_user_email_field_name(User)
