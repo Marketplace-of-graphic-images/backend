@@ -162,4 +162,4 @@ cython_debug/
 #Linter
 .ruff_cache
 
-sent_emails/
+send_emails/
