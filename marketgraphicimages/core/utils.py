@@ -8,9 +8,8 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from google_images_search import GoogleImagesSearch
-from PIL import Image
-
 from passlib.context import CryptContext
+from PIL import Image
 
 User = get_user_model()
 
