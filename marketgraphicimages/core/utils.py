@@ -86,8 +86,8 @@ six_digit_code_generator = SixDigitCodeGenerator()
 
 def get_img_from_google(search_name: str = 'Природа'):
 
-    API_KEY = 'AIzaSyA8uUxNe7Bzg_GvPTfIX0g48KsHUYD53fM'
-    PROJECT_CX = '13bf908ff1a6242d2'
+    API_KEY = ''
+    PROJECT_CX = ''
     gis = GoogleImagesSearch(API_KEY, PROJECT_CX)
 
     _search_params = {
