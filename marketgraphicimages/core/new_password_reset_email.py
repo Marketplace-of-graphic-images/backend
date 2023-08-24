@@ -1,6 +1,6 @@
 from templated_mail.mail import BaseEmailMessage
 
-from .utils import six_digit_code_generator, user_confirird_code
+from .utils import six_digit_code_generator, user_confirmation_code_to_db
 
 
 class PasswordResetEmail(BaseEmailMessage):
@@ -11,6 +11,6 @@ class PasswordResetEmail(BaseEmailMessage):
         context = super().get_context_data()
         user = context.get("user")
         context["token"] = six_digit_code_generator.make_token()
-        user_confirird_code(context["token"], user)
+        user_confirmation_code_to_db(context["token"], user)
         print(context["token"])
         return context
