@@ -1,9 +1,13 @@
 from django.db import models
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator,
+)
 
 from tags.models import Tag
 from users.models import User, UserConnection
 
-price = [('Платно', 'Платно'), ('Бесплатно', 'Бесплатно'), ]
+price_type = [('Платно', 'Платно'), ('Бесплатно', 'Бесплатно'), ]
 format = [('jpeg', 'jpeg'), ('png', 'png'),
           ('svg', 'svg'), ('gif', 'gif'),
           ('psd', 'psd'),
@@ -37,7 +41,12 @@ class Image(models.Model):
     )
     license = models.CharField(
         max_length=15,
-        choices=price,
+        choices=price_type,
+    )
+    price = models.IntegerField(
+        verbose_name='Цена изображения',
+        null=True,
+        validators=[MinValueValidator(0), MaxValueValidator(999999)],
     )
     tip = models.CharField(
         max_length=10,
