@@ -8,10 +8,6 @@ from tags.models import Tag
 from users.models import User, UserConnection
 
 price_type = [('Платно', 'Платно'), ('Бесплатно', 'Бесплатно'), ]
-format = [('jpeg', 'jpeg'), ('png', 'png'),
-          ('svg', 'svg'), ('gif', 'gif'),
-          ('psd', 'psd'),
-          ]
 
 
 class Image(models.Model):
@@ -48,9 +44,8 @@ class Image(models.Model):
         null=True,
         validators=[MinValueValidator(0), MaxValueValidator(999999)],
     )
-    tip = models.CharField(
-        max_length=10,
-        choices=format,
+    format = models.CharField(
+        max_length=5,
     )
     tags = models.ManyToManyField(
         Tag,
