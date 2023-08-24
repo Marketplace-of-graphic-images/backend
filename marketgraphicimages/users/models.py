@@ -56,10 +56,11 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username[:15]
-    
+
     @property
     def is_author(self):
         return self.author
+
 
 class ConfirmationCode(models.Model):
     """Model users code."""
