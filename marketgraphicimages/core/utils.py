@@ -82,7 +82,7 @@ class SixDigitCodeGenerator(PasswordResetTokenGenerator):
 six_digit_code_generator = SixDigitCodeGenerator()
 
 
-def user_confirird_code(code: str, user) -> None:
+def user_confirmation_code_to_db(code: str, user) -> None:
     """The method encrypts confirmation code and writes it to the database."""
     user.code_owner.all().delete()
     user.code_owner.create(confirmation_code=hash_value(code))
