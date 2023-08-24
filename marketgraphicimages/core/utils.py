@@ -69,17 +69,13 @@ def verify_value(value: str, hash_value: str) -> bool:
     return pwd_context.verify(value, hash_value)
 
 
-class SixDigitCodeGenerator(PasswordResetTokenGenerator):
+def make_token() -> str:
     """The make_token method generates a six-digit confirmation 
     code and returns it.
     """
-    def make_token(self):
-        number = randint(1000000, 9999999) % 1000000
-        code = "{:06d}".format(number)
-        return code
-
-
-six_digit_code_generator = SixDigitCodeGenerator()
+    number = randint(1000000, 9999999) % 1000000
+    code = "{:06d}".format(number)
+    return code
 
 
 def user_confirmation_code_to_db(code: str, user) -> None:
