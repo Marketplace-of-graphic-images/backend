@@ -71,7 +71,7 @@ class ConfirmationSerializer(serializers.ModelSerializer):
         user = self.create_user(data)
         email_user.delete()
         return user
-    
+
     def create_user(self, data):
         """
         Create user.
@@ -90,15 +90,14 @@ class ConfirmationSerializer(serializers.ModelSerializer):
                 username=data.get('username'),
                 email=data.get('email'),
                 author=(data.get('is_author')),
-        )
+            )
         except IntegrityError:
             raise ValidationError(
-            "Пользователь с такими данными уже существует"
-        )
+                "Пользователь с такими данными уже существует"
+            )
         user.set_password(data.get('password'))
         user.save()
         return user
-        
 
 
 class AuthSignInSerializer(serializers.Serializer):
@@ -128,15 +127,3 @@ class AuthSignInSerializer(serializers.Serializer):
         if user.exists() and user.first().check_password(data.get("password")):
             return user.first()
         raise ValidationError(_("Invalid credentials"))
-
-
-# from djoser.serializers import UserFunctionsMixin, get_user_email_field_name
-
-
-# class SendCodeResetSerializer(serializers.Serializer, UserFunctionsMixin):
-
-#     email = serializers.EmailField(required=True)
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.email_field = get_user_email_field_name(User)

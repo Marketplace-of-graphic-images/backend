@@ -6,11 +6,10 @@ from djoser.views import UserViewSet
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework.decorators import api_view, permission_classes
 
 from api.v1.serializers import (
     AuthSignInSerializer,
@@ -18,7 +17,6 @@ from api.v1.serializers import (
     ConfirmationSerializer,
 )
 from core.utils import send_email_with_confirmation_code
-
 
 User = get_user_model()
 
@@ -30,7 +28,7 @@ User = get_user_model()
         required=('username', 'email', 'password', 'is_author'),
         properties={
             'username': openapi.Schema(type=openapi.TYPE_STRING),
-            'email': openapi.Schema(type=openapi.TYPE_STRING),
+            'email': openapi.Schema(type=openapi.TYPE_STRING, format='email'),
             'password': openapi.Schema(type=openapi.TYPE_STRING),
             'is_author': openapi.Schema(
                 type=openapi.TYPE_BOOLEAN, default=False
@@ -55,9 +53,17 @@ def auth_signup_post(request):
     method='post',
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
-        required=('username', 'confirmation_code',),
+        required=(
+            'username', 'email', 'password',
+            'is_author', 'confirmation_code',
+        ),
         properties={
             'username': openapi.Schema(type=openapi.TYPE_STRING),
+            'email': openapi.Schema(type=openapi.TYPE_STRING, format='email'),
+            'password': openapi.Schema(type=openapi.TYPE_STRING),
+            'is_author': openapi.Schema(
+                type=openapi.TYPE_BOOLEAN, default=False
+            ),
             'confirmation_code': openapi.Schema(type=openapi.TYPE_STRING),
         },
     ),
@@ -82,9 +88,9 @@ def auth_confirmation(request):
     method='post',
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
-        required=('username', 'password',),
+        required=('email', 'password',),
         properties={
-            'username': openapi.Schema(type=openapi.TYPE_STRING),
+            'email': openapi.Schema(type=openapi.TYPE_STRING, format='email'),
             'password': openapi.Schema(type=openapi.TYPE_STRING),
         },
     ),
@@ -126,7 +132,6 @@ class UserViewSet(UserViewSet):
                 settings.PERMISSIONS.password_reset_confirm_code
             )
         return super().get_permissions()
-
 
     def get_serializer_class(self):
         if self.action == 'reset_password_confirm_code':

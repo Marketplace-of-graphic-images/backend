@@ -162,4 +162,5 @@ cython_debug/
 #Linter
 .ruff_cache
 
-send_emails/
+sent_emails/
+.vscode/

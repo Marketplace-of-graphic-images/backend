@@ -1,11 +1,9 @@
 import io
-import random
 from random import randint
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
 from google_images_search import GoogleImagesSearch
 from passlib.context import CryptContext
 from PIL import Image
@@ -16,6 +14,16 @@ User = get_user_model()
 
 SUBJECT_EMAIL = "Confirmation code for 'domen_name'"
 TEXT_EMAIL = "Enter the confirmation code on the site to activate your account"
+
+
+def create_six_digit_confirmation_code() -> str:
+    """The make_token method generates a six-digit confirmation
+    code and returns it.
+    """
+    number = randint(1000000, 9999999) % 1000000
+    code = "{:06d}".format(number)
+    return code
+
 
 def send_email_with_confirmation_code(request):
     """
@@ -48,8 +56,7 @@ def create_confirmation_code(request):
         int: The generated confirmation code.
     """
     email = request.data.get("email")
-    number = randint(1000000, 9999999) % 1000000
-    confirmation_code= "{:06d}".format(number)
+    confirmation_code = create_six_digit_confirmation_code()
     confirmation_obj, _ = ConfirmationCode.objects.get_or_create(
         email=email,
         confirmation_code=confirmation_code
@@ -69,15 +76,6 @@ def hash_value(value: str) -> str:
 def verify_value(value: str, hash_value: str) -> bool:
     """Verifying value using multiple algorithms."""
     return pwd_context.verify(value, hash_value)
-
-
-def make_token() -> str:
-    """The make_token method generates a six-digit confirmation 
-    code and returns it.
-    """
-    number = randint(1000000, 9999999) % 1000000
-    code = "{:06d}".format(number)
-    return code
 
 
 def user_confirmation_code_to_db(code: str, user) -> None:
