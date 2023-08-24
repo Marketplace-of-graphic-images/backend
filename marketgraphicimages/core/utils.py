@@ -72,17 +72,20 @@ def verify_value(value: str, hash_value: str) -> bool:
 class SixDigitCodeGenerator(PasswordResetTokenGenerator):
     """The make_token method generates a six-digit confirmation 
     code and returns it.
-    The method encrypts confirmation code and writes it to the database.
     """
-    def make_token(self, user):
+    def make_token(self):
         number = randint(1000000, 9999999) % 1000000
-        token = "{:06d}".format(number)
-        user.code_owner.all().delete()
-        user.code_owner.create(confirmation_code=hash_value(token))
-        return token
+        code = "{:06d}".format(number)
+        return code
 
 
 six_digit_code_generator = SixDigitCodeGenerator()
+
+
+def user_confirird_code(code: str, user) -> None:
+    """The method encrypts confirmation code and writes it to the database."""
+    user.code_owner.all().delete()
+    user.code_owner.create(confirmation_code=hash_value(code))
 
 
 def get_img_from_google(search_name: str = 'Природа'):

@@ -150,7 +150,7 @@ DJOSER = {
         'password_reset_confirm_code': 'users.serializers.EmailAndTokenSerializer',
     },
     'EMAIL': {
-        'password_reset': 'users.new_password_reset_email.PasswordResetEmail',
+        'password_reset': 'core.new_password_reset_email.PasswordResetEmail',
     },
     'PERMISSIONS': {
         'password_reset_confirm_code': ['rest_framework.permissions.AllowAny'],
