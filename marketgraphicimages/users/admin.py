@@ -2,43 +2,24 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 
 from .models import Subscription, UserConfirmationCode
+from django.contrib.auth.admin import UserAdmin
 
 User = get_user_model()
 
 
 @admin.register(User)
-class CommentAdmin(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
     list_display = (
-        "username",
-        "email",
-        "first_name",
-        "last_name",
-        "phone_number",
+        'username',
+        'email',
     )
     search_fields = (
         "username",
-        "email",
+        'email',
     )
     list_filter = (
-        "username",
-        "email",
-    )
-    empty_value_display = "---пусто---"
-
-
-@admin.register(Subscription)
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = (
-        'user',
-        'author',
-    )
-    search_fields = (
-        'user',
-        'author',
-    )
-    list_filter = (
-        'user',
-        'author',
+        'username',
+        'email',
     )
 
 
@@ -60,3 +41,4 @@ class UserConfirmationCodeAdmin(admin.ModelAdmin):
         'confirmation_code',
         'is_confirmed',
     )
+    empty_value_display = '---пусто---'

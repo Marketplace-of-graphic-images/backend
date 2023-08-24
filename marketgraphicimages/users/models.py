@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.core.validators import (
     MaxValueValidator,
@@ -7,41 +7,10 @@ from django.core.validators import (
 )
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from phonenumber_field.modelfields import PhoneNumberField
-
-from core.validators import date_is_past
-
-
-class CustomUserManager(UserManager):
-    def create_superuser(
-        self, username: str, email: str, password: str, **extra_fields
-    ):
-        """
-        Creates a superuser with the given username, email, password,
-        and any additional fields.
-
-        Args:
-            username (str): The username for the superuser.
-            email (str): The email address for the superuser.
-            password (str): The password for the superuser.
-            **extra_fields: Additional fields for the superuser.
-
-        Returns:
-            User: The created superuser.
-        """
-
-        user = self._create_user(username, email, password, **extra_fields)
-        user.set_password(password)
-        user.is_superuser = True
-        user.is_staff = True
-        user.is_active = True
-        user.save()
-
-        return user
 
 
 class User(AbstractUser):
-
+    """Model of users."""
     username = models.CharField(
         max_length=30,
         verbose_name=_('Username'),
@@ -57,7 +26,7 @@ class User(AbstractUser):
         },
     )
     email = models.EmailField(
-        max_length=254,
+        max_length=320,
         verbose_name='Email',
         unique=True,
         validators=[ASCIIUsernameValidator()],
@@ -66,58 +35,49 @@ class User(AbstractUser):
             'unique': _('User with such an email already exists'),
         },
     )
-    first_name = models.CharField(
-        max_length=53,
-        blank=True,
-        validators=[MinLengthValidator(limit_value=1)],
-        verbose_name=_('Name'),
-        help_text=_('Enter your name'),
-    )
-    last_name = models.CharField(
-        max_length=100,
-        blank=True,
-        validators=[MinLengthValidator(limit_value=1)],
-        verbose_name=_('Surname'),
-        help_text=_('Enter your surname'),
-    )
-    birthdate = models.DateField(
-        null=True,
-        verbose_name=_('Date of birth'),
-        validators=[date_is_past],
-        help_text=_('Enter your date of birth'),
-    )
-    is_active = models.BooleanField(
-        verbose_name=_('Active'),
-        default=True,
-    )
-    phone_number = PhoneNumberField(
-        blank=True,
-        verbose_name=_('Number phone'),
-        help_text=_('Enter your Number phone'),
-    )
     author = models.BooleanField(
         verbose_name=_('Author'),
         default=False,
+    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username',)
+
+    class Meta:
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
+        ordering = ('email',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=('username', 'email'),
+                name='unique user'
+            )
+        ]
+
+    def __str__(self):
+        return self.username[:15]
+    
+    @property
+    def is_author(self):
+        return self.author
+
+class ConfirmationCode(models.Model):
+    """Model users code."""
+    email = models.EmailField(
+        max_length=320,
+        verbose_name='Email',
+        unique=True,
+        validators=[ASCIIUsernameValidator()],
+        help_text=_('Enter the email.'),
+        error_messages={
+            'unique': _('User with such an email already exists'),
+        },
     )
     confirmation_code = models.IntegerField(
         verbose_name=_('Confirmation code'),
         null=True,
         validators=[MinValueValidator(100000), MaxValueValidator(999999)],
     )
-
-    objects = CustomUserManager()
-
-    class Meta:
-        verbose_name = _('User')
-        verbose_name_plural = _('Users')
-        ordering = ('email',)
-
-    def __str__(self):
-        return self.username[:15]
-
-    @property
-    def is_author(self):
-        return self.author
 
 
 class UserConnection(models.Model):

@@ -1,8 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+from users.models import ConfirmationCode
 
 User = get_user_model()
 
@@ -26,19 +29,24 @@ class AuthSignUpSerializer(serializers.ModelSerializer):
 
         Raises:
             ValidationError: If the username is "me".
+            ValidationError: If the user with this email already exist.
         """
+        if User.objects.filter(username=data.get('username'),
+                               email=data.get('email')).exists():
+            raise ValidationError(_('User with this email already exist'))
         if data.get('username').lower() == 'me':
             raise ValidationError(_('Username cannot be "me"'))
         return data
 
 
 class ConfirmationSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
+    is_author = serializers.BooleanField(required=True)
 
     class Meta:
         model = User
-        fields = ("confirmation_code", "username")
+        fields = ('email', 'username', 'password',
+                  'is_author', 'confirmation_code')
 
     def validate(self, data):
         """
@@ -46,7 +54,7 @@ class ConfirmationSerializer(serializers.ModelSerializer):
         against the user's confirmation code.
 
         Args:
-            data (dict): A dictionary containing the user's username
+            data (dict): A dictionary containing the user's email
             and confirmation code.
 
         Returns:
@@ -55,29 +63,59 @@ class ConfirmationSerializer(serializers.ModelSerializer):
         Raises:
             ValidationError: If the provided confirmation code is invalid.
         """
-
-        user = get_object_or_404(User, username=data.get("username"))
+        email_user = get_object_or_404(ConfirmationCode,
+                                       email=data.get("email"))
         confirmation_code = data.get("confirmation_code")
-        if user.confirmation_code != int(confirmation_code):
+        if email_user.confirmation_code != int(confirmation_code):
             raise ValidationError(_("Invalid confirmation code"))
+        user = self.create_user(data)
+        email_user.delete()
         return user
+    
+    def create_user(self, data):
+        """
+        Create user.
+
+        Args:
+            data (dict): A dictionary containing the user's options.
+
+        Returns:
+            User: The created User object.
+
+        Raises:
+            ValidationError: If the user with this email already exist.
+        """
+        try:
+            user, _ = User.objects.get_or_create(
+                username=data.get('username'),
+                email=data.get('email'),
+                author=(data.get('is_author')),
+        )
+        except IntegrityError:
+            raise ValidationError(
+            "Пользователь с такими данными уже существует"
+        )
+        user.set_password(data.get('password'))
+        user.save()
+        return user
+        
 
 
 class AuthSignInSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
+    email = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ('username', 'password')
+        fields = ('email', 'password')
 
     def validate(self, data):
         """
         Validates the given data by checking if a user with the provided
-        username exists and if the provided password is correct for that user.
+        email exists and if the provided password is correct for that user.
 
         Parameters:
-            - data (dict): A dictionary containing the username and password
+            - data (dict): A dictionary containing the email and password
             to be validated.
 
         Returns:
@@ -86,7 +124,7 @@ class AuthSignInSerializer(serializers.Serializer):
         Raises:
             - ValidationError: If the provided credentials are invalid.
         """
-        user = User.objects.filter(username=data.get("username"))
+        user = User.objects.filter(email=data.get("email"))
         if user.exists() and user.first().check_password(data.get("password")):
             return user.first()
         raise ValidationError(_("Invalid credentials"))
