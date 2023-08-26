@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -185,3 +186,46 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_YANDEX_OAUTH2_KEY = os.getenv('YANDEX_KEY')
 
 SOCIAL_AUTH_YANDEX_OAUTH2_SECRET = os.getenv('YANDEX_SECRET')
+os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)
+LOGS_DIR = os.path.join(BASE_DIR, 'logs', 'marketgraphicimages.log')
+FORMAT_LOGRECORD = (
+    '%(asctime)s [%(levelname)s], %(name)s '
+    '%(funcName)s: %(message)s'
+)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'main_format': {
+            'format': FORMAT_LOGRECORD,
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'main_format',
+        },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'main_format',
+            'filename': LOGS_DIR,
+            'mode': 'w',
+            'encoding': 'utf-8',
+            'backupCount': 5,
+            'maxBytes': 4999999
+        },
+    },
+    'loggers': {
+        'main': {
+            'handlers': ['console', 'file', ],
+            'level': 'INFO' if not DEBUG else 'DEBUG',
+            'propagrate': True,
+        },
+        'django': {
+            'handlers': ['file', ],
+            'level': 'INFO',
+            "propagate": True,
+        },
+    },
+}
+logger = logging.getLogger('main')
