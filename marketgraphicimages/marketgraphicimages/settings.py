@@ -5,9 +5,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+# ENV_PATH = BASE_DIR.parent / 'infra/.env'
 load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv(
     'SECRET_KEY',
@@ -149,7 +150,7 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
-EMAIL_BACKEND_NAME = "sistem@server.ru"
+EMAIL_BACKEND_NAME = "Anonim-not-found@yandex.ru"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
@@ -229,3 +230,13 @@ LOGGING = {
     },
 }
 logger = logging.getLogger('main')
+
+if not DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.yandex.ru'
+    EMAIL_PORT = 465
+    EMAIL_USE_SSL = True
+    EMAIL_HOST_USER = EMAIL_BACKEND_NAME
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', default='')
+
+DEFAULT_FROM_EMAIL = EMAIL_BACKEND_NAME

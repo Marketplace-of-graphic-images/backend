@@ -15,5 +15,5 @@ class PasswordResetEmail(BaseEmailMessage):
         user = context.get("user")
         context["token"] = create_six_digit_confirmation_code()
         user_confirmation_code_to_db(context["token"], user)
-        print(context["token"])
+        # print(context["token"])
         return context
