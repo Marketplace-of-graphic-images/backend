@@ -8,11 +8,15 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    default=(
+        'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
+    )
+)
+DEBUG = os.getenv('DEBUG', default=True)
 
-DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '80.87.107.75']
 
 DJANGO_APPS = (
     'corsheaders',
@@ -80,11 +84,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'marketgraphicimages.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'production': {
+        'ENGINE': os.getenv(
+            'DB_ENGINE', default='django.db.backends.postgresql'
+        ),
+        'NAME': os.getenv('DB_NAME', 'postgres'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', 5432)
+    },
+    'dev': {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    },
 }
+DATABASES['default'] = DATABASES['dev' if DEBUG else 'production']
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -109,7 +124,10 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
