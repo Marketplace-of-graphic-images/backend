@@ -59,8 +59,8 @@ def create_confirmation_code(request):
     confirmation_code = create_six_digit_confirmation_code()
     confirmation_obj, _ = ConfirmationCode.objects.get_or_create(
         email=email,
-        confirmation_code=confirmation_code
     )
+    confirmation_obj.confirmation_code = hash_value(confirmation_code)
     confirmation_obj.save()
     return confirmation_code
 
