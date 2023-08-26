@@ -1,1 +1,89 @@
+name: Django-app workflow
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  tests:
+    if: ${{ github.ref == 'refs/heads/dev' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+
+    steps:
+    - run: echo "Deploying to production server on branch $GITHUB_REF"
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Install dependencies
+      run: | 
+        # обновление pip
+        python -m pip install --upgrade pip 
+        # установка flake8 и его плагинов
+        pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
+        # установка зависимостей
+        pip install -r marketgraphicimages/requirements.txt
+  build_and_push_to_docker_hub:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1 
+      - name: Login to Docker 
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }} #  ИСПРАВИТЬ
+          password: ${{ secrets.DOCKER_PASSWORD }} #  ИСПРАВИТЬ
+      - name: Push to Docker Hub web
+        uses: docker/build-push-action@v2 
+        with:
+          push: true
+          tags: marketgraphicimages/marketgraphicimages:latest #  ИСПРАВИТЬ
+          context: marketgraphicimages
+          file: marketgraphicimages/Dockerfile
+
+  deploy:
+    if: ${{ github.ref }} == 'dev'
+    runs-on: ubuntu-latest
+    needs: build_and_push_to_docker_hub
+    steps:
+    - name: executing remote ssh commands to deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        passphrase: ${{ secrets.SERVER_PASSWORD }}
+        script: |
+          sudo docker-compose stop
+          sudo docker-compose rm -f
+          sudo docker-compose pull          
+          sudo rm .env
+          touch .env
+          echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+          echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+          echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
+          sudo docker-compose up -d         
+          sudo docker-compose exec -T web python manage.py migrate
+          sudo docker-compose exec -T web python manage.py collectstatic --no-input        
+
+  send_message:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+    - name: send message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: ${{ github.workflow }} успешно выполнен!
 
