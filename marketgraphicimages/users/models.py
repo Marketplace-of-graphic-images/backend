@@ -1,9 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.core.validators import (
-    MaxValueValidator,
     MinLengthValidator,
-    MinValueValidator,
 )
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -56,10 +54,11 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username[:15]
-    
+
     @property
     def is_author(self):
         return self.author
+
 
 class ConfirmationCode(models.Model):
     """Model users code."""
@@ -73,10 +72,9 @@ class ConfirmationCode(models.Model):
             'unique': _('User with such an email already exists'),
         },
     )
-    confirmation_code = models.IntegerField(
+    confirmation_code = models.CharField(
         verbose_name=_('Confirmation code'),
-        null=True,
-        validators=[MinValueValidator(100000), MaxValueValidator(999999)],
+        max_length=100,
     )
 
 

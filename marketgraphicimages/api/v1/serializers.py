@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from core.utils import verify_value
 from users.models import ConfirmationCode
 
 User = get_user_model()
@@ -66,7 +67,7 @@ class ConfirmationSerializer(serializers.ModelSerializer):
         email_user = get_object_or_404(ConfirmationCode,
                                        email=data.get("email"))
         confirmation_code = data.get("confirmation_code")
-        if email_user.confirmation_code != int(confirmation_code):
+        if not verify_value(confirmation_code, email_user.confirmation_code):
             raise ValidationError(_("Invalid confirmation code"))
         user = self.create_user(data)
         email_user.delete()
