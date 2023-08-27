@@ -29,7 +29,6 @@ services:
     env_file:
       - ./.env
 
-
 volumes:
   db_storage:
   static_value:
