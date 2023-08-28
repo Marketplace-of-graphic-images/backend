@@ -7,6 +7,7 @@ from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
 from core.utils import verify_value
+from core.validators import validate_email
 from users.models import ConfirmationCode
 
 User = get_user_model()
@@ -30,6 +31,7 @@ class AuthSignUpSerializer(serializers.ModelSerializer):
             dict: The validated data, if the password is valid.
         """
         validate_password(data.get('password'))
+        validate_email(data.get('email'))
         return data
 
 
