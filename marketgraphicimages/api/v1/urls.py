@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .shemas import schema_view
+from .schemas import schema_view
 from .views import (
     UserViewSet,
     auth_confirmation,

@@ -11,7 +11,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .shemas import (
+from .schemas import (
     SIGNIN_SCHEMA,
     SIGUP_SHEMA,
     SIGUP_SHEMA_CONFIRMATION,
