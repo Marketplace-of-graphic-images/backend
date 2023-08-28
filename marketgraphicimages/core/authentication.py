@@ -1,11 +1,10 @@
+from rest_framework.request import Request
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class CookieJWTAuthentication(JWTAuthentication):
-    """
-    """
 
-    def authenticate(self, request):
+    def authenticate(self, request: Request) -> tuple:
         """
         Authenticates a request by extracting the token from the
         header or cookie, validating it, and returning the user
@@ -34,7 +33,7 @@ class CookieJWTAuthentication(JWTAuthentication):
 
         return self.get_user(validated_token), validated_token
 
-    def get_raw_token_cookie(self, request):
+    def get_raw_token_cookie(self, request: Request) -> str:
         """
         Retrieve the raw JWT token from the request.
 

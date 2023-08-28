@@ -10,7 +10,7 @@ class PasswordResetEmail(BaseEmailMessage):
     """Sends a confirmation code to the user."""
     template_name = "email/password_reset.html"
 
-    def get_context_data(self):
+    def get_context_data(self) -> dict:
         context = super().get_context_data()
         user = context.get("user")
         context["token"] = create_six_digit_confirmation_code()

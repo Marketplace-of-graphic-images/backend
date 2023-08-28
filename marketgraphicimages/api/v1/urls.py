@@ -1,6 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
+from .shemas import schema_view
 from .views import (
     UserViewSet,
     auth_confirmation,
@@ -23,4 +24,19 @@ urlpatterns = [
     path('auth/social/', include('djoser.social.urls')),
     path("auth/", include("djoser.urls.jwt")),
     path("", include("djoser.urls")),
+    path(
+        'swagger<format>/',
+        schema_view.without_ui(cache_timeout=0),
+        name='schema-json'
+    ),
+    path(
+        'swagger/',
+        schema_view.with_ui('swagger', cache_timeout=0),
+        name='schema-swagger-ui'
+    ),
+    path(
+        'redoc/',
+        schema_view.with_ui('redoc', cache_timeout=0),
+        name='schema-redoc'
+    ),
 ]

@@ -12,11 +12,11 @@ class EmailAndTokenSerializer(serializers.Serializer):
     """Validate email and confirmation code.
     Сhecks the confirmation code.
     """
-    
+
     confirmation_code = serializers.CharField()
     email = serializers.EmailField()
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
         confirmation_code = data.get('confirmation_code', '')
         try:
             user = User.objects.get(email=data.get('email', ''))
@@ -42,7 +42,7 @@ class PasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(style={'input_type': 'password'})
     email = serializers.EmailField()
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
         try:
             user = User.objects.get(email=data.get('email'))
             data['user'] = user

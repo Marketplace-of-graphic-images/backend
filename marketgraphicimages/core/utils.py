@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from google_images_search import GoogleImagesSearch
 from passlib.context import CryptContext
 from PIL import Image
+from rest_framework.request import Request
 
 from users.models import ConfirmationCode
 
@@ -20,12 +21,10 @@ def create_six_digit_confirmation_code() -> str:
     """The make_token method generates a six-digit confirmation
     code and returns it.
     """
-    number = randint(1000000, 9999999) % 1000000
-    code = "{:06d}".format(number)
-    return code
+    return str(randint(1000000, 9999999))[1::]
 
 
-def send_email_with_confirmation_code(request):
+def send_email_with_confirmation_code(request: Request) -> None:
     """
     Sends an email with a confirmation code to the provided email address.
 
@@ -43,7 +42,7 @@ def send_email_with_confirmation_code(request):
     )
 
 
-def create_confirmation_code(request):
+def create_confirmation_code(request: Request) -> str:
     """
     Generates a confirmation code for a user based on the provided
     request data.
@@ -78,7 +77,7 @@ def verify_value(value: str, hash_value: str) -> bool:
     return pwd_context.verify(value, hash_value)
 
 
-def user_confirmation_code_to_db(code: str, user) -> None:
+def user_confirmation_code_to_db(code: str, user: User) -> None:
     """The method encrypts confirmation code and writes it to the database."""
     user.code_owner.all().delete()
     user.code_owner.create(confirmation_code=hash_value(code))
