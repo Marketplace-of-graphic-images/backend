@@ -6,16 +6,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-ENV_PATH = BASE_DIR.parent / 'infra/.env'
-load_dotenv(dotenv_path=ENV_PATH)
+# ENV_PATH = BASE_DIR.parent / 'infra/.env'
+load_dotenv()
 
 
-SECRET_KEY = os.getenv(
-    'SECRET_KEY',
-    default=(
-        'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
-    )
-)
+SECRET_KEY = 'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
+
 DEBUG = os.getenv('DEBUG', default=True)
 
 ALLOWED_HOSTS = [
