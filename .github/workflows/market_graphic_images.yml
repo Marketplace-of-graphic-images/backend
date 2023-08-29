@@ -55,7 +55,8 @@ jobs:
           echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
           echo YANDEX_KEY ="${{ secrets.YANDEX_KEY }}" >> .env
           echo YANDEX_SECRET="${{ secrets.YANDEX_SECRET }}" >> .env
-          echo EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env          
+          echo EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
+          echo DEBUG="${{ secrets.DEBUG }}" >> .env         
           sudo docker-compose up -d         
           sudo docker-compose exec -T backend python manage.py migrate
           sudo docker-compose exec -T backend python manage.py collectstatic --no-input        
@@ -70,4 +71,4 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: ${{ github.workflow }} успешно выполнен!
+        message: ${{ github.workflow }} успешно выполнен! Документация доступна по ссылке https://pictura.acceleratorpracticum.ru/api/v1/swagger/
