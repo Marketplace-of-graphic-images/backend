@@ -15,8 +15,7 @@ services:
     image: postgres:13.0-alpine 
     volumes:
       - db_storage:/var/lib/postgresql/data/
-    env_file:
-      - ./.env
+    env_file: .env
   
   backend:
     image: pictura/marketgraphicimages:latest
@@ -26,8 +25,7 @@ services:
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
-    env_file:
-      - ./.env
+    env_file: .env
 
 
 volumes:
