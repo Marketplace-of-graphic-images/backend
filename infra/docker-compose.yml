@@ -19,7 +19,7 @@ services:
       - ./.env
   
   backend:
-    build: pictura/marketgraphicimages:latest
+    image: pictura/marketgraphicimages:latest
     restart: always
     links:
       - db
