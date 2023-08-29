@@ -18,7 +18,12 @@ SECRET_KEY = os.getenv(
 )
 DEBUG = os.getenv('DEBUG', default=True)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '80.87.107.75']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '80.87.107.75',
+    'pictura.acceleratorpracticum.ru',
+]
 
 DJANGO_APPS = (
     'corsheaders',
