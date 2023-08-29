@@ -41,7 +41,7 @@ jobs:
         username: ${{ secrets.USER }}
         password: ${{ secrets.SERVER_PASSWORD }}
         script: |
-          sudo cd marketplace/infra/
+          cd marketplace/infra/
           sudo docker-compose stop
           sudo docker-compose rm -f
           sudo docker-compose pull          
