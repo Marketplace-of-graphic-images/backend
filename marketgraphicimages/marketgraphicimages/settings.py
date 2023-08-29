@@ -12,7 +12,8 @@ load_dotenv()
 
 SECRET_KEY = 'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
 
-DEBUG = os.getenv('DEBUG', default=True)
+
+DEBUG = os.environ['DEBUG'] == 'True'
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
