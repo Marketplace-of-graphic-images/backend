@@ -66,3 +66,23 @@ TOKEN_SCHEMA = openapi.Schema(
         'access_token': openapi.Schema(type=openapi.TYPE_STRING),
     }
 )
+
+SIGNUP_DONE_SCHEMA = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    required=('detail',),
+    properties={
+        'detail': openapi.Schema(
+            type=openapi.TYPE_STRING, default='Successful registration'
+        ),
+    }
+)
+
+LOGIN_DONE_SCHEMA = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    required=('detail',),
+    properties={
+        'detail': openapi.Schema(
+            type=openapi.TYPE_STRING, default='Successful login'
+        ),
+    }
+)
