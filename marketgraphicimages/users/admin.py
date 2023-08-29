@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
-from .models import UserConfirmationCode
+from .models import ConfirmationCode, UserConfirmationCode
 
 User = get_user_model()
 
@@ -40,5 +40,24 @@ class UserConfirmationCodeAdmin(admin.ModelAdmin):
         'user',
         'confirmation_code',
         'is_confirmed',
+    )
+    empty_value_display = '---пусто---'
+
+
+@admin.register(ConfirmationCode)
+class ConfirmationCodeAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'confirmation_code',
+    )
+    search_fields = (
+        'user',
+    )
+    list_filter = (
+        'user',
+    )
+    readonly_fields = (
+        'user',
+        'confirmation_code',
     )
     empty_value_display = '---пусто---'

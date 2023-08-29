@@ -6,8 +6,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-ENV_PATH = BASE_DIR.parent / 'infra/.env'
-load_dotenv(dotenv_path=ENV_PATH)
+# ENV_PATH = BASE_DIR.parent / 'infra/.env'
+load_dotenv()
 
 
 SECRET_KEY = os.getenv(
@@ -18,12 +18,7 @@ SECRET_KEY = os.getenv(
 )
 DEBUG = os.getenv('DEBUG', default=True)
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    '80.87.107.75',
-    'pictura.acceleratorpracticum.ru',
-]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '80.87.107.75']
 
 DJANGO_APPS = (
     'corsheaders',
