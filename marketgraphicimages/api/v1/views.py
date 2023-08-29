@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.http import JsonResponse
 from django.views import View
 from djoser.conf import settings
 from djoser.views import UserViewSet
@@ -12,10 +11,11 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .schemas import (
+    LOGIN_DONE_SCHEMA,
     SIGNIN_SCHEMA,
+    SIGNUP_DONE_SCHEMA,
     SIGUP_SHEMA,
     SIGUP_SHEMA_CONFIRMATION,
-    TOKEN_SCHEMA,
 )
 from api.v1.serializers import (
     AuthSignInSerializer,
@@ -48,7 +48,7 @@ def auth_signup_post(request: Request) -> Response:
     method='post',
     request_body=SIGUP_SHEMA_CONFIRMATION,
     responses={
-        200: TOKEN_SCHEMA,
+        200: SIGNUP_DONE_SCHEMA,
         400: 'Bad request',
     },
 )
@@ -59,16 +59,18 @@ def auth_confirmation(request: Request) -> Response:
     serializer.is_valid(raise_exception=True)
     access_token = AccessToken.for_user(serializer.validated_data.get('user'))
     out_put_messege = {
-        'access_token': str(access_token),
+        'detail': 'Successful registration',
     }
-    return Response(out_put_messege, status=status.HTTP_200_OK)
+    response = Response(out_put_messege, status=status.HTTP_200_OK)
+    response.set_cookie('jwt', str(access_token), httponly=True)
+    return response
 
 
 @swagger_auto_schema(
     method='post',
     request_body=SIGNIN_SCHEMA,
     responses={
-        200: TOKEN_SCHEMA,
+        200: LOGIN_DONE_SCHEMA,
         400: 'Bad request',
     },
 )
@@ -79,17 +81,26 @@ def get_token_post(request: Request) -> Response:
     serializer.is_valid(raise_exception=True)
     access_token = AccessToken.for_user(serializer.validated_data.get('user'))
     out_put_messege = {
-        'access_token': str(access_token),
+        'detail': 'Successful login',
     }
-    return Response(out_put_messege, status=status.HTTP_200_OK)
+    response = Response(out_put_messege, status=status.HTTP_200_OK)
+    response.set_cookie('jwt', str(access_token), expires=86399, httponly=True)
+    return response
+
+
+@api_view(['POST'])
+def sign_out(_: Request) -> Response:
+    response = Response(status=status.HTTP_204_NO_CONTENT)
+    response.delete_cookie('jwt')
+    return response
 
 
 class RedirectSocial(View):
 
-    def get(self, request: Request, *args, **kwargs) -> JsonResponse:
+    def get(self, request: Request, *args, **kwargs) -> Response:
         code, state = str(request.GET['code']), str(request.GET['state'])
         json_obj = {'code': code, 'state': state}
-        return JsonResponse(json_obj)
+        return Response(json_obj)
 
 
 class UserViewSet(UserViewSet):
