@@ -6,8 +6,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-# ENV_PATH = BASE_DIR.parent / 'infra/.env'
-load_dotenv()
+ENV_PATH = BASE_DIR.parent / 'infra/.env'
+load_dotenv(ENV_PATH)
 
 
 SECRET_KEY = 'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
@@ -156,6 +156,7 @@ SIMPLE_JWT = {
 white_list = [
     'http://127.0.0.1:8000/',
     'http://127.0.0.1:8000/api/v1/accounts/profile/',
+    'https://80.87.107.75:8000/api/v1/accounts/profile/',
 ]
 
 DJOSER = {

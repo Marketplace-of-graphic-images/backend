@@ -47,17 +47,17 @@ class UserConfirmationCodeAdmin(admin.ModelAdmin):
 @admin.register(ConfirmationCode)
 class ConfirmationCodeAdmin(admin.ModelAdmin):
     list_display = (
-        'user',
+        'email',
         'confirmation_code',
     )
     search_fields = (
-        'user',
+        'email',
     )
     list_filter = (
-        'user',
+        'email',
     )
     readonly_fields = (
-        'user',
+        'email',
         'confirmation_code',
     )
     empty_value_display = '---пусто---'

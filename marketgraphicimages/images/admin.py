@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from .models import (FavoriteImage, Image,
-                     ShoppingCartImage, TagImage)
+from .models import FavoriteImage, Image, ShoppingCartImage, TagImage
 
 User = get_user_model()
 

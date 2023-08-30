@@ -53,7 +53,7 @@ class User(AbstractUser):
     )
     birthday = models.DateField(
         verbose_name=_('Date of birth'),
-        blank=True,
+        null=True,
     )
     telegram_link = models.URLField(
         verbose_name=_('Telegram profile'),

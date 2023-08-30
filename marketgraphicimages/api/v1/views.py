@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views import View
-from djoser.conf import settings
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -25,6 +25,10 @@ from api.v1.serializers import (
 from core.utils import send_email_with_confirmation_code
 
 User = get_user_model()
+
+TOKEN_LIFETIME = int(
+    settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME', 0).total_seconds()
+)
 
 
 @swagger_auto_schema(
@@ -62,7 +66,9 @@ def auth_confirmation(request: Request) -> Response:
         'detail': 'Successful registration',
     }
     response = Response(out_put_messege, status=status.HTTP_200_OK)
-    response.set_cookie('jwt', str(access_token), httponly=True)
+    response.set_cookie(
+        'jwt', str(access_token), expires=TOKEN_LIFETIME, httponly=True
+    )
     return response
 
 
@@ -84,7 +90,9 @@ def get_token_post(request: Request) -> Response:
         'detail': 'Successful login',
     }
     response = Response(out_put_messege, status=status.HTTP_200_OK)
-    response.set_cookie('jwt', str(access_token), expires=86399, httponly=True)
+    response.set_cookie(
+        'jwt', str(access_token), expires=TOKEN_LIFETIME, httponly=True
+    )
     return response
 
 
