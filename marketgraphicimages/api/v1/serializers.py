@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
-from core.utils import verify_value
+from core.encryption_str import verify_value
 from core.validators import validate_email
 from users.models import ConfirmationCode
 
