@@ -23,7 +23,7 @@ from api.v1.serializers import (
     AuthSignUpSerializer,
     ConfirmationSerializer,
 )
-from core.utils import send_email_with_confirmation_code
+from core.confirmation_code import send_email_with_confirmation_code
 
 User = get_user_model()
 
