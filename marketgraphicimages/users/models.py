@@ -37,6 +37,28 @@ class User(AbstractUser):
         verbose_name=_('Author'),
         default=False,
     )
+    profile_photo = models.ImageField(
+        upload_to='user_photos',
+        verbose_name=_('Profile photo'),
+    )
+    first_name = models.CharField(
+        verbose_name=_('First name'),
+        max_length=20,
+        blank=True,
+    )
+    last_name = models.CharField(
+        verbose_name=_('Last name'),
+        max_length=20,
+        blank=True,
+    )
+    birthday = models.DateField(
+        verbose_name=_('Date of birth'),
+        blank=True,
+    )
+    telegram_link = models.URLField(
+        verbose_name=_('Telegram profile'),
+        blank=True,
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username',)
