@@ -1,6 +1,7 @@
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
 from django.views import View
+from djoser.conf import settings as djoser_settings
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -27,7 +28,7 @@ from core.utils import send_email_with_confirmation_code
 User = get_user_model()
 
 TOKEN_LIFETIME = int(
-    settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME', 0).total_seconds()
+    django_settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME', 0).total_seconds()
 )
 
 
@@ -121,13 +122,13 @@ class UserViewSet(UserViewSet):
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
             self.permission_classes = (
-                settings.PERMISSIONS.password_reset_confirm_code
+                djoser_settings.PERMISSIONS.password_reset_confirm_code
             )
         return super().get_permissions()
 
     def get_serializer_class(self):
         if self.action == 'reset_password_confirm_code':
-            return settings.SERIALIZERS.password_reset_confirm_code
+            return djoser_settings.SERIALIZERS.password_reset_confirm_code
         return super().get_serializer_class()
 
     @action(['post'], detail=False)
@@ -148,9 +149,9 @@ class UserViewSet(UserViewSet):
         user.set_password(serializer.validated_data.get('new_password'))
         user.code_owner.all().delete()
         user.save()
-        if settings.PASSWORD_CHANGED_EMAIL_CONFIRMATION:
+        if djoser_settings.PASSWORD_CHANGED_EMAIL_CONFIRMATION:
             context = {'user': user}
             to = [serializer.validated_data.get('email')]
-            settings.EMAIL.password_changed_confirmation(
+            djoser_settings.EMAIL.password_changed_confirmation(
                 self.request, context).send(to)
         return Response(status=status.HTTP_204_NO_CONTENT)
