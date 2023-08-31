@@ -44,4 +44,4 @@ volumes:
   media_value:
 
 networks:
-  - email_network
+  email_network
