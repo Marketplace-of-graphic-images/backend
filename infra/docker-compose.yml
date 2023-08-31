@@ -12,17 +12,13 @@ services:
     restart: always
     links:
       - db
-    ports:
-      - "465:465"
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
     depends_on:
       - db
     env_file:
-      - ./.env
-    networks:
-      - email_network
+      - ./.env 
   
   nginx:
     image: nginx:1.19.3
@@ -42,6 +38,3 @@ volumes:
   db_storage:
   static_value:
   media_value:
-
-networks:
-  email_network:
