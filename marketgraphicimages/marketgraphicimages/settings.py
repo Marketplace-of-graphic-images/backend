@@ -226,7 +226,7 @@ LOGGING = {
             'propagrate': True,
         },
         'django': {
-            'handlers': ['file', ],
+            'handlers': ['console', 'file', ],
             'level': 'INFO',
             "propagate": True,
         },
