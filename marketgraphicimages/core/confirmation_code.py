@@ -3,7 +3,6 @@ from random import randint
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-
 from rest_framework.request import Request
 
 from .encryption_str import hash_value

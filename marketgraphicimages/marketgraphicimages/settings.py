@@ -15,7 +15,12 @@ SECRET_KEY = 'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc
 
 DEBUG = os.environ['DEBUG'] == 'True'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '80.87.107.75']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '80.87.107.75',
+    'pictura.acceleratorpracticum.ru'
+]
 
 DJANGO_APPS = (
     'corsheaders',

@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from google_images_search import GoogleImagesSearch
 from PIL import Image
 
-
 User = get_user_model()
 
 SUBJECT_EMAIL = "Confirmation code for 'domen_name'"
