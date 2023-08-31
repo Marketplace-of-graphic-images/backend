@@ -42,3 +42,6 @@ volumes:
   db_storage:
   static_value:
   media_value:
+
+networks:
+  - email_network
