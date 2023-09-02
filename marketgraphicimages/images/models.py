@@ -3,8 +3,8 @@ from django.core.validators import (
     MinValueValidator,
 )
 from django.db import models
-from tags.models import Tag
 
+from tags.models import Tag
 from users.models import User, UserConnection
 
 price_type = [('Платно', 'Платно'), ('Бесплатно', 'Бесплатно'), ]
