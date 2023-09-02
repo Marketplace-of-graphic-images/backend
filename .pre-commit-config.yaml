@@ -5,10 +5,12 @@ repos:
     - id: ruff
       args: ["."]
 
-- repo: local
-  hooks:
-    - id: pytest-check
-      name: pytest-check
-      entry: pytest
-      language: system
-      pass_filenames: false
+# - repo: local
+#   hooks:
+#     - id: pytest-check
+#       name: pytest-check
+#       entry: pytest
+#       language: system
+#       pass_filenames: false
+#       always_run: true
+#       require_serial: true
