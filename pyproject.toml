@@ -12,7 +12,6 @@ exclude = [
     "infra",
     "docs",
     ".vscode",
-    "tests",
 ]
 
 [tool.ruff.per-file-ignores]
@@ -24,7 +23,7 @@ known-local-folder = ["images", "users", "api", "core", "tags"]
 
 [tool.pytest.ini_options]
 python_paths = "marketgraphicimages"
-addopts = "-vv -p no:cacheprovider"
+addopts = "-vv -p no:cacheprovider -W ignore::DeprecationWarning"
 testpaths = "tests/"
 DJANGO_SETTINGS_MODULE = "marketgraphicimages.settings"
 python_files = "test_*.py"
