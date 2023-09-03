@@ -295,7 +295,7 @@ class Test00UserRegistration:
             f'Проверьте, что запрос на эндпоинт `{self.url_signout}`'
             ' выполняется.'
         )
-        assert response.cookies.get('jwt') != '', (
+        assert response.cookies.get('jwt').value == '', (
             f'POST-запрос отправленный на эндпоинт `{self.url_signout}` '
             ', должен отчистить куки, содержащие в себе jwt токен.'
         )
