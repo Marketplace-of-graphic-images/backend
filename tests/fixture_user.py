@@ -32,9 +32,8 @@ def token_user_superuser(user_superuser):
 
 
 @pytest.fixture
-def user_superuser_client(token_user_superuser, user_superuser):
+def user_superuser_client(token_user_superuser):
     client = APIClient()
-    client.force_login(user_superuser)
     client.cookies['jwt'] = token_user_superuser['jwt']
     return client
 
@@ -48,8 +47,7 @@ def token_user(user):
 
 
 @pytest.fixture
-def user_client(token_user, user):
+def user_client(token_user):
     client = APIClient()
-    client.force_login(user)
     client.cookies['jwt'] = token_user['jwt']
     return client
