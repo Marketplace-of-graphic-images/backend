@@ -6,11 +6,11 @@ from users.models import User, UserConnection
 
 FREE = 'Бесплатно'
 SUBSCRIBE = 'По подписке'
-PREMIUN = 'Премиум'
+PREMIUM = 'Премиум'
 price_type = [
     (FREE, 'Бесплатно'),
     (SUBSCRIBE, 'По подписке'),
-    (PREMIUN, 'Премиум'),
+    (PREMIUM, 'Премиум'),
 ]
 
 
