@@ -5,9 +5,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
+from tags.models import Tag
 
 from core.encryption_str import verify_value
 from core.validators import validate_email
+from images.models import FavoriteImage, Image
 from users.models import ConfirmationCode
 
 User = get_user_model()
@@ -139,3 +141,53 @@ class AuthSignInSerializer(serializers.Serializer):
                 detail={'errors': _('Wrong password')},
                 code=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class TagSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'slug')
+
+
+class UserShortSerializer(serializers.ModelSerializer):
+    """is_subscribed = serializers.SerializerMethodField(
+        method_name='get_is_subscribed'
+    )"""
+    num_of_author_images = serializers.SerializerMethodField(
+        method_name='get_num_of_author_images'
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'num_of_author_images')  # 'is_subscribed',
+
+    """def get_is_subscribed(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return user.user.filter(author=obj).exists()
+        return False"""
+
+    def get_num_of_author_images(self, obj):
+        return obj.images.count()
+
+
+class ImageGetSerializer(serializers.ModelSerializer):
+    author = UserShortSerializer(read_only=True)
+    tags = TagSerializer(read_only=True, many=True)
+    is_favorited = serializers.SerializerMethodField(
+        method_name='get_is_favorited'
+    )
+
+    class Meta:
+        model = Image
+        fields = (
+            'created', 'author', 'name', 'image', 'license', 'price',
+            'format', 'tags', 'is_favorited'
+        )
+
+    def get_is_favorited(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return FavoriteImage.objects.filter(image=obj, user=user).exists()
+        return False

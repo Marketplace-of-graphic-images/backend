@@ -55,7 +55,7 @@ class ShoppingCartRecipeAdmin(admin.ModelAdmin):
 
 
 @admin.register(TagImage)
-class TagRecipeAdmin(admin.ModelAdmin):
+class TagImageAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'image',

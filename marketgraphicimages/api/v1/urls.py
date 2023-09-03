@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from .schemas import schema_view
 from .views import (
+    ImageViewSet,
     UserViewSet,
     auth_confirmation,
     auth_signup_post,
@@ -12,6 +13,7 @@ from .views import (
 
 v1_router = DefaultRouter()
 v1_router.register("users", UserViewSet)
+v1_router.register("image", ImageViewSet)
 
 auth_url = [
     path("signin/", get_token_post, name="signin"),

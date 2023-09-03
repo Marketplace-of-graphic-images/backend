@@ -1,13 +1,17 @@
-from django.core.validators import (
-    MaxValueValidator,
-    MinValueValidator,
-)
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from tags.models import Tag
 
 from users.models import User, UserConnection
 
-price_type = [('Платно', 'Платно'), ('Бесплатно', 'Бесплатно'), ]
+FREE = 'Бесплатно'
+SUBSCRIBE = 'По подписке'
+PREMIUN = 'Премиум'
+price_type = [
+    (FREE, 'Бесплатно'),
+    (SUBSCRIBE, 'По подписке'),
+    (PREMIUN, 'Премиум'),
+]
 
 
 class Image(models.Model):
