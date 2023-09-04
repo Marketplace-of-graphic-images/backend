@@ -1,7 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from tags.models import Tag
 
+from tags.models import Tag
 from users.models import User, UserConnection
 
 FREE = 'Бесплатно'
