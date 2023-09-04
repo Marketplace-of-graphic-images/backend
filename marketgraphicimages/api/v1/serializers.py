@@ -1,6 +1,9 @@
+import base64
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from django.db import IntegrityError
+from django.core.files.base import ContentFile
+from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
@@ -9,8 +12,8 @@ from tags.models import Tag
 
 from core.encryption_str import verify_value
 from core.validators import validate_email
-from images.models import FavoriteImage, Image
-from users.models import ConfirmationCode
+from images.models import FavoriteImage, Image, TagImage
+from users.models import ConfirmationCode, Subscription
 
 User = get_user_model()
 
@@ -151,22 +154,23 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class UserShortSerializer(serializers.ModelSerializer):
-    """is_subscribed = serializers.SerializerMethodField(
+    is_subscribed = serializers.SerializerMethodField(
         method_name='get_is_subscribed'
-    )"""
+    )
     num_of_author_images = serializers.SerializerMethodField(
         method_name='get_num_of_author_images'
     )
 
     class Meta:
         model = User
-        fields = ('username', 'num_of_author_images')  # 'is_subscribed',
+        fields = ('username', 'num_of_author_images', 'is_subscribed')
 
-    """def get_is_subscribed(self, obj):
+    def get_is_subscribed(self, obj):
         user = self.context['request'].user
         if user.is_authenticated:
-            return user.user.filter(author=obj).exists()
-        return False"""
+            return Subscription.objects.filter(
+                subscriber=user, author=obj).exists()
+        return False
 
     def get_num_of_author_images(self, obj):
         return obj.images.count()
@@ -191,3 +195,58 @@ class ImageGetSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             return FavoriteImage.objects.filter(image=obj, user=user).exists()
         return False
+
+
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+        return super().to_internal_value(data)
+
+
+class ImagePostPutPatchSerializer(serializers.ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all()
+    )
+    author = serializers.PrimaryKeyRelatedField(
+        default=serializers.CurrentUserDefault(),
+        queryset=User.objects.all()
+    )
+    image = Base64ImageField()
+
+    class Meta:
+        model = Image
+        fields = ('author', 'name', 'image', 'license', 'price', 'tags')
+
+    def to_representation(self, instance):
+        serializer = ImageGetSerializer(
+            instance, context={'request': self.context.get('request')}
+        )
+        return serializer.data
+
+    @transaction.atomic
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        extension = validated_data['image'].content_type.split('/')[-1]
+        validated_data['format'] = extension.upper()
+        new_image = Image.objects.create(**validated_data)
+        for tag in tags:
+            TagImage.objects.create(
+                image=new_image, tag=tag
+            )
+        return new_image
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        if 'tags' in validated_data:
+            tags = validated_data.pop('tags')
+            for tag in tags:
+                TagImage.objects.create(image=instance, tag=tag)
+            TagImage.objects.filter(image=instance).delete()
+        if 'image' in validated_data:
+            extension = validated_data['image'].content_type.split('/')[-1]
+            validated_data['format'] = extension.upper()
+        super().update(instance, validated_data)
+        return instance

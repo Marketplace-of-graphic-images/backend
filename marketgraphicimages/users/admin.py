@@ -2,9 +2,14 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
-from .models import ConfirmationCode, UserConfirmationCode
+from .models import ConfirmationCode, Subscription, UserConfirmationCode
 
 User = get_user_model()
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('subscriber', 'author')
 
 
 @admin.register(User)

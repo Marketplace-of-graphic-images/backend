@@ -23,6 +23,7 @@ from api.v1.serializers import (
     AuthSignUpSerializer,
     ConfirmationSerializer,
     ImageGetSerializer,
+    ImagePostPutPatchSerializer,
 )
 from core.confirmation_code import send_email_with_confirmation_code
 from images.models import Image
@@ -165,8 +166,6 @@ class ImageViewSet(viewsets.ModelViewSet):
     permission_classes = (AllowAny, )
 
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action in ('retrieve', 'list'):
             return ImageGetSerializer
-        if self.action == 'list':
-            return ImageGetSerializer
-        return ImageGetSerializer
+        return ImagePostPutPatchSerializer
