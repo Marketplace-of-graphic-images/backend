@@ -1,71 +1,77 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from tags.models import Tag
 from users.models import User, UserConnection
 
-FREE = 'Бесплатно'
-SUBSCRIBE = 'По подписке'
-PREMIUM = 'Премиум'
-price_type = [
-    (FREE, 'Бесплатно'),
-    (SUBSCRIBE, 'По подписке'),
-    (PREMIUM, 'Премиум'),
-]
-
 
 class Image(models.Model):
+    """Model of images."""
+
+    class LicenseType(models.TextChoices):
+        """Class of choices licese types of images."""
+
+        FREE = 'free', _('free')
+        SUBSCRIBE = 'subscribe', _('subscribe')
+        PREMIUM = 'premium', _('premium')
+
     created = models.DateTimeField(
-        'Дата создания',
+        verbose_name=_('Date of cration'),
         auto_now_add=True,
-        help_text='Автоматически устанавливается текущая дата и время',
+        help_text=_('Automatically sets the current date and time'),
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='images',
-        verbose_name='Автор',
-        help_text='Автор изображения',
+        verbose_name=_('Author'),
+        help_text=_('Image author'),
     )
     name = models.CharField(
-        'Название',
+        verbose_name=_('Name'),
         unique=True,
         max_length=200,
-        help_text='Введите название',
+        help_text=_('Enter the name'),
     )
     image = models.ImageField(
-        'Картинка',
-        upload_to='Images/',
+        verbose_name=_('Image'),
+        upload_to='images/',
         unique=True,
-        help_text='Добавьте изображение',
+        help_text=_('Upload an image'),
     )
     license = models.CharField(
+        verbose_name=_('License'),
         max_length=15,
-        choices=price_type,
+        choices=LicenseType.choices,
+        help_text=_('Select license type')
     )
     price = models.IntegerField(
-        verbose_name='Цена изображения',
+        verbose_name=_('Image price'),
         null=True,
         validators=[MinValueValidator(0), MaxValueValidator(999999)],
+        help_text=_('Specify a price')
     )
     format = models.CharField(
+        verbose_name=_('Format'),
         max_length=5,
+        help_text=_('Specify image format')
     )
     tags = models.ManyToManyField(
         Tag,
         through='TagImage',
-        verbose_name='Теги',
-        help_text='Выберите теги',
+        verbose_name=_('Tag'),
+        help_text=_('Select tags'),
     )
 
     class Meta:
         ordering = ('-created',)
-        verbose_name = 'Изображение'
-        verbose_name_plural = 'Изображения'
+        verbose_name = _('Image')
+        verbose_name_plural = _('Images')
 
     def __str__(self):
-        return (
-            f'Автор: {str(self.author)} Название: {self.name[:15]}'
+        return str(
+            _(f'Author: {str(self.author)} Image name: {self.name[:15]}')
         )
 
 

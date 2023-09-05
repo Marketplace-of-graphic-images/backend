@@ -161,6 +161,8 @@ class UserViewSet(UserViewSet):
 
 
 class ImageViewSet(viewsets.ModelViewSet):
+    """ViewSet to work with instances of images."""
+
     queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
     permission_classes = (AllowAny, )

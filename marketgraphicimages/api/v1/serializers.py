@@ -8,11 +8,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
-from tags.models import Tag
 
 from core.encryption_str import verify_value
 from core.validators import validate_email
 from images.models import FavoriteImage, Image, TagImage
+from tags.models import Tag
 from users.models import ConfirmationCode, Subscription
 
 User = get_user_model()
@@ -186,7 +186,7 @@ class ImageGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = (
-            'created', 'author', 'name', 'image', 'license', 'price',
+            'id', 'created', 'author', 'name', 'image', 'license', 'price',
             'format', 'tags', 'is_favorited'
         )
 
@@ -241,10 +241,10 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         if 'tags' in validated_data:
+            TagImage.objects.filter(image=instance).delete()
             tags = validated_data.pop('tags')
             for tag in tags:
                 TagImage.objects.create(image=instance, tag=tag)
-            TagImage.objects.filter(image=instance).delete()
         if 'image' in validated_data:
             extension = validated_data['image'].content_type.split('/')[-1]
             validated_data['format'] = extension.upper()
