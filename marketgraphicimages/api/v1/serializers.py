@@ -163,7 +163,7 @@ class UserShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'num_of_author_images', 'is_subscribed')
+        fields = ('id', 'username', 'num_of_author_images', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
