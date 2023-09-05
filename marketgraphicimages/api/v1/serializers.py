@@ -226,16 +226,18 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         )
         return serializer.data
 
+    @staticmethod
+    def get_extension(validated_data):
+        extension = validated_data['image'].content_type.split('/')[-1]
+        return extension.upper()
+
     @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        extension = validated_data['image'].content_type.split('/')[-1]
-        validated_data['format'] = extension.upper()
+        validated_data['format'] = self.get_extension(validated_data)
         new_image = Image.objects.create(**validated_data)
         for tag in tags:
-            TagImage.objects.create(
-                image=new_image, tag=tag
-            )
+            TagImage.objects.create(image=new_image, tag=tag)
         return new_image
 
     @transaction.atomic
@@ -246,7 +248,6 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
             for tag in tags:
                 TagImage.objects.create(image=instance, tag=tag)
         if 'image' in validated_data:
-            extension = validated_data['image'].content_type.split('/')[-1]
-            validated_data['format'] = extension.upper()
+            validated_data['format'] = self.get_extension(validated_data)
         super().update(instance, validated_data)
         return instance
