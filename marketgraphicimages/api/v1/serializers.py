@@ -150,7 +150,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id', 'name', 'slug')
+        fields = '__all__'
 
 
 class UserShortSerializer(serializers.ModelSerializer):

@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .schemas import schema_view
 from .views import (
     ImageViewSet,
+    TagViewSet,
     UserViewSet,
     auth_confirmation,
     auth_signup_post,
@@ -12,22 +13,23 @@ from .views import (
 )
 
 v1_router = DefaultRouter()
-v1_router.register("users", UserViewSet)
-v1_router.register("image", ImageViewSet)
+v1_router.register('users', UserViewSet)
+v1_router.register('image', ImageViewSet, basename='image')
+v1_router.register(r'tags', TagViewSet, basename='tags')
 
 auth_url = [
-    path("signin/", get_token_post, name="signin"),
-    path("signup/", auth_signup_post, name="signup"),
-    path("signup-confirmation/", auth_confirmation, name="confirmation"),
-    path("signout/", sign_out, name="signout"),
+    path('signin/', get_token_post, name='signin'),
+    path('signup/', auth_signup_post, name='signup'),
+    path('signup-confirmation/', auth_confirmation, name='confirmation'),
+    path('signout/', sign_out, name='signout'),
 ]
 
 urlpatterns = [
-    path("", include(v1_router.urls)),
-    path("auth/", include(auth_url)),
+    path('', include(v1_router.urls)),
+    path('auth/', include(auth_url)),
     path('auth/social/', include('djoser.social.urls')),
-    path("auth/", include("djoser.urls.jwt")),
-    path("", include("djoser.urls")),
+    path('auth/', include('djoser.urls.jwt')),
+    path('', include('djoser.urls')),
     path(
         'swagger<format>/',
         schema_view.without_ui(cache_timeout=0),

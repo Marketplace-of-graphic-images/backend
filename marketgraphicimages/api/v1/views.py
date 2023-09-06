@@ -24,9 +24,11 @@ from api.v1.serializers import (
     ConfirmationSerializer,
     ImageGetSerializer,
     ImagePostPutPatchSerializer,
+    TagSerializer,
 )
 from core.confirmation_code import send_email_with_confirmation_code
 from images.models import Image
+from tags.models import Tag
 
 User = get_user_model()
 
@@ -171,3 +173,11 @@ class ImageViewSet(viewsets.ModelViewSet):
         if self.action in ('retrieve', 'list'):
             return ImageGetSerializer
         return ImagePostPutPatchSerializer
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = TagSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return Tag.objects.all()
