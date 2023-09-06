@@ -166,6 +166,8 @@ white_list = [
     'http://127.0.0.1:8000/',
     'http://127.0.0.1:8000/api/v1/accounts/profile/',
     'https://80.87.107.75:8000/api/v1/accounts/profile/',
+    'http://pictura.acceleratorpracticum.ru/api/v1/accounts/profile/',
+    'https://pictura.acceleratorpracticum.ru/api/v1/accounts/profile/',
 ]
 
 DJOSER = {
