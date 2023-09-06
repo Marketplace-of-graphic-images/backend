@@ -23,7 +23,6 @@ ALLOWED_HOSTS = [
 ]
 
 DJANGO_APPS = (
-    'corsheaders',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,6 +39,7 @@ THIRD_PARTY_APPS = (
     'djoser',
     'social_django',
     'rest_framework_simplejwt',
+    'corsheaders',
 )
 
 LOCAL_APPS = (
@@ -264,4 +264,9 @@ CORS_ALLOW_METHODS = (
     'PUT',
 )
 
-CORS_ALLOW_HEADERS = '*'
+CORS_ALLOWED_ORIGINS = (
+    'http://localhost:3000',
+)
+CORS_ALLOWED_ORIGIN_REGEXES = (
+    'http://localhost:3000',
+)
