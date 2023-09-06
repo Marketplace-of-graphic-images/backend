@@ -4,7 +4,7 @@ from django.views import View
 from djoser.conf import settings as djoser_settings
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
@@ -22,8 +22,10 @@ from api.v1.serializers import (
     AuthSignInSerializer,
     AuthSignUpSerializer,
     ConfirmationSerializer,
+    TagSerializer
 )
 from core.confirmation_code import send_email_with_confirmation_code
+from tags.models import Tag
 
 User = get_user_model()
 
@@ -155,3 +157,11 @@ class UserViewSet(UserViewSet):
             djoser_settings.EMAIL.password_changed_confirmation(
                 self.request, context).send(to)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = TagSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return Tag.objects.all()

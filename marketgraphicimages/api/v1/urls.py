@@ -8,10 +8,12 @@ from .views import (
     auth_signup_post,
     get_token_post,
     sign_out,
+    TagViewSet,
 )
 
 v1_router = DefaultRouter()
 v1_router.register("users", UserViewSet)
+v1_router.register(r'tags', TagViewSet, basename='tags')
 
 auth_url = [
     path("signin/", get_token_post, name="signin"),

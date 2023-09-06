@@ -9,6 +9,7 @@ from rest_framework.exceptions import ValidationError
 from core.encryption_str import verify_value
 from core.validators import validate_email
 from users.models import ConfirmationCode
+from tags.models import Tag
 
 User = get_user_model()
 
@@ -139,3 +140,10 @@ class AuthSignInSerializer(serializers.Serializer):
                 detail={'errors': _('Wrong password')},
                 code=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class TagSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = '__all__'
