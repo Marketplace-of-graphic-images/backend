@@ -1,6 +1,7 @@
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
 from django.views import View
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
@@ -24,6 +25,7 @@ from api.v1.serializers import (
     ConfirmationSerializer,
     ImageGetSerializer,
     ImagePostPutPatchSerializer,
+    ImageShortSerializer,
     TagSerializer,
 )
 from core.confirmation_code import send_email_with_confirmation_code
@@ -168,10 +170,14 @@ class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
     permission_classes = (AllowAny, )
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('tags', )
 
     def get_serializer_class(self):
-        if self.action in ('retrieve', 'list'):
+        if self.action == 'retrieve':
             return ImageGetSerializer
+        if self.action == 'list':
+            return ImageShortSerializer
         return ImagePostPutPatchSerializer
 
 

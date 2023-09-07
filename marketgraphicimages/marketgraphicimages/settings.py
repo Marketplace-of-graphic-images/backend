@@ -153,6 +153,9 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
+COMMENTS_PAGINATOR_SIZE = 5
+NUM_OF_RECOMMENDED_IMAGES = 4
+NUM_OTHER_AUTHOR_IMAGES = 4
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
