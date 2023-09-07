@@ -22,7 +22,7 @@ from api.v1.serializers import (
     AuthSignInSerializer,
     AuthSignUpSerializer,
     ConfirmationSerializer,
-    TagSerializer
+    TagSerializer,
 )
 from core.confirmation_code import send_email_with_confirmation_code
 from tags.models import Tag

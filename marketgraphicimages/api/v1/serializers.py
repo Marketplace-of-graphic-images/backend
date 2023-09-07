@@ -8,8 +8,8 @@ from rest_framework.exceptions import ValidationError
 
 from core.encryption_str import verify_value
 from core.validators import validate_email
-from users.models import ConfirmationCode
 from tags.models import Tag
+from users.models import ConfirmationCode
 
 User = get_user_model()
 

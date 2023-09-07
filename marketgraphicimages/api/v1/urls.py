@@ -3,12 +3,12 @@ from rest_framework.routers import DefaultRouter
 
 from .schemas import schema_view
 from .views import (
+    TagViewSet,
     UserViewSet,
     auth_confirmation,
     auth_signup_post,
     get_token_post,
     sign_out,
-    TagViewSet,
 )
 
 v1_router = DefaultRouter()
