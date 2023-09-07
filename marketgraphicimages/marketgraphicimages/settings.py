@@ -23,7 +23,6 @@ ALLOWED_HOSTS = [
 ]
 
 DJANGO_APPS = (
-    'corsheaders',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,6 +39,7 @@ THIRD_PARTY_APPS = (
     'djoser',
     'social_django',
     'rest_framework_simplejwt',
+    'corsheaders',
 )
 
 LOCAL_APPS = (
@@ -48,6 +48,7 @@ LOCAL_APPS = (
     'users',
     'core',
     'tags',
+    'comments',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -165,6 +166,8 @@ white_list = [
     'http://127.0.0.1:8000/',
     'http://127.0.0.1:8000/api/v1/accounts/profile/',
     'https://80.87.107.75:8000/api/v1/accounts/profile/',
+    'http://pictura.acceleratorpracticum.ru/api/v1/accounts/profile/',
+    'https://pictura.acceleratorpracticum.ru/api/v1/accounts/profile/',
 ]
 
 DJOSER = {
@@ -264,4 +267,9 @@ CORS_ALLOW_METHODS = (
     'PUT',
 )
 
-CORS_ALLOW_HEADERS = '*'
+CORS_ALLOWED_ORIGINS = (
+    'http://localhost:3000',
+)
+CORS_ALLOWED_ORIGIN_REGEXES = (
+    'http://localhost:3000',
+)
