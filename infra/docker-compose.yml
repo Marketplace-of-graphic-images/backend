@@ -12,9 +12,6 @@ services:
     restart: always
     links:
       - db
-    ports:
-      - "8000:8000"
-      - "465:465"
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
