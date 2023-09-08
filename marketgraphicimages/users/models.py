@@ -112,24 +112,35 @@ class UserConnection(models.Model):
         abstract = True
 
 
-class Subscription(UserConnection):
+class Subscription(models.Model):
+    subscriber = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscriber',
+        verbose_name=_('Subscriber'),
+        help_text=_('Who is following the user')
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='subscriptions',
-        verbose_name='Автор',
-        help_text='Выберите автора из списка',
+        related_name='is_subscribed',
+        verbose_name=_('Author'),
+        help_text=_('Who the user is following')
     )
 
     class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        constraints = [
-            models.UniqueConstraint(
-                name='unique_subscription',
-                fields=('user', 'author'),
+        verbose_name = _('Subscription')
+        verbose_name_plural = _('Subscriptions')
+        constraints = (
+            models.CheckConstraint(
+                name='constraint_self_follow',
+                check=~models.Q(subscriber=models.F('author'))
             ),
-        ]
+            models.UniqueConstraint(
+                name='follower_and_folowwing_have_unique_relationships',
+                fields=('subscriber', 'author')
+            )
+        )
 
 
 class UserConfirmationCode(models.Model):
