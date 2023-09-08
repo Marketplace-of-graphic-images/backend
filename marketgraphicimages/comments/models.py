@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(
+    commented_post = models.ForeignKey(
         Image,
         on_delete=models.CASCADE,
         related_name='comments',
