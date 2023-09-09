@@ -29,4 +29,4 @@ class Comment(models.Model):
 
     def __str__(self):
         return (f'Comment by {self.commentator.get_username()} on '
-                f'{self.post.name}')
+                f'{self.commented_post.name}')
