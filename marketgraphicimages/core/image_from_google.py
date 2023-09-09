@@ -1,24 +1,19 @@
 import io
 
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from google_images_search import GoogleImagesSearch
 from PIL import Image
 
-User = get_user_model()
 
-SUBJECT_EMAIL = "Confirmation code for 'domen_name'"
-TEXT_EMAIL = "Enter the confirmation code on the site to activate your account"
+def get_img_from_google(search_name: str = 'Природа', num_images: int = 10):
 
-
-def get_img_from_google(search_name: str = 'Природа'):
-
-    API_KEY = ''
-    PROJECT_CX = ''
+    API_KEY = settings.GOOGLE_API_KEY
+    PROJECT_CX = settings.GOOGLE_PROJECT_CX
     gis = GoogleImagesSearch(API_KEY, PROJECT_CX)
 
     _search_params = {
         'q': search_name,
-        'num': 10,
+        'num': num_images,
     }
 
     gis.search(search_params=_search_params)
