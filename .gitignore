@@ -168,6 +168,5 @@ logs/
 media/
 
 # Django migrations
-**/migrations/**
-**/**/migrations
-**/migrations
+**/migrations/*.py
+!**/migrations/__init__.py
