@@ -153,7 +153,8 @@ class Command(BaseCommand):
             except IntegrityError:
                 pass
 
-    def search_params(self, max_tags_in_one_name: int, count_name) -> list:
+    def search_params(
+            self, max_tags_in_one_name: int, count_name: int) -> list:
         """
         Generate a list of search parameters.
 
