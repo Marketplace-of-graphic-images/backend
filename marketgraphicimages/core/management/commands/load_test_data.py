@@ -130,6 +130,7 @@ class Command(BaseCommand):
                 license='free',
                 price=0,
                 image=image,
+                format=name.split('.')[-1].upper(),
             )
             new_image.tags.set(tags)
             new_image.save()
@@ -174,7 +175,6 @@ class Command(BaseCommand):
         self.create_tags()
         self.create_users()
         users = User.objects.filter(username__in=users_pool)
-        print(users)
         search_params = self.search_params(7, 6)
         created_img = []
         for search_name in tqdm(
