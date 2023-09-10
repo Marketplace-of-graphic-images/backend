@@ -45,6 +45,18 @@ users = (
         'password': 'test_user3',
         'author': True,
     },
+    {
+        'username': 'test_user4',
+        'email': 'test_user4@pictura.ru',
+        'password': 'test_user4',
+        'author': True,
+    },
+    {
+        'username': 'test_user5',
+        'email': 'test_user5@pictura.ru',
+        'password': 'test_user5',
+        'author': True,
+    },
 )
 
 comments_pool = [
@@ -130,7 +142,7 @@ class Command(BaseCommand):
             comment.text = random.choice(comments_pool)
             comment.save()
 
-    def search_params(self) -> list:
+    def search_params(self, max_tags_in_one_name: int, count_name) -> list:
         """
         Generate a list of search parameters.
 
@@ -139,8 +151,8 @@ class Command(BaseCommand):
         """
         name = tags.keys()
         params = []
-        for i in range(2, 7):
-            for _ in range(6):
+        for i in range(2, max_tags_in_one_name):
+            for _ in range(count_name):
                 search_name = random.sample(name, i)
                 params.append(' '.join(search_name))
         return params
@@ -150,7 +162,7 @@ class Command(BaseCommand):
         self.create_tags()
         self.create_users()
         users = User.objects.all()
-        search_params = self.search_params()
+        search_params = self.search_params(7, 6)
         created_img = []
         for search_name in tqdm(
             search_params, desc='Creating images', colour='green'

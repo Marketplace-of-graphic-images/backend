@@ -56,7 +56,7 @@ def get_image_data(image) -> tuple:
     """
     splitted_name = image.url.split('/')[-1]
     img_format = splitted_name.split('.')[-1]
-    img_format = 'JPEG' if img_format.lower == 'jpg' else img_format
+    img_format = 'JPEG' if img_format.lower() == 'jpg' else img_format
     return splitted_name, img_format
 
 
