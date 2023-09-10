@@ -19,7 +19,7 @@ exclude = [
 
 [tool.ruff.isort]
 combine-as-imports = true
-known-local-folder = ["images", "users", "api", "core", "tags"]
+known-local-folder = ["images", "users", "api", "core", "tags", "comments"]
 
 [tool.pytest.ini_options]
 python_paths = "marketgraphicimages"

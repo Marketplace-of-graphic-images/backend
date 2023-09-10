@@ -1,4 +1,3 @@
-from comments.models import Comment
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.paginator import Paginator
@@ -15,6 +14,7 @@ from marketgraphicimages.settings import (
     NUM_OTHER_AUTHOR_IMAGES,
 )
 
+from comments.models import Comment
 from core.encryption_str import verify_value
 from core.validators import validate_email
 from images.models import FavoriteImage, Image, TagImage
@@ -162,9 +162,11 @@ class TagSerializer(serializers.ModelSerializer):
 class BaseShortUserSerializer(serializers.ModelSerializer):
     """Base serializer for user class."""
 
+    is_author = serializers.BooleanField(source='author')
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'profile_photo')
+        fields = ('id', 'username', 'profile_photo', 'is_author')
 
 
 class AuthorSerializer(BaseShortUserSerializer):

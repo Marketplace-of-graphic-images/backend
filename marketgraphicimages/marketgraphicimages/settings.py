@@ -199,6 +199,10 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_YANDEX_OAUTH2_KEY = os.getenv('YANDEX_KEY')
 
 SOCIAL_AUTH_YANDEX_OAUTH2_SECRET = os.getenv('YANDEX_SECRET')
+
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+GOOGLE_PROJECT_CX = os.getenv('GOOGLE_PROJECT_CX')
+
 os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)
 LOGS_DIR = os.path.join(BASE_DIR, 'logs', 'marketgraphicimages.log')
 FORMAT_LOGRECORD = (

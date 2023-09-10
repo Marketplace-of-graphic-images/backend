@@ -22,6 +22,7 @@ from .schemas import (
 from api.v1.serializers import (
     AuthSignInSerializer,
     AuthSignUpSerializer,
+    BaseShortUserSerializer,
     ConfirmationSerializer,
     ImageGetSerializer,
     ImagePostPutPatchSerializer,
@@ -69,11 +70,11 @@ def auth_signup_post(request: Request) -> Response:
 def auth_confirmation(request: Request) -> Response:
     serializer = ConfirmationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
+    user = serializer.validated_data.get('user')
     access_token = AccessToken.for_user(serializer.validated_data.get('user'))
-    out_put_messege = {
-        'detail': 'Successful registration',
-    }
-    response = Response(out_put_messege, status=status.HTTP_200_OK)
+    response = Response(
+        BaseShortUserSerializer(user).data, status=status.HTTP_200_OK
+    )
     response.set_cookie(
         'jwt', str(access_token), expires=TOKEN_LIFETIME, httponly=True
     )
@@ -93,11 +94,11 @@ def auth_confirmation(request: Request) -> Response:
 def get_token_post(request: Request) -> Response:
     serializer = AuthSignInSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
+    user = serializer.validated_data.get('user')
     access_token = AccessToken.for_user(serializer.validated_data.get('user'))
-    out_put_messege = {
-        'detail': 'Successful login',
-    }
-    response = Response(out_put_messege, status=status.HTTP_200_OK)
+    response = Response(
+        BaseShortUserSerializer(user).data, status=status.HTTP_200_OK
+    )
     response.set_cookie(
         'jwt', str(access_token), expires=TOKEN_LIFETIME, httponly=True
     )
