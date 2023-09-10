@@ -56,7 +56,9 @@ jobs:
           echo YANDEX_KEY="${{ secrets.YANDEX_KEY }}" >> .env
           echo YANDEX_SECRET="${{ secrets.YANDEX_SECRET }}" >> .env
           echo EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
-          echo DEBUG="${{ secrets.DEBUG }}" >> .env         
+          echo DEBUG="${{ secrets.DEBUG }}" >> .env
+          echo GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" >> .env
+          echo GOOGLE_PROJECT_CX="${{ secrets.GOOGLE_PROJECT_CX }}" >> .env         
           sudo docker-compose up -d         
           sudo docker-compose exec -T backend python manage.py makemigrations
           sudo docker-compose exec -T backend python manage.py migrate
