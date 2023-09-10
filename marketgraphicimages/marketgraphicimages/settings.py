@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR.parent / 'infra/.env'
-load_dotenv(ENV_PATH)
+load_dotenv()
 
 
 SECRET_KEY = 'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
@@ -199,10 +199,6 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_YANDEX_OAUTH2_KEY = os.getenv('YANDEX_KEY')
 
 SOCIAL_AUTH_YANDEX_OAUTH2_SECRET = os.getenv('YANDEX_SECRET')
-
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
-GOOGLE_PROJECT_CX = os.getenv('GOOGLE_PROJECT_CX')
-
 os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)
 LOGS_DIR = os.path.join(BASE_DIR, 'logs', 'marketgraphicimages.log')
 FORMAT_LOGRECORD = (
