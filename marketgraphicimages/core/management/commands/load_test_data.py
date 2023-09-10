@@ -26,6 +26,10 @@ tags = {
     'Портрет': 'portret',
 }
 
+users_pool = (
+    'test_user1', 'test_user2', 'test_user3',
+    'test_user4', 'test_user5'
+)
 users = (
     {
         'username': 'test_user1',
@@ -101,9 +105,13 @@ class Command(BaseCommand):
         Create users.
         """
         for user in tqdm(users, desc='Creating users', colour='green'):
-            user, created = User.objects.get_or_create(**user)
-            if created:
-                user.save()
+            try:
+                new_user, created = User.objects.get_or_create(**user)
+                if created:
+                    new_user.set_password(user.get('password'))
+                    new_user.save()
+            except IntegrityError:
+                pass
 
     def create_image(
             self,
@@ -135,14 +143,18 @@ class Command(BaseCommand):
         """
         for image in tqdm(images, desc='Creating comments', colour='green'):
             user = random.choice(users)
-            comment, _ = Comment.objects.get_or_create(
-                commented_post=image,
-                commentator=user,
-            )
-            comment.text = random.choice(comments_pool)
-            comment.save()
+            try:
+                comment, _ = Comment.objects.get_or_create(
+                    commented_post=image,
+                    commentator=user,
+                )
+                comment.text = random.choice(comments_pool)
+                comment.save()
+            except IntegrityError:
+                pass
 
-    def search_params(self, max_tags_in_one_name: int, count_name) -> list:
+    def search_params(
+            self, max_tags_in_one_name: int, count_name: int) -> list:
         """
         Generate a list of search parameters.
 
@@ -161,7 +173,8 @@ class Command(BaseCommand):
 
         self.create_tags()
         self.create_users()
-        users = User.objects.all()
+        users = User.objects.filter(username__in=users_pool)
+        print(users)
         search_params = self.search_params(7, 6)
         created_img = []
         for search_name in tqdm(
