@@ -69,20 +69,15 @@ TOKEN_SCHEMA = openapi.Schema(
 
 SIGNUP_DONE_SCHEMA = openapi.Schema(
     type=openapi.TYPE_OBJECT,
-    required=('detail',),
+    required=('id', 'username', 'profile_photo', 'is_author'),
     properties={
-        'detail': openapi.Schema(
-            type=openapi.TYPE_STRING, default='Successful registration'
+        'id': openapi.Schema(type=openapi.TYPE_STRING),
+        'username': openapi.Schema(type=openapi.TYPE_STRING),
+        'profile_photo': openapi.Schema(
+            type=openapi.TYPE_STRING, format='url'
         ),
+        'is_author': openapi.Schema(type=openapi.TYPE_BOOLEAN)
     }
 )
 
-LOGIN_DONE_SCHEMA = openapi.Schema(
-    type=openapi.TYPE_OBJECT,
-    required=('detail',),
-    properties={
-        'detail': openapi.Schema(
-            type=openapi.TYPE_STRING, default='Successful login'
-        ),
-    }
-)
+LOGIN_DONE_SCHEMA = SIGNUP_DONE_SCHEMA
