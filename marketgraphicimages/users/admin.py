@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.contrib.auth.admin import UserAdmin
 
 from .models import ConfirmationCode, Subscription, UserConfirmationCode
 
@@ -13,7 +12,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 
 @admin.register(User)
-class CustomUserAdmin(UserAdmin):
+class CustomUserAdmin(admin.ModelAdmin):
     list_display = (
         'username',
         'email',
