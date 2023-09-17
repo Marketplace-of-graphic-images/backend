@@ -181,6 +181,9 @@ class ImageViewSet(viewsets.ModelViewSet):
             return ImageShortSerializer
         return ImagePostPutPatchSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
