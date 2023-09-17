@@ -293,13 +293,25 @@ class ImageGetSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
+class CustomBase64ImageField(Base64ImageField):
+    """Custom Base64ImageField with swagger_schema_fields."""
+
+    class Meta:
+        swagger_schema_fields = {
+            'type': 'string',
+            'title': 'Image Content',
+            'description': 'Content of the image base64 encoded',
+            'read_only': False
+        }
+
+
 class ImagePostPutPatchSerializer(serializers.ModelSerializer):
     """Image model serializer for post, put, patch requests."""
 
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all()
     )
-    image = Base64ImageField()
+    image = CustomBase64ImageField()
 
     class Meta:
         model = Image
