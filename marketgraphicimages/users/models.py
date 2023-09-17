@@ -6,6 +6,11 @@ from django.core.validators import (
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+Сharacter_name_CHOICES = (
+        ('User', 'User'),
+        ('Author', 'Author'),
+    )
+
 
 class User(AbstractUser):
     """Model of users."""
@@ -33,9 +38,11 @@ class User(AbstractUser):
             'unique': _('User with such an email already exists'),
         },
     )
-    author = models.BooleanField(
-        verbose_name=_('Author'),
-        default=False,
+    character = models.CharField(
+        max_length=70,
+        choices=Сharacter_name_CHOICES,
+        verbose_name=_('Сharacter'),
+        default='User',
     )
     profile_photo = models.ImageField(
         upload_to='user_photos',
@@ -112,18 +119,11 @@ class UserConnection(models.Model):
         abstract = True
 
 
-class Subscription(models.Model):
-    subscriber = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='subscriber',
-        verbose_name=_('Subscriber'),
-        help_text=_('Who is following the user')
-    )
+class Subscription(UserConnection):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='is_subscribed',
+        related_name='subscriptions',
         verbose_name=_('Author'),
         help_text=_('Who the user is following')
     )
@@ -132,14 +132,10 @@ class Subscription(models.Model):
         verbose_name = _('Subscription')
         verbose_name_plural = _('Subscriptions')
         constraints = (
-            models.CheckConstraint(
-                name='constraint_self_follow',
-                check=~models.Q(subscriber=models.F('author'))
-            ),
             models.UniqueConstraint(
                 name='follower_and_folowwing_have_unique_relationships',
-                fields=('subscriber', 'author')
-            )
+                fields=('user', 'author'),
+            ),
         )
 
 

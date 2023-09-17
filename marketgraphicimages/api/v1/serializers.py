@@ -348,3 +348,30 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
             validated_data['format'] = self.get_extension(validated_data)
         super().update(instance, validated_data)
         return instance
+
+
+class UserReadSerializer(serializers.HyperlinkedModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+    #is_favorited = serializers.SerializerMethodField()
+
+
+    def get_is_subscribed(self, obj):
+        if (self.context.get('request')
+           and not self.context['request'].user.is_anonymous):
+            return Subscription.objects.filter(
+                user=self.context['request'].user, author=obj).exists()
+        return False
+    
+    '''def get_is_favorited(self, obj):
+        if (self.context.get('request')
+           and self.context['request'].user.is_authenticated):
+            return FavoriteImage.objects.filter(
+                user=self.context['request'].user, image=obj)'''
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username',
+                  'first_name', 'last_name',
+                  'telegram_link', 'profile_photo',
+                  'birthday', 'is_subscribed',
+                  'character')

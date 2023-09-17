@@ -6,6 +6,7 @@ from .views import (
     ImageViewSet,
     TagViewSet,
     UserViewSet,
+    ProfileViewSet,
     auth_confirmation,
     auth_signup_post,
     get_token_post,
@@ -15,7 +16,7 @@ from .views import (
 v1_router = DefaultRouter()
 v1_router.register('users', UserViewSet)
 v1_router.register('image', ImageViewSet, basename='image')
-v1_router.register(r'tags', TagViewSet, basename='tags')
+v1_router.register('tags', TagViewSet, basename='tags')
 
 auth_url = [
     path('signin/', get_token_post, name='signin'),
@@ -24,11 +25,18 @@ auth_url = [
     path('signout/', sign_out, name='signout'),
 ]
 
+profile_urls = [
+    path(r'<int:pk>/', ProfileViewSet.as_view(
+        {'get': 'retrieve'}), name='user-detail'),
+    path(r'me/', ProfileViewSet.as_view({'get': 'me'}), name='me-detail'),
+]
+
 urlpatterns = [
     path('', include(v1_router.urls)),
     path('auth/', include(auth_url)),
     path('auth/social/', include('djoser.social.urls')),
     path('auth/', include('djoser.urls.jwt')),
+    path('profile/', include(profile_urls)),
     path('', include('djoser.urls')),
     path(
         'swagger<format>/',
