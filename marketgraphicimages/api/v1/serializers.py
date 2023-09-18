@@ -19,7 +19,7 @@ from core.encryption_str import verify_value
 from core.validators import validate_email
 from images.models import FavoriteImage, Image, TagImage
 from tags.models import Tag
-from users.models import ConfirmationCode, Subscription
+from users.models import ConfirmationCode, Subscription, UserConnection
 
 User = get_user_model()
 
@@ -365,7 +365,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         queryset = Image.objects.all()
         serializer = ImageSerializer(queryset, many=True)
         return serializer.data
-
+    
 
     class Meta:
         model = User
@@ -382,7 +382,9 @@ class ImageSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
 
     def get_is_favorited(self, obj):
-        return FavoriteImage.objects.filter(image=obj).exists()
+        user = self.context['request']
+        return FavoriteImage.objects.filter(image=obj, user=user).exists()
+
 
     class Meta:
         model = Image
