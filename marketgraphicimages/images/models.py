@@ -30,7 +30,6 @@ class Image(models.Model):
     )
     name = models.CharField(
         verbose_name=_('Name'),
-        unique=True,
         max_length=200,
         help_text=_('Enter the name'),
     )

@@ -19,6 +19,7 @@ from .schemas import (
     SIGUP_SHEMA,
     SIGUP_SHEMA_CONFIRMATION,
 )
+from api.v1.filters import ImageFilter
 from api.v1.serializers import (
     AuthSignInSerializer,
     AuthSignUpSerializer,
@@ -172,7 +173,7 @@ class ImageViewSet(viewsets.ModelViewSet):
     serializer_class = ImageGetSerializer
     permission_classes = (AllowAny, )
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('tags', )
+    filterset_class = ImageFilter
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -180,6 +181,9 @@ class ImageViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return ImageShortSerializer
         return ImagePostPutPatchSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

@@ -293,21 +293,30 @@ class ImageGetSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
+class CustomBase64ImageField(Base64ImageField):
+    """Custom Base64ImageField with swagger_schema_fields."""
+
+    class Meta:
+        swagger_schema_fields = {
+            'type': 'string',
+            'title': 'Image Content',
+            'description': 'Content of the image base64 encoded',
+            'read_only': False
+        }
+
+
 class ImagePostPutPatchSerializer(serializers.ModelSerializer):
     """Image model serializer for post, put, patch requests."""
 
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all()
     )
-    author = serializers.PrimaryKeyRelatedField(
-        default=serializers.CurrentUserDefault(),
-        queryset=User.objects.all()
-    )
-    image = Base64ImageField()
+    image = CustomBase64ImageField()
 
     class Meta:
         model = Image
-        fields = ('author', 'name', 'image', 'license', 'price', 'tags')
+        fields = ('name', 'image', 'license', 'price', 'tags', )
+        read_only_fields = ('author', )
 
     def to_representation(self, instance):
         serializer = ImageGetSerializer(
@@ -330,8 +339,7 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         validated_data['format'] = self.get_extension(validated_data)
         new_image = Image.objects.create(**validated_data)
-        for tag in tags:
-            TagImage.objects.create(image=new_image, tag=tag)
+        new_image.tags.set(tags)
         return new_image
 
     @transaction.atomic
@@ -342,8 +350,7 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         if 'tags' in validated_data:
             TagImage.objects.filter(image=instance).delete()
             tags = validated_data.pop('tags')
-            for tag in tags:
-                TagImage.objects.create(image=instance, tag=tag)
+            instance.tags.set(tags)
         if 'image' in validated_data:
             validated_data['format'] = self.get_extension(validated_data)
         super().update(instance, validated_data)
