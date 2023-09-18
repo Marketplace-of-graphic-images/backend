@@ -351,27 +351,43 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
 
 
 class UserReadSerializer(serializers.HyperlinkedModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
-    #is_favorited = serializers.SerializerMethodField()
+    #favoriteds = serializers.SerializerMethodField()
+    my_images = serializers.SerializerMethodField()
 
 
-    def get_is_subscribed(self, obj):
-        if (self.context.get('request')
-           and not self.context['request'].user.is_anonymous):
-            return Subscription.objects.filter(
-                user=self.context['request'].user, author=obj).exists()
-        return False
-    
-    '''def get_is_favorited(self, obj):
+    def get_my_images(self, obj):
+        queryset = obj.images.all()
         if (self.context.get('request')
            and self.context['request'].user.is_authenticated):
-            return FavoriteImage.objects.filter(
-                user=self.context['request'].user, image=obj)'''
+            return ImageSerializer(queryset, many=True).data
+
+    '''def get_favoriteds(self, obj):
+        queryset = obj.images.all()
+        images_limit = self.context['request'].query_params.get(
+            'images_limit')
+        if images_limit is not None:
+            try:
+                images_limit = int(images_limit)
+                queryset = queryset[:images_limit]
+            except (TypeError, ValueError):
+                pass
+        return ImageGetSerializer(queryset, many=True).data'''
 
     class Meta:
         model = User
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name',
                   'telegram_link', 'profile_photo',
-                  'birthday', 'is_subscribed',
-                  'character')
+                  'birthday', 'my_images',
+                  'character', #'favoriteds',
+                  )
+
+class ImageSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(read_only=True)
+    name = serializers.ReadOnlyField()
+
+
+    class Meta:
+        model = Image
+        fields = ('id', 'name',
+                  'image', )

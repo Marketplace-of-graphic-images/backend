@@ -38,6 +38,10 @@ class User(AbstractUser):
             'unique': _('User with such an email already exists'),
         },
     )
+    author = models.BooleanField(
+        verbose_name=_('Author'),
+        default=False,
+    )
     character = models.CharField(
         max_length=70,
         choices=Сharacter_name_CHOICES,
