@@ -28,7 +28,7 @@ from api.v1.serializers import (
     ImagePostPutPatchSerializer,
     ImageShortSerializer,
     TagSerializer,
-    UserReadSerializer,
+    UserSerializer,
 )
 from core.confirmation_code import send_email_with_confirmation_code
 from images.models import Image
@@ -195,7 +195,7 @@ class ProfileViewSet(mixins.ListModelMixin,
                      mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin,
                      viewsets.GenericViewSet):
-    serializer_class = UserReadSerializer
+    serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
@@ -203,13 +203,13 @@ class ProfileViewSet(mixins.ListModelMixin,
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            return UserReadSerializer
+            return UserSerializer
         return False
 
     @action(detail=False, methods=['get'],
             pagination_class=None,
             permission_classes=(IsAuthenticated,))
     def me(self, request):
-        serializer = UserReadSerializer(request.user)
+        serializer = UserSerializer(context={'request': request})
         return Response(serializer.data,
                         status=status.HTTP_200_OK)

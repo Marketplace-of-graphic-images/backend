@@ -350,8 +350,8 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserReadSerializer(serializers.HyperlinkedModelSerializer):
-    #favoriteds = serializers.SerializerMethodField()
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    favoriteds = serializers.SerializerMethodField()
     my_images = serializers.SerializerMethodField()
 
 
@@ -359,19 +359,13 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
         queryset = obj.images.all()
         if (self.context.get('request')
            and self.context['request'].user.is_authenticated):
-            return ImageSerializer(queryset, many=True).data
+            return ImageShortSerializer(queryset, many=True).data
 
-    '''def get_favoriteds(self, obj):
-        queryset = obj.images.all()
-        images_limit = self.context['request'].query_params.get(
-            'images_limit')
-        if images_limit is not None:
-            try:
-                images_limit = int(images_limit)
-                queryset = queryset[:images_limit]
-            except (TypeError, ValueError):
-                pass
-        return ImageGetSerializer(queryset, many=True).data'''
+    def get_favoriteds(self, obj):
+        queryset = Image.objects.all()
+        serializer = ImageSerializer(queryset, many=True)
+        return serializer.data
+
 
     class Meta:
         model = User
@@ -379,15 +373,17 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
                   'first_name', 'last_name',
                   'telegram_link', 'profile_photo',
                   'birthday', 'my_images',
-                  'character', #'favoriteds',
+                  'character', 'favoriteds',
                   )
+
 
 class ImageSerializer(serializers.ModelSerializer):
     image = Base64ImageField(read_only=True)
-    name = serializers.ReadOnlyField()
+    is_favorited = serializers.SerializerMethodField()
 
+    def get_is_favorited(self, obj):
+        return FavoriteImage.objects.filter(image=obj).exists()
 
     class Meta:
         model = Image
-        fields = ('id', 'name',
-                  'image', )
+        fields = '__all__'

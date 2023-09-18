@@ -124,10 +124,17 @@ class UserConnection(models.Model):
 
 
 class Subscription(UserConnection):
+    subscriber = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscriber',
+        verbose_name=_('Subscriber'),
+        help_text=_('Who is following the user')
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='subscriptions',
+        related_name='is_subscribed',
         verbose_name=_('Author'),
         help_text=_('Who the user is following')
     )
@@ -136,10 +143,14 @@ class Subscription(UserConnection):
         verbose_name = _('Subscription')
         verbose_name_plural = _('Subscriptions')
         constraints = (
+            models.CheckConstraint(
+                name='constraint_self_follow',
+                check=~models.Q(subscriber=models.F('author'))
+            ),
             models.UniqueConstraint(
                 name='follower_and_folowwing_have_unique_relationships',
-                fields=('user', 'author'),
-            ),
+                fields=('subscriber', 'author')
+            )
         )
 
 

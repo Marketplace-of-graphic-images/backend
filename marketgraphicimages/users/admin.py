@@ -10,19 +10,19 @@ User = get_user_model()
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
-        'user',
+        'subscriber',
         'author',
     )
     search_fields = (
-        'user',
+        'subscriber',
         'author',
     )
     list_filter = (
-        'user',
+        'subscriber',
         'author',
     )
     list_editable = (
-        'user',
+        'subscriber',
         'author'
     )
 
