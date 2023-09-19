@@ -210,6 +210,6 @@ class ProfileViewSet(mixins.ListModelMixin,
             pagination_class=None,
             permission_classes=(IsAuthenticated,))
     def me(self, request):
-        serializer = UserSerializer(context={'request': request})
+        serializer = UserSerializer(context=request.data)
         return Response(serializer.data,
                         status=status.HTTP_200_OK)

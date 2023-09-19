@@ -28,6 +28,7 @@ auth_url = [
 profile_urls = [
     path(r'<int:pk>/', ProfileViewSet.as_view(
         {'get': 'retrieve'}), name='user-detail'),
+
     path(r'me/', UserViewSet.as_view(
         {'get': 'me'}), name='user-detail'),
 ]

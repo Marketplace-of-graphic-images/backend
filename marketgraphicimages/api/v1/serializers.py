@@ -19,7 +19,7 @@ from core.encryption_str import verify_value
 from core.validators import validate_email
 from images.models import FavoriteImage, Image, TagImage
 from tags.models import Tag
-from users.models import ConfirmationCode, Subscription, UserConnection
+from users.models import ConfirmationCode, Subscription
 
 User = get_user_model()
 
@@ -353,6 +353,7 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     favoriteds = serializers.SerializerMethodField()
     my_images = serializers.SerializerMethodField()
+    #favorit = serializers.SerializerMethodField()
 
 
     def get_my_images(self, obj):
@@ -362,9 +363,15 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             return ImageShortSerializer(queryset, many=True).data
 
     def get_favoriteds(self, obj):
-        queryset = Image.objects.all()
+        queryset = FavoriteImage.objects.filter(user=obj.id)
         serializer = ImageSerializer(queryset, many=True)
         return serializer.data
+    
+    '''def get_favorit(self, obj):
+        queryset = Image.objects.all()
+
+        serializer = ImageFavor(queryset, many=True)
+        return serializer.data'''
     
 
     class Meta:
@@ -378,12 +385,22 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ImageSerializer(serializers.ModelSerializer):
-    image = Base64ImageField(read_only=True)
+    #image = Base64ImageField(read_only=True)
     is_favorited = serializers.SerializerMethodField()
 
     def get_is_favorited(self, obj):
-        user = self.context['request']
-        return FavoriteImage.objects.filter(image=obj, user=user).exists()
+        queryset = Image.objects.filter(id=obj.image_id)
+        serializer = ImageFavor(queryset, many=True)
+        return serializer.data
+
+
+    class Meta:
+        model = FavoriteImage
+        fields = ('id', 'is_favorited', 'image_id', 'user_id')
+                  
+
+class ImageFavor(serializers.ModelSerializer):
+    image = Base64ImageField(read_only=True)
 
 
     class Meta:
