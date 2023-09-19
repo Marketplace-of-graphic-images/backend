@@ -63,14 +63,14 @@ def hash_confirm_code():
     return value
 
 @pytest.fixture
-def UserConfirmationCodeFixture(user, hash_confirm_code):
+def user_confirmation_code(user, hash_confirm_code):
     return UserConfirmationCode.objects.create(
         user=user,
         confirmation_code=hash_confirm_code,
     )
 
 @pytest.fixture
-def UserConfirmationCodeIsConfirmed(user, hash_confirm_code):
+def user_confirmation_code_is_confirmed(user, hash_confirm_code):
     return UserConfirmationCode.objects.create(
         user=user,
         confirmation_code=hash_confirm_code,
