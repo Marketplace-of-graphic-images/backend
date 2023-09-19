@@ -185,7 +185,6 @@ DJOSER = {
         'password_reset': 'core.new_password_reset_email.PasswordResetEmail',
     },
     'PERMISSIONS': {
-        "password_reset": ["rest_framework.permissions.AllowAny"],
         'password_reset_confirm_code': ['rest_framework.permissions.AllowAny'],
     },
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
