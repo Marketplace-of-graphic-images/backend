@@ -1,12 +1,12 @@
 import random
 
-from comments.models import Comment
 from django.contrib.auth import get_user_model
 from django.core.files.images import ImageFile
 from django.core.management import BaseCommand
 from django.db.utils import IntegrityError
 from tqdm import tqdm
 
+from comments.models import Comment
 from core.image_from_google import get_img_file, get_img_from_google
 from images.models import Image
 from tags.models import Tag

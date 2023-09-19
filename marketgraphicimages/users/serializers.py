@@ -31,7 +31,7 @@ class EmailAndTokenSerializer(serializers.Serializer):
             return data
         else:
             raise serializers.ValidationError(
-                {'token': 'invalid token'},
+                {'confirmation_code': 'invalid confirmation_code'},
             )
 
 
