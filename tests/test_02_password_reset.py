@@ -171,9 +171,7 @@ class Test00UserSetResetPassword:
         invalid_data,
         expected_fields,
     ):
-        print(url_unit)
         response = user_client.post(url_unit, data=invalid_data)
-        print(response)
         response_json = response.json()
         for field in expected_fields:
             assert (field in response_json
@@ -182,3 +180,21 @@ class Test00UserSetResetPassword:
                 'некорректные данные, в ответе должна возвращаться информация '
                 'о неправильно заполненных полях.'
             )
+
+    def test_07_reset_password_send_mail(
+        self,
+        client,
+        user_client,
+        UserConfirmationCodeFixture,
+    ):
+        valid_data = {'email': 'testuser@pictura.fake'}
+        outbox_before_count = len(mail.outbox)
+        client.post(
+            self.url_reset_password,
+            data=valid_data
+        )
+        outbox_after_count = len(mail.outbox)
+        assert outbox_before_count + 1 == outbox_after_count, (
+            f'Проверьте, что POST-запрос к `{self.url_reset_password}` '
+            'с корректными данными отправляет письмо на почту.'
+        )
