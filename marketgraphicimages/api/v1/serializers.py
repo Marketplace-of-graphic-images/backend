@@ -220,7 +220,7 @@ class ImageShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = ('id', 'name', 'image', )
+        fields = ('id', 'name', 'image')
 
 
 class ImageGetSerializer(serializers.ModelSerializer):
@@ -271,8 +271,8 @@ class ImageGetSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def get_recommended(self, obj):
-        """Getting a list of recommendations based on tags and
-        returns the number of images specified in the
+        """Getting a list of recommendations based on most popular
+        combo of tags and returns the number of images specified in the
         NUM_OF_RECOMMENDED_IMAGES, randomly selected."""
 
         tags = Tag.objects.filter(
