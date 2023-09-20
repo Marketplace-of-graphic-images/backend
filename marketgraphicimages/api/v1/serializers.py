@@ -12,6 +12,7 @@ from marketgraphicimages.settings import (
     COMMENTS_PAGINATOR_SIZE,
     NUM_OF_RECOMMENDED_IMAGES,
     NUM_OTHER_AUTHOR_IMAGES,
+    IMAGES_PAGINATOR_SIZE,
 )
 
 from comments.models import Comment
@@ -350,29 +351,34 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserReadSerializer(serializers.HyperlinkedModelSerializer):
     favoriteds = serializers.SerializerMethodField()
     my_images = serializers.SerializerMethodField()
-    #favorit = serializers.SerializerMethodField()
-
+    #count_my_images = serializers.SerializerMethodField()
+    #my_subscribers = serializers.SerializerMethodField()
 
     def get_my_images(self, obj):
-        queryset = obj.images.all()
         if (self.context.get('request')
            and self.context['request'].user.is_authenticated):
-            return ImageShortSerializer(queryset, many=True).data
+            page_size = self.context['request'].query_params.get(
+                'size', IMAGES_PAGINATOR_SIZE
+            )
+            paginator = Paginator(obj.images.all(), page_size)
+            page = self.context['request'].query_params.get('page', 1)
+            images = paginator.page(page)
+            serializer = ImageShortSerializer(images, many=True)
+            return serializer.data
 
     def get_favoriteds(self, obj):
-        queryset = FavoriteImage.objects.filter(user=obj.id)
-        serializer = ImageSerializer(queryset, many=True)
+        page_size = self.context['request'].query_params.get(
+            'size', IMAGES_PAGINATOR_SIZE
+        )
+        paginator = Paginator(
+            FavoriteImage.objects.filter(user=obj.id), page_size)
+        page = self.context['request'].query_params.get('page', 1)
+        images = paginator.page(page)
+        serializer = ImageSerializer(images, many=True)
         return serializer.data
-    
-    '''def get_favorit(self, obj):
-        queryset = Image.objects.all()
-
-        serializer = ImageFavor(queryset, many=True)
-        return serializer.data'''
-    
 
     class Meta:
         model = User
@@ -385,7 +391,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ImageSerializer(serializers.ModelSerializer):
-    #image = Base64ImageField(read_only=True)
     is_favorited = serializers.SerializerMethodField()
 
     def get_is_favorited(self, obj):
@@ -393,15 +398,13 @@ class ImageSerializer(serializers.ModelSerializer):
         serializer = ImageFavor(queryset, many=True)
         return serializer.data
 
-
     class Meta:
         model = FavoriteImage
         fields = ('id', 'is_favorited', 'image_id', 'user_id')
-                  
+
 
 class ImageFavor(serializers.ModelSerializer):
     image = Base64ImageField(read_only=True)
-
 
     class Meta:
         model = Image

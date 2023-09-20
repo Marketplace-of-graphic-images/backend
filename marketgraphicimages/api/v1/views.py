@@ -5,9 +5,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status, viewsets, mixins
+from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
@@ -28,7 +28,6 @@ from api.v1.serializers import (
     ImagePostPutPatchSerializer,
     ImageShortSerializer,
     TagSerializer,
-    UserSerializer,
 )
 from core.confirmation_code import send_email_with_confirmation_code
 from images.models import Image
@@ -189,27 +188,3 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Tag.objects.all()
-
-
-class ProfileViewSet(mixins.ListModelMixin,
-                     mixins.RetrieveModelMixin,
-                     mixins.UpdateModelMixin,
-                     viewsets.GenericViewSet):
-    serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        return User.objects.all()
-
-    def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return UserSerializer
-        return False
-
-    @action(detail=False, methods=['get'],
-            pagination_class=None,
-            permission_classes=(IsAuthenticated,))
-    def me(self, request):
-        serializer = UserSerializer(context=request.data)
-        return Response(serializer.data,
-                        status=status.HTTP_200_OK)
