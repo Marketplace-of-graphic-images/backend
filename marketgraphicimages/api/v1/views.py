@@ -31,6 +31,7 @@ from api.v1.serializers import (
     TagSerializer,
 )
 from core.confirmation_code import send_email_with_confirmation_code
+from core.permissions import OwnerOrAdminOrReadOnly
 from images.models import Image
 from tags.models import Tag
 
@@ -171,7 +172,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (OwnerOrAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
 
