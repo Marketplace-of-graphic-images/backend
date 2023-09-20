@@ -355,7 +355,8 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
     favoriteds = serializers.SerializerMethodField()
     my_images = serializers.SerializerMethodField()
     count_my_images = serializers.SerializerMethodField()
-    #my_subscribers = serializers.SerializerMethodField()
+    my_subscribers = serializers.SerializerMethodField()
+    my_subscriptions = serializers.SerializerMethodField()
 
     def get_my_images(self, obj):
         if (self.context.get('request')
@@ -385,6 +386,16 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
         serializer = ImageShortSerializer(images, many=True)
         return len(serializer.data)
 
+    def get_my_subscribers(self, obj):
+        queryset = Subscription.objects.filter(author=obj.id)
+        serializer = MySubscribers(queryset, many=True)
+        return len(serializer.data)
+    
+    def get_my_subscriptions(self, obj):
+        queryset = Subscription.objects.filter(subscriber=obj.id)
+        serializer = MySubscribers(queryset, many=True)
+        return len(serializer.data)
+
     class Meta:
         model = User
         fields = ('email', 'id', 'username',
@@ -392,7 +403,8 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
                   'telegram_link', 'profile_photo',
                   'birthday', 'my_images',
                   'character', 'favoriteds',
-                  'count_my_images',
+                  'count_my_images', 'my_subscribers',
+                  'my_subscriptions',
                   )
 
 
@@ -414,4 +426,11 @@ class ImageFavor(serializers.ModelSerializer):
 
     class Meta:
         model = Image
+        fields = '__all__'
+
+
+class MySubscribers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
         fields = '__all__'
