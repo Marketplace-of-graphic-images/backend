@@ -354,7 +354,7 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
 class UserReadSerializer(serializers.HyperlinkedModelSerializer):
     favoriteds = serializers.SerializerMethodField()
     my_images = serializers.SerializerMethodField()
-    #count_my_images = serializers.SerializerMethodField()
+    count_my_images = serializers.SerializerMethodField()
     #my_subscribers = serializers.SerializerMethodField()
 
     def get_my_images(self, obj):
@@ -380,6 +380,11 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
         serializer = ImageSerializer(images, many=True)
         return serializer.data
 
+    def get_count_my_images(self, obj):
+        images = obj.images.all()
+        serializer = ImageShortSerializer(images, many=True)
+        return len(serializer.data)
+
     class Meta:
         model = User
         fields = ('email', 'id', 'username',
@@ -387,6 +392,7 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
                   'telegram_link', 'profile_photo',
                   'birthday', 'my_images',
                   'character', 'favoriteds',
+                  'count_my_images',
                   )
 
 
