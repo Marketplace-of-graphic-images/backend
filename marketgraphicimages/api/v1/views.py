@@ -115,6 +115,9 @@ def sign_out(_: Request) -> Response:
 
 
 class RedirectSocial(View):
+    """
+    Redirect for take 'code' and 'state' from social-auth/.
+    """
 
     def get(self, request: Request, *args, **kwargs) -> Response:
         code, state = str(request.GET['code']), str(request.GET['state'])

@@ -19,7 +19,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     '80.87.107.75',
-    'pictura.acceleratorpracticum.ru',
+    'pictura.acceleratorpracticum.ru'
 ]
 
 DJANGO_APPS = (
@@ -263,7 +263,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
-    'https://marketplace-of-graphic-images.github.io/',
+    'https://marketplace-of-graphic-images.github.io',
 )
 
 CORS_ALLOW_METHODS = (
@@ -277,9 +277,9 @@ CORS_ALLOW_METHODS = (
 
 CORS_ALLOWED_ORIGINS = (
     'http://localhost:3000',
-    'https://marketplace-of-graphic-images.github.io/',
+    'https://marketplace-of-graphic-images.github.io',
 )
 CORS_ALLOWED_ORIGIN_REGEXES = (
     'http://localhost:3000',
-    'https://marketplace-of-graphic-images.github.io/',
+    'https://marketplace-of-graphic-images.github.io',
 )
