@@ -12,7 +12,6 @@ class EmailAndTokenSerializer(serializers.Serializer):
     """Validate email and confirmation code.
     Сhecks the confirmation code.
     """
-
     confirmation_code = serializers.CharField()
     email = serializers.EmailField()
 
@@ -31,7 +30,7 @@ class EmailAndTokenSerializer(serializers.Serializer):
             return data
         else:
             raise serializers.ValidationError(
-                {'token': 'invalid token'},
+                {'confirmation_code': 'invalid confirmation_code'},
             )
 
 

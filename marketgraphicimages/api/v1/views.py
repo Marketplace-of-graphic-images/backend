@@ -31,6 +31,7 @@ from api.v1.serializers import (
     TagSerializer,
 )
 from core.confirmation_code import send_email_with_confirmation_code
+from core.permissions import OwnerOrAdminOrReadOnly
 from images.models import Image
 from tags.models import Tag
 
@@ -122,12 +123,6 @@ class RedirectSocial(View):
 
 
 class UserViewSet(UserViewSet):
-    """Update reset_password method logic.
-    The method sends a six-digit confirmation code to the user's email.
-    Added reset_password_confirm_code method. It checks the confirmation code.
-    Update reset_password_confirm method. This method changes the password
-    after successful confirmation of the code.
-    """
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
             self.permission_classes = (
@@ -142,6 +137,10 @@ class UserViewSet(UserViewSet):
 
     @action(['post'], detail=False)
     def reset_password_confirm_code(self, request, *args, **kwargs):
+        """
+        Checks the confirmation code.
+        Update reset_password_confirm method.
+        """
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             is_token_valid = serializer.validated_data.get('user_confirm_code')
@@ -152,6 +151,8 @@ class UserViewSet(UserViewSet):
 
     @action(['post'], detail=False)
     def reset_password_confirm(self, request, *args, **kwargs):
+        """This method changes the password after successful
+         confirmation of the code."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data.get('user')
@@ -171,7 +172,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (OwnerOrAdminOrReadOnly, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
 

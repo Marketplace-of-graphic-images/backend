@@ -1,6 +1,10 @@
+
 import pytest
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
+
+from core.encryption_str import hash_value
+from users.models import UserConfirmationCode
 
 
 @pytest.fixture
@@ -51,3 +55,24 @@ def user_client(token_user):
     client = APIClient()
     client.cookies['jwt'] = token_user['jwt']
     return client
+
+
+@pytest.fixture(scope="session")
+def hash_confirm_code():
+    value = hash_value('123456')
+    return value
+
+@pytest.fixture
+def user_confirmation_code(user, hash_confirm_code):
+    return UserConfirmationCode.objects.create(
+        user=user,
+        confirmation_code=hash_confirm_code,
+    )
+
+@pytest.fixture
+def user_confirmation_code_is_confirmed(user, hash_confirm_code):
+    return UserConfirmationCode.objects.create(
+        user=user,
+        confirmation_code=hash_confirm_code,
+        is_confirmed=True
+    )
