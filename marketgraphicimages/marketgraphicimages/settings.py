@@ -19,7 +19,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     '80.87.107.75',
-    'pictura.acceleratorpracticum.ru'
+    'pictura.acceleratorpracticum.ru',
+    '31.129.105.217',
 ]
 
 DJANGO_APPS = (
