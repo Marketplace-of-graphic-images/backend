@@ -31,7 +31,7 @@ from api.v1.serializers import (
     TagSerializer,
 )
 from core.confirmation_code import send_email_with_confirmation_code
-from core.permissions import OwnerOrAdminOrReadOnly
+from core.permissions import IsAuthorOrAdminPermission, OwnerOrAdminOrReadOnly
 from images.models import Image
 from tags.models import Tag
 
@@ -182,6 +182,12 @@ class ImageViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return ImageShortSerializer
         return ImagePostPutPatchSerializer
+
+    def get_permissions(self):
+        method = self.request.method
+        if method == 'POST':
+            self.permission_classes = (IsAuthorOrAdminPermission,)
+        return super().get_permissions()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

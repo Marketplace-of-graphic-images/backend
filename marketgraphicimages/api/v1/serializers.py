@@ -220,7 +220,7 @@ class ImageShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = ('id', 'name', 'image', 'tags')
+        fields = ('id', 'name', 'image', )
 
 
 class ImageGetSerializer(serializers.ModelSerializer):
