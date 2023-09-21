@@ -14,6 +14,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
+from .schemas import (LOGIN_DONE_SCHEMA, SIGNIN_SCHEMA, SIGNUP_DONE_SCHEMA,
+                      SIGUP_SHEMA, SIGUP_SHEMA_CONFIRMATION)
 from api.v1.filters import ImageFilter
 from api.v1.serializers import (AuthSignInSerializer, AuthSignUpSerializer,
                                 BaseShortUserSerializer,
@@ -28,8 +30,7 @@ from core.permissions import (OwnerOrAdminPermission,
                               IsAuthorOrAdminPermission)
 from images.models import FavoriteImage, Image
 from tags.models import Tag
-from .schemas import (LOGIN_DONE_SCHEMA, SIGNIN_SCHEMA, SIGNUP_DONE_SCHEMA,
-                      SIGUP_SHEMA, SIGUP_SHEMA_CONFIRMATION)
+
 
 User = get_user_model()
 
@@ -171,7 +172,6 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
-    serializer_class = [IsAuthenticatedOrReadOnly, ]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
 
@@ -185,11 +185,11 @@ class ImageViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         method = self.request.method
         if method == 'DELETE':
-            return [OwnerOrAdminPermission(), ]
+            return [IsAuthenticated(), OwnerOrAdminPermission(), ]
         if method == 'POST':
-            return [IsAuthorOrAdminPermission(), ]
+            return [IsAuthenticated(), IsAuthorOrAdminPermission(), ]
         if method in ['PATCH', 'PUT', ]:
-            return [OwnerPermission(), ]
+            return [IsAuthenticated(), OwnerPermission(), ]
         return [OwnerOrReadOnlyPermission(), ]
 
     def perform_create(self, serializer):
@@ -197,10 +197,8 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post', 'delete'],
             detail=True,
-            permission_classes=(IsAuthenticated))
+            permission_classes=[IsAuthenticated, ],)
     def favorite(self, request, pk=None):
-        if request.user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         image = get_object_or_404(Image, pk=pk)
         if request.method == 'POST':
             serializer = FavoriteSerialiser(data={
