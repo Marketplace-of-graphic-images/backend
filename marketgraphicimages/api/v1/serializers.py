@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.paginator import Paginator
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from drf_extra_fields.fields import Base64ImageField
@@ -10,6 +10,7 @@ from rest_framework.exceptions import ValidationError
 
 from marketgraphicimages.settings import (
     COMMENTS_PAGINATOR_SIZE,
+    MAX_NUM_OF_TAGS_RECOMENDED_COMBO,
     NUM_OF_RECOMMENDED_IMAGES,
     NUM_OTHER_AUTHOR_IMAGES,
 )
@@ -270,14 +271,36 @@ class ImageGetSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def get_recommended(self, obj):
-        """Getting a list of recommendations based on tags and
-        returns the number of images specified in the
+        """Getting a list of recommendations based on most popular
+        combo of tags and returns the number of images specified in the
         NUM_OF_RECOMMENDED_IMAGES, randomly selected."""
 
-        tags = obj.tags.all()
-        images = Image.objects.filter(
-            tags__in=tags).exclude(
-                id=obj.id).order_by('?')[:NUM_OF_RECOMMENDED_IMAGES]
+        tags = Tag.objects.filter(
+            id__in=obj.tags.all()
+        ).annotate(
+            image_count=models.Count('tagimage')
+        ).order_by(
+            '-image_count'
+        )[:MAX_NUM_OF_TAGS_RECOMENDED_COMBO]
+        images = Image.objects.none()
+        for сombination in range(tags.count(), 0, -1):
+            new_images = Image.objects.annotate(
+                num_of_tags=models.Count(
+                    'tags', filter=models.Q(tags__in=tags[:сombination])
+                )
+            ).filter(
+                num_of_tags=сombination
+            ).exclude(
+                id=obj.id
+            ).exclude(
+                id__in=images
+            ).order_by(
+                '?'
+            ).distinct()
+            images = images | new_images
+            if images.count() >= NUM_OF_RECOMMENDED_IMAGES:
+                break
+        images = images[:NUM_OF_RECOMMENDED_IMAGES]
         serializer = ImageShortSerializer(images, many=True)
         return serializer.data
 
