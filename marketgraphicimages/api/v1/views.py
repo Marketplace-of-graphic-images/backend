@@ -23,7 +23,9 @@ from api.v1.serializers import (AuthSignInSerializer, AuthSignUpSerializer,
                                 ImageShortSerializer, TagSerializer)
 from core.confirmation_code import send_email_with_confirmation_code
 from core.permissions import (OwnerOrAdminPermission,
-                              OwnerOrReadOnlyPermission, OwnerPermission)
+                              OwnerOrReadOnlyPermission,
+                              OwnerPermission,
+                              IsAuthorOrAdminPermission)
 from images.models import FavoriteImage, Image
 from tags.models import Tag
 from .schemas import (LOGIN_DONE_SCHEMA, SIGNIN_SCHEMA, SIGNUP_DONE_SCHEMA,
@@ -169,7 +171,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly(), ]
+    serializer_class = [IsAuthenticatedOrReadOnly, ]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
 
@@ -185,8 +187,8 @@ class ImageViewSet(viewsets.ModelViewSet):
         if method == 'DELETE':
             return [OwnerOrAdminPermission(), ]
         if method == 'POST':
-            return [IsAuthenticated(), ]
-        if method == ['PATCH', 'PUT', ]:
+            return [IsAuthorOrAdminPermission(), ]
+        if method in ['PATCH', 'PUT', ]:
             return [OwnerPermission(), ]
         return [OwnerOrReadOnlyPermission(), ]
 
