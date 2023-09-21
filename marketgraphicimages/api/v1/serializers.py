@@ -378,3 +378,26 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
             validated_data['format'] = self.get_extension(validated_data)
         super().update(instance, validated_data)
         return instance
+
+
+class FavoriteSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = FavoriteImage
+        fields = (
+            'image',
+            'user',
+        )
+
+    def validate(sels, data):
+        image = data.get('image')
+        user = data.get('user')
+        if image.favoriteimage_set.filter(user=user).exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны.'
+            )
+        return data
+
+    def to_representation(self, instance):
+        return ImageShortSerializer(
+            instance.image
+        ).data
