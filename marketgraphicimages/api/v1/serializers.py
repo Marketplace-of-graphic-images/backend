@@ -390,7 +390,7 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
         queryset = Subscription.objects.filter(author=obj.id)
         serializer = MySubscribers(queryset, many=True)
         return len(serializer.data)
-    
+
     def get_my_subscriptions(self, obj):
         queryset = Subscription.objects.filter(subscriber=obj.id)
         serializer = MySubscribers(queryset, many=True)
