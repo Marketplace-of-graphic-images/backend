@@ -8,8 +8,7 @@ from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import (AllowAny, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
@@ -25,7 +24,6 @@ from api.v1.serializers import (AuthSignInSerializer, AuthSignUpSerializer,
                                 ImageShortSerializer, TagSerializer)
 from core.confirmation_code import send_email_with_confirmation_code
 from core.permissions import (OwnerOrAdminPermission,
-                              OwnerOrReadOnlyPermission,
                               OwnerPermission,
                               IsAuthorOrAdminPermission)
 from images.models import FavoriteImage, Image
@@ -172,6 +170,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
+    permission_classes = (IsAuthenticated, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
 
@@ -184,20 +183,21 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         method = self.request.method
+        if self.action == 'favorite' and method == 'POST':
+            return (IsAuthenticated(),)
         if method == 'DELETE':
-            return [IsAuthenticated(), OwnerOrAdminPermission(), ]
+            return (OwnerOrAdminPermission(),)
         if method == 'POST':
-            return [IsAuthenticated(), IsAuthorOrAdminPermission(), ]
-        if method in ['PATCH', 'PUT', ]:
-            return [IsAuthenticated(), OwnerPermission(), ]
-        return [OwnerOrReadOnlyPermission(), ]
+            return (IsAuthorOrAdminPermission(),)
+        if method in ('PATCH', 'PUT',):
+            return (OwnerPermission(),)
+        return (IsAuthenticated(),)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(methods=['post', 'delete'],
-            detail=True,
-            permission_classes=[IsAuthenticated, ],)
+    @action(methods=('post', 'delete',),
+            detail=True)
     def favorite(self, request, pk=None):
         image = get_object_or_404(Image, pk=pk)
         if request.method == 'POST':
