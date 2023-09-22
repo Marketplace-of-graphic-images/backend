@@ -1,5 +1,6 @@
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from django.views import View
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
@@ -7,33 +8,29 @@ from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import (AllowAny,
+                                        IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .schemas import (
-    LOGIN_DONE_SCHEMA,
-    SIGNIN_SCHEMA,
-    SIGNUP_DONE_SCHEMA,
-    SIGUP_SHEMA,
-    SIGUP_SHEMA_CONFIRMATION,
-)
+from .schemas import (LOGIN_DONE_SCHEMA, SIGNIN_SCHEMA, SIGNUP_DONE_SCHEMA,
+                      SIGUP_SHEMA, SIGUP_SHEMA_CONFIRMATION)
 from api.v1.filters import ImageFilter
-from api.v1.serializers import (
-    AuthSignInSerializer,
-    AuthSignUpSerializer,
-    BaseShortUserSerializer,
-    ConfirmationSerializer,
-    ImageGetSerializer,
-    ImagePostPutPatchSerializer,
-    ImageShortSerializer,
-    TagSerializer,
-)
+from api.v1.serializers import (AuthSignInSerializer, AuthSignUpSerializer,
+                                BaseShortUserSerializer,
+                                ConfirmationSerializer, FavoriteSerialiser,
+                                ImageGetSerializer,
+                                ImagePostPutPatchSerializer,
+                                ImageShortSerializer, TagSerializer)
 from core.confirmation_code import send_email_with_confirmation_code
-from core.permissions import IsAuthorOrAdminPermission, OwnerOrAdminOrReadOnly
-from images.models import Image
+from core.permissions import (OwnerOrAdminPermission,
+                              OwnerPermission,
+                              IsAuthorOrAdminPermission)
+from images.models import FavoriteImage, Image
 from tags.models import Tag
+
 
 User = get_user_model()
 
@@ -175,7 +172,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
-    permission_classes = (OwnerOrAdminOrReadOnly, )
+    permission_classes = (IsAuthenticated, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
 
@@ -188,12 +185,41 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         method = self.request.method
+        if self.action == 'favorite' and method == 'POST':
+            return (IsAuthenticated(),)
+        if method == 'DELETE':
+            return (OwnerOrAdminPermission(),)
         if method == 'POST':
-            self.permission_classes = (IsAuthorOrAdminPermission,)
-        return super().get_permissions()
+            return (IsAuthorOrAdminPermission(),)
+        if method in ('PATCH', 'PUT',):
+            return (OwnerPermission(),)
+        return (IsAuthenticatedOrReadOnly(),)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(methods=('post', 'delete',),
+            detail=True)
+    def favorite(self, request, pk=None):
+        """Add favorite image."""
+        image = get_object_or_404(Image, pk=pk)
+        if request.method == 'POST':
+            serializer = FavoriteSerialiser(data={
+                'user': request.user.id,
+                'image': image.id
+            })
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
+        if not image.favoriteimage_set.filter(user=request.user).exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        favorite_image = get_object_or_404(
+            FavoriteImage,
+            image=image,
+            user=self.request.user,
+        )
+        self.perform_destroy(favorite_image)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
