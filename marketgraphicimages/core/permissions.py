@@ -2,7 +2,7 @@ from rest_framework import permissions
 
 
 class OwnerOrAdminPermission(permissions.BasePermission):
-    """Only for owner."""
+    """Only for the owner of the object."""
     def has_permission(self, request, view):
         return request.user.is_authenticated
 
@@ -12,7 +12,7 @@ class OwnerOrAdminPermission(permissions.BasePermission):
 
 
 class OwnerPermission(permissions.BasePermission):
-    """Only author."""
+    """Only author of the object."""
     def has_permission(self, request, view):
         return request.user.is_authenticated
 
@@ -21,7 +21,7 @@ class OwnerPermission(permissions.BasePermission):
 
 
 class IsAuthorOrAdminPermission(permissions.BasePermission):
-    """Only author and admin can post images."""
+    """Only the author or admin."""
     def has_permission(self, request, view):
         return bool(request.user.is_authenticated and request.user.author or
                     request.user.is_superuser)
