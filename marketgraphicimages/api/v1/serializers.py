@@ -441,7 +441,7 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name',
-                  'vk', 'profile_photo',
+                  'vk', 'instagram', 'website', 'profile_photo',
                   'birthday', 'my_images',
                   'character', 'favoriteds',
                   'count_my_images', 'my_subscribers',
