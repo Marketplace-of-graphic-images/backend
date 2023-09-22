@@ -396,11 +396,22 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
         serializer = MySubscribers(queryset, many=True)
         return len(serializer.data)
 
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data.get(
+            'first_name', instance.first_name
+        )
+        instance.last_name = validated_data.get(
+            'last_name', instance.last_name)
+        instance.birthday = validated_data.get('birthday', instance.birthday)
+        instance.website = validated_data.get('website', instance.website)
+        instance.save()
+        return instance
+
     class Meta:
         model = User
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name',
-                  'telegram_link', 'profile_photo',
+                  'vk', 'profile_photo',
                   'birthday', 'my_images',
                   'character', 'favoriteds',
                   'count_my_images', 'my_subscribers',
@@ -430,6 +441,13 @@ class ImageFavor(serializers.ModelSerializer):
 
 
 class MySubscribers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = '__all__'
+
+
+class UserDeleteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription

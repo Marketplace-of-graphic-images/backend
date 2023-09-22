@@ -182,7 +182,8 @@ DJOSER = {
         'password_reset_confirm': 'users.serializers.PasswordSerializer',
         'password_reset_confirm_code': 'users.serializers.EmailAndTokenSerializer',
         'user': 'api.v1.serializers.UserReadSerializer',
-        'current_user': 'api.v1.serializers.UserReadSerializer'
+        'current_user': 'api.v1.serializers.UserReadSerializer',
+
     },
     'EMAIL': {
         'password_reset': 'core.new_password_reset_email.PasswordResetEmail',
@@ -192,6 +193,7 @@ DJOSER = {
     },
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': white_list,
+    'TOKEN_MODEL': None,
 }
 
 AUTHENTICATION_BACKENDS = (
@@ -259,13 +261,12 @@ if not DEBUG:
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', default='')
 
 DEFAULT_FROM_EMAIL = EMAIL_BACKEND_NAME
-'''
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:8000/',
     'http://localhost:3000',
     'https://marketplace-of-graphic-images.github.io/',
 )
@@ -280,13 +281,10 @@ CORS_ALLOW_METHODS = (
 )
 
 CORS_ALLOWED_ORIGINS = (
-    'http://127.0.0.1:8000/',
     'http://localhost:3000',
-    'https://marketplace-of-graphic-images.github.io/',
+    'https://marketplace-of-graphic-images.github.io',
 )
 CORS_ALLOWED_ORIGIN_REGEXES = (
-    'http://127.0.0.1:8000/',
     'http://localhost:3000',
     'https://marketplace-of-graphic-images.github.io/',
 )
-'''

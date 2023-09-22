@@ -54,20 +54,28 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         verbose_name=_('First name'),
-        max_length=20,
+        max_length=265,
         blank=True,
     )
     last_name = models.CharField(
         verbose_name=_('Last name'),
-        max_length=20,
+        max_length=265,
         blank=True,
     )
     birthday = models.DateField(
         verbose_name=_('Date of birth'),
         null=True,
     )
-    telegram_link = models.URLField(
-        verbose_name=_('Telegram profile'),
+    vk = models.URLField(
+        verbose_name=_('VK'),
+        blank=True,
+    )
+    instagram = models.URLField(
+        verbose_name=_('Instagram'),
+        blank=True,
+    )
+    website = models.URLField(
+        verbose_name=_('Website'),
         blank=True,
     )
 
