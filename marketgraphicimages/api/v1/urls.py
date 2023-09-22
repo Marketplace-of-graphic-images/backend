@@ -37,7 +37,7 @@ urlpatterns = [
     path('', include(v1_router.urls)),
     path('auth/', include(auth_url)),
     path('auth/social/', include('djoser.social.urls')),
-    path('auth/', include('djoser.urls.jwt')),
+    #path('auth/', include('djoser.urls.jwt')),
     path('users/', include(profile_urls)),
     path('', include('djoser.urls')),
     path(
