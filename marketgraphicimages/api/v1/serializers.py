@@ -13,6 +13,7 @@ from marketgraphicimages.settings import (
     MAX_NUM_OF_TAGS_RECOMENDED_COMBO,
     NUM_OF_RECOMMENDED_IMAGES,
     NUM_OTHER_AUTHOR_IMAGES,
+    IMAGES_PAGINATOR_SIZE,
 )
 
 from comments.models import Comment
@@ -378,3 +379,106 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
             validated_data['format'] = self.get_extension(validated_data)
         super().update(instance, validated_data)
         return instance
+
+
+class UserReadSerializer(serializers.HyperlinkedModelSerializer):
+    favoriteds = serializers.SerializerMethodField()
+    my_images = serializers.SerializerMethodField()
+    count_my_images = serializers.SerializerMethodField()
+    my_subscribers = serializers.SerializerMethodField()
+    my_subscriptions = serializers.SerializerMethodField()
+
+    def get_my_images(self, obj):
+        if (self.context.get('request')
+           and self.context['request'].user.is_authenticated):
+            page_size = self.context['request'].query_params.get(
+                'size', IMAGES_PAGINATOR_SIZE
+            )
+            paginator = Paginator(obj.images.all(), page_size)
+            page = self.context['request'].query_params.get('page', 1)
+            images = paginator.page(page)
+            serializer = ImageShortSerializer(images, many=True)
+            return serializer.data
+
+    def get_favoriteds(self, obj):
+        page_size = self.context['request'].query_params.get(
+            'size', IMAGES_PAGINATOR_SIZE
+        )
+        paginator = Paginator(
+            FavoriteImage.objects.filter(user=obj.id), page_size)
+        page = self.context['request'].query_params.get('page', 1)
+        images = paginator.page(page)
+        serializer = ImageSerializer(images, many=True)
+        return serializer.data
+
+    def get_count_my_images(self, obj):
+        images = obj.images.all()
+        serializer = ImageShortSerializer(images, many=True)
+        return len(serializer.data)
+
+    def get_my_subscribers(self, obj):
+        queryset = Subscription.objects.filter(author=obj.id)
+        serializer = MySubscribers(queryset, many=True)
+        return len(serializer.data)
+
+    def get_my_subscriptions(self, obj):
+        queryset = Subscription.objects.filter(subscriber=obj.id)
+        serializer = MySubscribers(queryset, many=True)
+        return len(serializer.data)
+
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data.get(
+            'first_name', instance.first_name
+        )
+        instance.last_name = validated_data.get(
+            'last_name', instance.last_name)
+        instance.birthday = validated_data.get('birthday', instance.birthday)
+        instance.website = validated_data.get('website', instance.website)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username',
+                  'first_name', 'last_name',
+                  'vk', 'profile_photo',
+                  'birthday', 'my_images',
+                  'character', 'favoriteds',
+                  'count_my_images', 'my_subscribers',
+                  'my_subscriptions',
+                  )
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    is_favorited = serializers.SerializerMethodField()
+
+    def get_is_favorited(self, obj):
+        queryset = Image.objects.filter(id=obj.image_id)
+        serializer = ImageFavor(queryset, many=True)
+        return serializer.data
+
+    class Meta:
+        model = FavoriteImage
+        fields = ('id', 'is_favorited', 'image_id', 'user_id')
+
+
+class ImageFavor(serializers.ModelSerializer):
+    image = Base64ImageField(read_only=True)
+
+    class Meta:
+        model = Image
+        fields = '__all__'
+
+
+class MySubscribers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = '__all__'
+
+
+class UserDeleteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = '__all__'

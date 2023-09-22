@@ -8,7 +8,23 @@ User = get_user_model()
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('subscriber', 'author')
+    list_display = (
+        'pk',
+        'subscriber',
+        'author',
+    )
+    search_fields = (
+        'subscriber',
+        'author',
+    )
+    list_filter = (
+        'subscriber',
+        'author',
+    )
+    list_editable = (
+        'subscriber',
+        'author'
+    )
 
 
 @admin.register(User)

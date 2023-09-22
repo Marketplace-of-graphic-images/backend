@@ -154,6 +154,7 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 COMMENTS_PAGINATOR_SIZE = 5
+IMAGES_PAGINATOR_SIZE = 5
 NUM_OF_RECOMMENDED_IMAGES = 4
 NUM_OTHER_AUTHOR_IMAGES = 4
 MAX_NUM_OF_TAGS_RECOMENDED_COMBO = 4
@@ -181,6 +182,9 @@ DJOSER = {
     'SERIALIZERS': {
         'password_reset_confirm': 'users.serializers.PasswordSerializer',
         'password_reset_confirm_code': 'users.serializers.EmailAndTokenSerializer',
+        'user': 'api.v1.serializers.UserReadSerializer',
+        'current_user': 'api.v1.serializers.UserReadSerializer',
+
     },
     'EMAIL': {
         'password_reset': 'core.new_password_reset_email.PasswordResetEmail',
@@ -190,6 +194,7 @@ DJOSER = {
     },
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': white_list,
+    'TOKEN_MODEL': None,
 }
 
 AUTHENTICATION_BACKENDS = (
