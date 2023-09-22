@@ -396,8 +396,3 @@ class FavoriteSerialiser(serializers.ModelSerializer):
                 'Вы уже подписаны.'
             )
         return data
-
-    def to_representation(self, instance):
-        return ImageShortSerializer(
-            instance.image
-        ).data
