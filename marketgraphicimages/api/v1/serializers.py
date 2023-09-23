@@ -381,7 +381,7 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserReadSerializer(serializers.HyperlinkedModelSerializer):
+class UserReadSerializer(serializers.ModelSerializer):
     favoriteds = serializers.SerializerMethodField()
     my_images = serializers.SerializerMethodField()
     count_my_images = serializers.SerializerMethodField()
@@ -390,7 +390,8 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_my_images(self, obj):
         if (self.context.get('request')
-           and self.context['request'].user.is_authenticated):
+           and self.context['request'].user.is_authenticated and
+                self.context['request'].user.character == 'Author'):
             page_size = self.context['request'].query_params.get(
                 'size', IMAGES_PAGINATOR_SIZE
             )
@@ -408,18 +409,20 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
             FavoriteImage.objects.filter(user=obj.id), page_size)
         page = self.context['request'].query_params.get('page', 1)
         images = paginator.page(page)
-        serializer = ImageSerializer(images, many=True)
+        serializer = ImageFavor(images, many=True)
         return serializer.data
 
     def get_count_my_images(self, obj):
-        images = obj.images.all()
-        serializer = ImageShortSerializer(images, many=True)
-        return len(serializer.data)
+        if (self.context['request'].user.character == 'Author'):
+            images = obj.images.all()
+            serializer = ImageShortSerializer(images, many=True)
+            return len(serializer.data)
 
     def get_my_subscribers(self, obj):
-        queryset = Subscription.objects.filter(author=obj.id)
-        serializer = MySubscribers(queryset, many=True)
-        return len(serializer.data)
+        if (self.context['request'].user.character == 'Author'):
+            queryset = Subscription.objects.filter(author=obj.id)
+            serializer = MySubscribers(queryset, many=True)
+            return len(serializer.data)
 
     def get_my_subscriptions(self, obj):
         queryset = Subscription.objects.filter(subscriber=obj.id)
@@ -449,12 +452,12 @@ class UserReadSerializer(serializers.HyperlinkedModelSerializer):
                   )
 
 
-class ImageSerializer(serializers.ModelSerializer):
+class ImageFavor(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
 
     def get_is_favorited(self, obj):
         queryset = Image.objects.filter(id=obj.image_id)
-        serializer = ImageFavor(queryset, many=True)
+        serializer = ImageShortSerializer(queryset, many=True)
         return serializer.data
 
     class Meta:
@@ -462,22 +465,7 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ('id', 'is_favorited', 'image_id', 'user_id')
 
 
-class ImageFavor(serializers.ModelSerializer):
-    image = Base64ImageField(read_only=True)
-
-    class Meta:
-        model = Image
-        fields = '__all__'
-
-
 class MySubscribers(serializers.ModelSerializer):
-
-    class Meta:
-        model = Subscription
-        fields = '__all__'
-
-
-class UserDeleteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
