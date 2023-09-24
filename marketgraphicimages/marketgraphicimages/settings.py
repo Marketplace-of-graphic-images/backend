@@ -252,7 +252,7 @@ if not DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'skvmrelay.netangels.ru'
     EMAIL_PORT = 25
-    EMAIL_USE_SSL = True
+    #EMAIL_USE_SSL = True
     EMAIL_HOST_USER = EMAIL_BACKEND_NAME
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', default='')
 
