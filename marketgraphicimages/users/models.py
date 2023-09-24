@@ -6,7 +6,7 @@ from django.core.validators import (
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-Сharacter_name_CHOICES = (
+ROLE_CHOICES = (
         ('User', 'User'),
         ('Author', 'Author'),
     )
@@ -42,9 +42,9 @@ class User(AbstractUser):
         verbose_name=_('Author'),
         default=False,
     )
-    character = models.CharField(
+    role = models.CharField(
         max_length=70,
-        choices=Сharacter_name_CHOICES,
+        choices=ROLE_CHOICES,
         verbose_name=_('Сharacter'),
         default='User',
     )

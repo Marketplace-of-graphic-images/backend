@@ -13,7 +13,7 @@ from marketgraphicimages.settings import (
     MAX_NUM_OF_TAGS_RECOMENDED_COMBO,
     NUM_OF_RECOMMENDED_IMAGES,
     NUM_OTHER_AUTHOR_IMAGES,
-    IMAGES_PAGINATOR_SIZE,
+    IMAGES_LIMIT_SIZE,
 )
 
 from comments.models import Comment
@@ -381,45 +381,54 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserReadSerializer(serializers.ModelSerializer):
-    favoriteds = serializers.SerializerMethodField()
+class UserSerializer(serializers.ModelSerializer):
+    favoriteds = serializers.SerializerMethodField(read_only=True)
     my_images = serializers.SerializerMethodField()
-    count_my_images = serializers.SerializerMethodField()
-    my_subscribers = serializers.SerializerMethodField()
-    my_subscriptions = serializers.SerializerMethodField()
+    count_my_images = serializers.SerializerMethodField(read_only=True)
+    my_subscribers = serializers.SerializerMethodField(read_only=True)
+    my_subscriptions = serializers.SerializerMethodField(read_only=True)
+    profile_photo = CustomBase64ImageField()
+    history = serializers.SerializerMethodField(read_only=True)
 
     def get_my_images(self, obj):
         if (self.context.get('request')
-           and self.context['request'].user.is_authenticated and
-                self.context['request'].user.character == 'Author'):
-            page_size = self.context['request'].query_params.get(
-                'size', IMAGES_PAGINATOR_SIZE
+           and self.context.get('request').user.is_authenticated and
+                self.context.get('request').user.role == 'Author'):
+            limit = self.context.get('request').query_params.get(
+                'limit', IMAGES_LIMIT_SIZE
             )
-            paginator = Paginator(obj.images.all(), page_size)
-            page = self.context['request'].query_params.get('page', 1)
-            images = paginator.page(page)
+            images = obj.images.filter(author=obj.id)[:int(limit)]
+            serializer = ImageShortSerializer(images, many=True)
+            return serializer.data
+
+    def get_history(self, obj):
+        if (self.context.get('request')
+           and self.context.get('request').user.is_authenticated):
+            limit = self.context.get('request').query_params.get(
+                'limit', IMAGES_LIMIT_SIZE
+            )
+            images = Image.objects.all()[:int(limit)]
             serializer = ImageShortSerializer(images, many=True)
             return serializer.data
 
     def get_favoriteds(self, obj):
-        page_size = self.context['request'].query_params.get(
-            'size', IMAGES_PAGINATOR_SIZE
-        )
-        paginator = Paginator(
-            FavoriteImage.objects.filter(user=obj.id), page_size)
-        page = self.context['request'].query_params.get('page', 1)
-        images = paginator.page(page)
-        serializer = ImageFavor(images, many=True)
+        limit = self.context.get('request').query_params.get(
+                'limit', IMAGES_LIMIT_SIZE
+            )
+        favorite_images = FavoriteImage.objects.filter(
+            user=obj.id)[:int(limit)]
+        images = [favorite_image.image for favorite_image in favorite_images]
+        serializer = ImageShortSerializer(images, many=True)
         return serializer.data
 
     def get_count_my_images(self, obj):
-        if (self.context['request'].user.character == 'Author'):
+        if (self.context.get('request').user.role == 'Author'):
             images = obj.images.all()
             serializer = ImageShortSerializer(images, many=True)
             return len(serializer.data)
 
     def get_my_subscribers(self, obj):
-        if (self.context['request'].user.character == 'Author'):
+        if (self.context.get('request').user.role == 'Author'):
             queryset = Subscription.objects.filter(author=obj.id)
             serializer = MySubscribers(queryset, many=True)
             return len(serializer.data)
@@ -430,6 +439,7 @@ class UserReadSerializer(serializers.ModelSerializer):
         return len(serializer.data)
 
     def update(self, instance, validated_data):
+        instance.username = validated_data.get('username', instance.username)
         instance.first_name = validated_data.get(
             'first_name', instance.first_name
         )
@@ -446,23 +456,10 @@ class UserReadSerializer(serializers.ModelSerializer):
                   'first_name', 'last_name',
                   'vk', 'instagram', 'website', 'profile_photo',
                   'birthday', 'my_images',
-                  'character', 'favoriteds',
+                  'role', 'favoriteds',
                   'count_my_images', 'my_subscribers',
-                  'my_subscriptions',
+                  'my_subscriptions', 'history',
                   )
-
-
-class ImageFavor(serializers.ModelSerializer):
-    is_favorited = serializers.SerializerMethodField()
-
-    def get_is_favorited(self, obj):
-        queryset = Image.objects.filter(id=obj.image_id)
-        serializer = ImageShortSerializer(queryset, many=True)
-        return serializer.data
-
-    class Meta:
-        model = FavoriteImage
-        fields = ('id', 'is_favorited', 'image_id', 'user_id')
 
 
 class MySubscribers(serializers.ModelSerializer):
