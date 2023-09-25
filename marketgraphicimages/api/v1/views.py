@@ -8,29 +8,42 @@ from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import (AllowAny,
-                                        IsAuthenticatedOrReadOnly,
-                                        IsAuthenticated)
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .schemas import (LOGIN_DONE_SCHEMA, SIGNIN_SCHEMA, SIGNUP_DONE_SCHEMA,
-                      SIGUP_SHEMA, SIGUP_SHEMA_CONFIRMATION)
+from .schemas import (
+    LOGIN_DONE_SCHEMA,
+    SIGNIN_SCHEMA,
+    SIGNUP_DONE_SCHEMA,
+    SIGUP_SHEMA,
+    SIGUP_SHEMA_CONFIRMATION,
+)
 from api.v1.filters import ImageFilter
-from api.v1.serializers import (AuthSignInSerializer, AuthSignUpSerializer,
-                                BaseShortUserSerializer,
-                                ConfirmationSerializer, FavoriteSerialiser,
-                                ImageGetSerializer,
-                                ImagePostPutPatchSerializer,
-                                ImageShortSerializer, TagSerializer)
+from api.v1.serializers import (
+    AuthSignInSerializer,
+    AuthSignUpSerializer,
+    BaseShortUserSerializer,
+    ConfirmationSerializer,
+    FavoriteSerialiser,
+    ImageGetSerializer,
+    ImagePostPutPatchSerializer,
+    ImageShortSerializer,
+    TagSerializer,
+)
 from core.confirmation_code import send_email_with_confirmation_code
-from core.permissions import (OwnerOrAdminPermission,
-                              OwnerPermission,
-                              IsAuthorOrAdminPermission)
+from core.permissions import (
+    IsAuthorOrAdminPermission,
+    OwnerOrAdminPermission,
+    OwnerPermission,
+)
 from images.models import FavoriteImage, Image
 from tags.models import Tag
-
 
 User = get_user_model()
 
@@ -52,7 +65,10 @@ TOKEN_LIFETIME = int(
 def auth_signup_post(request: Request) -> Response:
     serializer = AuthSignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    send_email_with_confirmation_code(request)
+    try:
+        send_email_with_confirmation_code(request)
+    except Exception as error:
+        raise error
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -104,6 +120,12 @@ def get_token_post(request: Request) -> Response:
     return response
 
 
+@swagger_auto_schema(
+    method='post',
+    responses={
+        204: '',
+    },
+)
 @api_view(['POST'])
 def sign_out(_: Request) -> Response:
     response = Response(status=status.HTTP_204_NO_CONTENT)
@@ -122,7 +144,13 @@ class RedirectSocial(View):
         return Response(json_obj)
 
 
-class UserViewSet(UserViewSet):
+class CustomUserViewSet(UserViewSet):
+    """
+    This viewset inherits from djoser `UserViewSet` and adds custom actions
+    and permission handling for specific user operations, such as password
+    reset confirmation.
+    """
+
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
             self.permission_classes = (
@@ -165,6 +193,18 @@ class UserViewSet(UserViewSet):
             djoser_settings.EMAIL.password_changed_confirmation(
                 self.request, context).send(to)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def activation(self, request, *args, **kwargs):
+        pass
+
+    def resend_activation(self, request, *args, **kwargs):
+        pass
+
+    def reset_username(self, request, *args, **kwargs):
+        pass
+
+    def reset_username_confirm(self, request, *args, **kwargs):
+        pass
 
 
 class ImageViewSet(viewsets.ModelViewSet):
