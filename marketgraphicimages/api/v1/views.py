@@ -8,6 +8,7 @@ from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated,
@@ -192,6 +193,18 @@ class CustomUserViewSet(UserViewSet):
             to = [serializer.validated_data.get('email')]
             djoser_settings.EMAIL.password_changed_confirmation(
                 self.request, context).send(to)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # TODO: remove this method after adding user serializer
+    @action(['patch'], detail=False)
+    def set_author(self, request, *args, **kwargs):
+        if request.user.is_author:
+            raise ValidationError(
+                detail={'errors': 'User is already an author'},
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        request.user.author = True
+        request.user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def activation(self, request, *args, **kwargs):
