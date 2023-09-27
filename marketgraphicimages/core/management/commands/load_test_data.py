@@ -35,31 +35,31 @@ users = (
         'username': 'test_user1',
         'email': 'test_user1@pictura.ru',
         'password': 'test_user1',
-        'author': True,
+        'role': 'Author',
     },
     {
         'username': 'test_user2',
         'email': 'test_user2@pictura.ru',
         'password': 'test_user2',
-        'author': True,
+        'role': 'Author',
     },
     {
         'username': 'test_user3',
         'email': 'test_user3@pictura.ru',
         'password': 'test_user3',
-        'author': True,
+        'role': 'Author',
     },
     {
         'username': 'test_user4',
         'email': 'test_user4@pictura.ru',
         'password': 'test_user4',
-        'author': True,
+        'role': 'Author',
     },
     {
         'username': 'test_user5',
         'email': 'test_user5@pictura.ru',
         'password': 'test_user5',
-        'author': True,
+        'role': 'Author',
     },
 )
 

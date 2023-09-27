@@ -20,4 +20,4 @@ class OwnerOrAdminPermission(permissions.BasePermission):
 class IsAuthorOrAdminPermission(permissions.BasePermission):
     """Only author and admin can post images."""
     def has_permission(self, request, view):
-        return request.user.author or request.user.is_superuser
+        return request.user.is_author or request.user.is_superuser
