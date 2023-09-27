@@ -410,6 +410,8 @@ class FavoriteSerialiser(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Serializer for transferring and modifying user information."""
+
     favoriteds = serializers.SerializerMethodField(read_only=True)
     my_images = serializers.SerializerMethodField()
     count_my_images = serializers.SerializerMethodField(read_only=True)
@@ -491,6 +493,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class MySubscribers(serializers.ModelSerializer):
+    """Serializer for Subscription model."""
 
     class Meta:
         model = Subscription
