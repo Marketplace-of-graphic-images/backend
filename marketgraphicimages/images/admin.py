@@ -11,19 +11,19 @@ class ImageAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'name',
-        'author',
+        'role',
         'created',
         'license',
         'format',
         'price',
     )
     search_fields = (
-        'author',
+        'role',
         'name',
     )
     list_filter = (
         'name',
-        'author',
+        'role',
         'tags',
     )
 
