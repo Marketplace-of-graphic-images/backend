@@ -19,7 +19,7 @@ from marketgraphicimages.settings import (
 from comments.models import Comment
 from core.encryption_str import verify_value
 from core.validators import validate_email
-from images.models import FavoriteImage, Image
+from images.models import FavoriteImage, Image, TagImage
 from tags.models import Tag
 from users.models import ConfirmationCode, Subscription
 
