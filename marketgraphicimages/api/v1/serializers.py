@@ -372,6 +372,20 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         new_image.tags.set(tags)
         return new_image
 
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """Modified object editing method that gets file extension
+        information and edit entries in the TagImage table."""
+
+        if 'tags' in validated_data:
+            TagImage.objects.filter(image=instance).delete()
+            tags = validated_data.pop('tags')
+            instance.tags.set(tags)
+        if 'image' in validated_data:
+            validated_data['format'] = self.get_extension(validated_data)
+        super().update(instance, validated_data)
+        return instance
+
 
 class FavoriteSerialiser(serializers.ModelSerializer):
     """FavoriteImage model serializer for adding and deleting favorites."""
@@ -451,18 +465,6 @@ class UserSerializer(serializers.ModelSerializer):
         queryset = Subscription.objects.filter(subscriber=obj.id)
         serializer = MySubscribers(queryset, many=True)
         return len(serializer.data)
-
-    def update(self, instance, validated_data):
-        instance.username = validated_data.get('username', instance.username)
-        instance.first_name = validated_data.get(
-            'first_name', instance.first_name
-        )
-        instance.last_name = validated_data.get(
-            'last_name', instance.last_name)
-        instance.birthday = validated_data.get('birthday', instance.birthday)
-        instance.website = validated_data.get('website', instance.website)
-        instance.save()
-        return instance
 
     class Meta:
         model = User
