@@ -27,6 +27,8 @@ User = get_user_model()
 
 
 class AuthSignUpSerializer(serializers.ModelSerializer):
+    """Serializer for user registration."""
+
     is_author = serializers.BooleanField(required=True)
 
     class Meta:
@@ -49,6 +51,8 @@ class AuthSignUpSerializer(serializers.ModelSerializer):
 
 
 class ConfirmationSerializer(serializers.ModelSerializer):
+    """Serializer for ending registration."""
+
     confirmation_code = serializers.CharField(required=True)
     is_author = serializers.BooleanField(required=True)
 
@@ -115,6 +119,8 @@ class ConfirmationSerializer(serializers.ModelSerializer):
 
 
 class AuthSignInSerializer(serializers.Serializer):
+    """Serializer for user login."""
+
     email = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
 
@@ -155,6 +161,7 @@ class AuthSignInSerializer(serializers.Serializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Serializer for Tag model."""
 
     class Meta:
         model = Tag
@@ -218,6 +225,7 @@ class CommentShortSerializer(serializers.ModelSerializer):
 
 
 class ImageShortSerializer(serializers.ModelSerializer):
+    """Serializer for short info about image."""
 
     class Meta:
         model = Image
@@ -379,6 +387,26 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
             validated_data['format'] = self.get_extension(validated_data)
         super().update(instance, validated_data)
         return instance
+
+
+class FavoriteSerialiser(serializers.ModelSerializer):
+    """FavoriteImage model serializer for adding and deleting favorites."""
+
+    class Meta:
+        model = FavoriteImage
+        fields = (
+            'image',
+            'user',
+        )
+
+    def validate(sels, data):
+        image = data.get('image')
+        user = data.get('user')
+        if image.favoriteimage_set.filter(user=user).exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны.'
+            )
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):

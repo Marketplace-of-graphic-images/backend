@@ -97,6 +97,11 @@ class FavoriteImage(ImageConnection, UserConnection):
         ]
         verbose_name = 'Любимое изображение'
         verbose_name_plural = 'Любимые изображения'
+        ordering = ('image',)
+
+    def __str__(self) -> str:
+        return (f'{self.user.get_username} добавил в избранное '
+                f'{self.image.name}')
 
 
 class ShoppingCartImage(ImageConnection, UserConnection):

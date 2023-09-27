@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 
 from .models import ConfirmationCode, Subscription, UserConfirmationCode
 
@@ -28,12 +29,15 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 
 @admin.register(User)
-class CustomUserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
     list_display = (
         'username',
         'email',
-        'profile_photo'
+        'profile_photo',
+        'author',
     )
+    fieldsets = UserAdmin.fieldsets
+    fieldsets[1][1]['fields'] = ('author', 'email',)
     search_fields = (
         "username",
         'email',

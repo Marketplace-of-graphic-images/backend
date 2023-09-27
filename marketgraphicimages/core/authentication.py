@@ -43,7 +43,4 @@ class CookieJWTAuthentication(JWTAuthentication):
         Returns:
             str: The raw JWT token from the request cookies.
         """
-        jwt_token = request.COOKIES.get('jwt')
-        if jwt_token is None:
-            return None
         return request.COOKIES.get('jwt')
