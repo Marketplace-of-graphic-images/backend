@@ -12,19 +12,19 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'subscriber',
-        'author',
+        'role',
     )
     search_fields = (
         'subscriber',
-        'author',
+        'role',
     )
     list_filter = (
         'subscriber',
-        'author',
+        'role',
     )
     list_editable = (
         'subscriber',
-        'author'
+        'role'
     )
 
 
@@ -34,10 +34,10 @@ class CustomUserAdmin(UserAdmin):
         'username',
         'email',
         'profile_photo',
-        'author',
+        'role',
     )
     fieldsets = UserAdmin.fieldsets
-    fieldsets[1][1]['fields'] = ('author', 'email',)
+    fieldsets[1][1]['fields'] = ('role', 'email',)
     search_fields = (
         "username",
         'email',
