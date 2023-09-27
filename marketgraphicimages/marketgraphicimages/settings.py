@@ -182,7 +182,7 @@ DJOSER = {
     'SERIALIZERS': {
         'password_reset_confirm': 'users.serializers.PasswordSerializer',
         'password_reset_confirm_code': 'users.serializers.EmailAndTokenSerializer',
-        #'user': 'api.v1.serializers.UserSerializer',
+        'user': 'api.v1.serializers.UserSerializer',
         'current_user': 'api.v1.serializers.UserSerializer',
 
     },

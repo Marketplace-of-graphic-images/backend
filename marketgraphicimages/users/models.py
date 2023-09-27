@@ -38,10 +38,6 @@ class User(AbstractUser):
             'unique': _('User with such an email already exists'),
         },
     )
-    author = models.BooleanField(
-        verbose_name=_('Author'),
-        default=False,
-    )
     role = models.CharField(
         max_length=70,
         choices=ROLE_CHOICES,
@@ -98,7 +94,7 @@ class User(AbstractUser):
 
     @property
     def is_author(self):
-        return self.author
+        return self.role == 'Author'
 
 
 class ConfirmationCode(models.Model):

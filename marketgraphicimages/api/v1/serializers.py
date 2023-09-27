@@ -10,10 +10,10 @@ from rest_framework.exceptions import ValidationError
 
 from marketgraphicimages.settings import (
     COMMENTS_PAGINATOR_SIZE,
+    IMAGES_LIMIT_SIZE,
     MAX_NUM_OF_TAGS_RECOMENDED_COMBO,
     NUM_OF_RECOMMENDED_IMAGES,
     NUM_OTHER_AUTHOR_IMAGES,
-    IMAGES_LIMIT_SIZE,
 )
 
 from comments.models import Comment
@@ -106,7 +106,7 @@ class ConfirmationSerializer(serializers.ModelSerializer):
             user = User.objects.create(
                 username=data.get('username'),
                 email=data.get('email'),
-                author=(data.get('is_author')),
+                role=('Author' if data.get('is_author') else 'User'),
             )
         except IntegrityError:
             raise ValidationError(
@@ -171,11 +171,9 @@ class TagSerializer(serializers.ModelSerializer):
 class BaseShortUserSerializer(serializers.ModelSerializer):
     """Base serializer for user class."""
 
-    is_author = serializers.BooleanField(source='author')
-
     class Meta:
         model = User
-        fields = ('id', 'username', 'profile_photo', 'is_author')
+        fields = ('id', 'username', 'profile_photo', 'role')
 
 
 class AuthorSerializer(BaseShortUserSerializer):
@@ -253,7 +251,7 @@ class ImageGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = (
-            'id', 'created', 'author', 'name', 'image', 'license', 'price',
+            'id', 'created', 'role', 'name', 'image', 'license', 'price',
             'format', 'tags', 'is_favorited', 'comments', 'recommended',
             'other_author_images'
         )
@@ -348,7 +346,7 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = ('name', 'image', 'license', 'price', 'tags', )
-        read_only_fields = ('author', )
+        read_only_fields = ('role', )
 
     def to_representation(self, instance):
         serializer = ImageGetSerializer(
