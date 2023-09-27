@@ -468,9 +468,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.username = validated_data.get('username', instance.username)
-        instance.first_name = validated_data.get(
-            'first_name', instance.first_name
-        )
         instance.last_name = validated_data.get(
             'last_name', instance.last_name)
         instance.birthday = validated_data.get('birthday', instance.birthday)
