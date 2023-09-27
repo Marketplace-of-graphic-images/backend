@@ -23,4 +23,6 @@ class OwnerPermission(permissions.BasePermission):
 class IsAuthorOrAdminPermission(permissions.BasePermission):
     """Only the author or admin."""
     def has_permission(self, request, view):
-        return request.user.is_author or request.user.is_superuser
+        return (request.user.is_authenticated
+                and request.user.is_author
+                or request.user.is_superuser)
