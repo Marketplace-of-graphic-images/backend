@@ -12,19 +12,19 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'subscriber',
-        'role',
+        'author',
     )
     search_fields = (
         'subscriber',
-        'role',
+        'author',
     )
     list_filter = (
         'subscriber',
-        'role',
+        'author',
     )
     list_editable = (
         'subscriber',
-        'role'
+        'author',
     )
 
 
