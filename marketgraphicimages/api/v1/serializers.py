@@ -423,7 +423,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_my_images(self, obj):
         if (self.context.get('request')
            and self.context.get('request').user.is_authenticated and
-                self.context.get('request').user.role == 'Author'):
+                obj.role == 'Author'):
             limit = self.context.get('request').query_params.get(
                 'limit', IMAGES_LIMIT_SIZE
             )
@@ -452,13 +452,13 @@ class UserSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def get_count_my_images(self, obj):
-        if (self.context.get('request').user.role == 'Author'):
+        if (obj.role == 'Author'):
             images = obj.images.all()
             serializer = ImageShortSerializer(images, many=True)
             return len(serializer.data)
 
     def get_my_subscribers(self, obj):
-        if (self.context.get('request').user.role == 'Author'):
+        if (obj.role == 'Author'):
             queryset = Subscription.objects.filter(author=obj.id)
             serializer = MySubscribers(queryset, many=True)
             return len(serializer.data)
