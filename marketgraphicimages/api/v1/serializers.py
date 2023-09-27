@@ -372,20 +372,6 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         new_image.tags.set(tags)
         return new_image
 
-    @transaction.atomic
-    def update(self, instance, validated_data):
-        """Modified object editing method that gets file extension
-        information and edit entries in the TagImage table."""
-
-        if 'tags' in validated_data:
-            TagImage.objects.filter(image=instance).delete()
-            tags = validated_data.pop('tags')
-            instance.tags.set(tags)
-        if 'image' in validated_data:
-            validated_data['format'] = self.get_extension(validated_data)
-        super().update(instance, validated_data)
-        return instance
-
 
 class FavoriteSerialiser(serializers.ModelSerializer):
     """FavoriteImage model serializer for adding and deleting favorites."""
