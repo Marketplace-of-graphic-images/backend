@@ -27,6 +27,8 @@ User = get_user_model()
 
 
 class AuthSignUpSerializer(serializers.ModelSerializer):
+    """Serializer for user registration."""
+
     is_author = serializers.BooleanField(required=True)
 
     class Meta:
@@ -49,6 +51,8 @@ class AuthSignUpSerializer(serializers.ModelSerializer):
 
 
 class ConfirmationSerializer(serializers.ModelSerializer):
+    """Serializer for ending registration."""
+
     confirmation_code = serializers.CharField(required=True)
     is_author = serializers.BooleanField(required=True)
 
@@ -115,6 +119,8 @@ class ConfirmationSerializer(serializers.ModelSerializer):
 
 
 class AuthSignInSerializer(serializers.Serializer):
+    """Serializer for user login."""
+
     email = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
 
@@ -155,6 +161,7 @@ class AuthSignInSerializer(serializers.Serializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Serializer for Tag model."""
 
     class Meta:
         model = Tag
@@ -216,6 +223,7 @@ class CommentShortSerializer(serializers.ModelSerializer):
 
 
 class ImageShortSerializer(serializers.ModelSerializer):
+    """Serializer for short info about image."""
 
     class Meta:
         model = Image
@@ -379,7 +387,29 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         return instance
 
 
+class FavoriteSerialiser(serializers.ModelSerializer):
+    """FavoriteImage model serializer for adding and deleting favorites."""
+
+    class Meta:
+        model = FavoriteImage
+        fields = (
+            'image',
+            'user',
+        )
+
+    def validate(sels, data):
+        image = data.get('image')
+        user = data.get('user')
+        if image.favoriteimage_set.filter(user=user).exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны.'
+            )
+        return data
+
+
 class UserSerializer(serializers.ModelSerializer):
+    """Serializer for transferring and modifying user information."""
+
     favoriteds = serializers.SerializerMethodField(read_only=True)
     my_images = serializers.SerializerMethodField()
     count_my_images = serializers.SerializerMethodField(read_only=True)
@@ -391,7 +421,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_my_images(self, obj):
         if (self.context.get('request')
            and self.context.get('request').user.is_authenticated and
-                self.context.get('request').user.role == 'Author'):
+                obj.role == 'Author'):
             limit = self.context.get('request').query_params.get(
                 'limit', IMAGES_LIMIT_SIZE
             )
@@ -420,13 +450,13 @@ class UserSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def get_count_my_images(self, obj):
-        if (self.context.get('request').user.role == 'Author'):
+        if (obj.role == 'Author'):
             images = obj.images.all()
             serializer = ImageShortSerializer(images, many=True)
             return len(serializer.data)
 
     def get_my_subscribers(self, obj):
-        if (self.context.get('request').user.role == 'Author'):
+        if (obj.role == 'Author'):
             queryset = Subscription.objects.filter(author=obj.id)
             serializer = MySubscribers(queryset, many=True)
             return len(serializer.data)
@@ -461,6 +491,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class MySubscribers(serializers.ModelSerializer):
+    """Serializer for Subscription model."""
 
     class Meta:
         model = Subscription

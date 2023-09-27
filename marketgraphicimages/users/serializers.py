@@ -49,6 +49,10 @@ class PasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {'email': 'invalid_email'},
             )
+        if not user.code_owner.exists():
+            raise serializers.ValidationError(
+                {'confirmation_code': 'confirmation code has not been sent'}
+            )
         if not user.code_owner.get().is_confirmed:
             raise serializers.ValidationError(
                 {'confirmation_code': 'confirmation code is not confirmed'}
