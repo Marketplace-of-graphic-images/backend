@@ -13,6 +13,7 @@ from marketgraphicimages.settings import (
     MAX_NUM_OF_TAGS_RECOMENDED_COMBO,
     NUM_OF_RECOMMENDED_IMAGES,
     NUM_OTHER_AUTHOR_IMAGES,
+    IMAGES_LIMIT_SIZE,
 )
 
 from comments.models import Comment
@@ -406,3 +407,94 @@ class FavoriteSerialiser(serializers.ModelSerializer):
                 'Вы уже подписаны.'
             )
         return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for transferring and modifying user information."""
+
+    favoriteds = serializers.SerializerMethodField(read_only=True)
+    my_images = serializers.SerializerMethodField()
+    count_my_images = serializers.SerializerMethodField(read_only=True)
+    my_subscribers = serializers.SerializerMethodField(read_only=True)
+    my_subscriptions = serializers.SerializerMethodField(read_only=True)
+    profile_photo = CustomBase64ImageField()
+    history = serializers.SerializerMethodField(read_only=True)
+
+    def get_my_images(self, obj):
+        if (self.context.get('request')
+           and self.context.get('request').user.is_authenticated and
+                self.context.get('request').user.role == 'Author'):
+            limit = self.context.get('request').query_params.get(
+                'limit', IMAGES_LIMIT_SIZE
+            )
+            images = obj.images.filter(author=obj.id)[:int(limit)]
+            serializer = ImageShortSerializer(images, many=True)
+            return serializer.data
+
+    def get_history(self, obj):
+        if (self.context.get('request')
+           and self.context.get('request').user.is_authenticated):
+            limit = self.context.get('request').query_params.get(
+                'limit', IMAGES_LIMIT_SIZE
+            )
+            images = Image.objects.all()[:int(limit)]
+            serializer = ImageShortSerializer(images, many=True)
+            return serializer.data
+
+    def get_favoriteds(self, obj):
+        limit = self.context.get('request').query_params.get(
+                'limit', IMAGES_LIMIT_SIZE
+            )
+        favorite_images = FavoriteImage.objects.filter(
+            user=obj.id)[:int(limit)]
+        images = [favorite_image.image for favorite_image in favorite_images]
+        serializer = ImageShortSerializer(images, many=True)
+        return serializer.data
+
+    def get_count_my_images(self, obj):
+        if (self.context.get('request').user.role == 'Author'):
+            images = obj.images.all()
+            serializer = ImageShortSerializer(images, many=True)
+            return len(serializer.data)
+
+    def get_my_subscribers(self, obj):
+        if (self.context.get('request').user.role == 'Author'):
+            queryset = Subscription.objects.filter(author=obj.id)
+            serializer = MySubscribers(queryset, many=True)
+            return len(serializer.data)
+
+    def get_my_subscriptions(self, obj):
+        queryset = Subscription.objects.filter(subscriber=obj.id)
+        serializer = MySubscribers(queryset, many=True)
+        return len(serializer.data)
+
+    def update(self, instance, validated_data):
+        instance.username = validated_data.get('username', instance.username)
+        instance.first_name = validated_data.get(
+            'first_name', instance.first_name
+        )
+        instance.last_name = validated_data.get(
+            'last_name', instance.last_name)
+        instance.birthday = validated_data.get('birthday', instance.birthday)
+        instance.website = validated_data.get('website', instance.website)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username',
+                  'first_name', 'last_name',
+                  'vk', 'instagram', 'website', 'profile_photo',
+                  'birthday', 'my_images',
+                  'role', 'favoriteds',
+                  'count_my_images', 'my_subscribers',
+                  'my_subscriptions', 'history',
+                  )
+
+
+class MySubscribers(serializers.ModelSerializer):
+    """Serializer for Subscription model."""
+
+    class Meta:
+        model = Subscription
+        fields = '__all__'

@@ -15,7 +15,7 @@ from .views import (
 v1_router = DefaultRouter()
 v1_router.register('users', CustomUserViewSet)
 v1_router.register('image', ImageViewSet, basename='image')
-v1_router.register(r'tags', TagViewSet, basename='tags')
+v1_router.register('tags', TagViewSet, basename='tags')
 
 auth_url = [
     path('signin/', get_token_post, name='signin'),
