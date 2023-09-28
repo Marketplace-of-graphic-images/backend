@@ -164,6 +164,16 @@ class CustomUserViewSet(UserViewSet):
         return super().get_serializer_class()
 
     @action(['post'], detail=False)
+    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    def reset_password(self, request, *args, **kwargs):
+        '''
+        the method sends a confirmation code to an email 
+        if the email address exists.
+        '''
+        return super().reset_password(request, *args, **kwargs)
+
+    @action(['post'], detail=False)
+    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
     def reset_password_confirm_code(self, request, *args, **kwargs):
         """
         Checks the confirmation code.
@@ -178,6 +188,7 @@ class CustomUserViewSet(UserViewSet):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(['post'], detail=False)
+    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
     def reset_password_confirm(self, request, *args, **kwargs):
         """This method changes the password after successful
          confirmation of the code."""
@@ -193,6 +204,11 @@ class CustomUserViewSet(UserViewSet):
             djoser_settings.EMAIL.password_changed_confirmation(
                 self.request, context).send(to)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(['post'], detail=False)
+    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    def set_password(self, request, *args, **kwargs):
+        return super().set_password(request, *args, **kwargs)
 
     def activation(self, request, *args, **kwargs):
         pass
