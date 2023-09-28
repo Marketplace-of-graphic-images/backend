@@ -10,9 +10,12 @@ from rest_framework.exceptions import ValidationError
 
 from marketgraphicimages.settings import (
     COMMENTS_PAGINATOR_SIZE,
+    IMAGE_CATEGORIES,
     MAX_NUM_OF_TAGS_RECOMENDED_COMBO,
+    NUM_OF_POPULAR_IMAGES_BY_CATEGORY,
     NUM_OF_RECOMMENDED_IMAGES,
     NUM_OTHER_AUTHOR_IMAGES,
+    RASTER,
 )
 
 from comments.models import Comment
@@ -240,13 +243,16 @@ class ImageGetSerializer(serializers.ModelSerializer):
     other_author_images = serializers.SerializerMethodField(
         method_name='get_other_author_images'
     )
+    popular_rasters = serializers.SerializerMethodField(
+        method_name='get_popular_rasters'
+    )
 
     class Meta:
         model = Image
         fields = (
             'id', 'created', 'author', 'name', 'image', 'license', 'price',
-            'format', 'tags', 'is_favorited', 'comments', 'recommended',
-            'other_author_images'
+            'format', 'tags', 'is_favorited', 'comments',
+            'recommended', 'other_author_images', 'popular_rasters'
         )
 
     def get_is_favorited(self, obj):
@@ -312,6 +318,13 @@ class ImageGetSerializer(serializers.ModelSerializer):
         images = Image.objects.filter(
             author=obj.author).exclude(
                 id=obj.id).order_by('?')[:NUM_OTHER_AUTHOR_IMAGES]
+        serializer = ImageShortSerializer(images, many=True)
+        return serializer.data
+
+    def get_popular_rasters(self, obj):
+        images = Image.objects.filter(
+            format__in=IMAGE_CATEGORIES[RASTER]
+        ).order_by('?').distinct()[:NUM_OF_POPULAR_IMAGES_BY_CATEGORY]
         serializer = ImageShortSerializer(images, many=True)
         return serializer.data
 

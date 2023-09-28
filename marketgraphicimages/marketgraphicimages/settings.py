@@ -153,10 +153,22 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
+
+
 COMMENTS_PAGINATOR_SIZE = 5
 NUM_OF_RECOMMENDED_IMAGES = 4
 NUM_OTHER_AUTHOR_IMAGES = 4
+NUM_OF_POPULAR_IMAGES_BY_CATEGORY = 4
 MAX_NUM_OF_TAGS_RECOMENDED_COMBO = 4
+RASTER = 'raster'
+VECTOR = 'vector'
+GIF = 'gif'
+IMAGE_CATEGORIES = {
+    RASTER: ('JPEG', 'PNG', 'WEBP', 'RAW', 'TIFF', 'PSD'),
+    VECTOR: ('SVG', 'WMF', 'EPS', 'PDF', 'CDR',  'AI'),
+    GIF: ('GIF')
+}
+
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
@@ -259,7 +271,7 @@ if not DEBUG:
 DEFAULT_FROM_EMAIL = EMAIL_BACKEND_NAME
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
-CORS_ORIGIN_ALLOW_ALL = False
+"""CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
@@ -283,4 +295,4 @@ CORS_ALLOWED_ORIGINS = (
 CORS_ALLOWED_ORIGIN_REGEXES = (
     'http://localhost:3000',
     'https://marketplace-of-graphic-images.github.io',
-)
+)"""
