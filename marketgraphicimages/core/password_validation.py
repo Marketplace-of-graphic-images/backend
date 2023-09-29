@@ -78,6 +78,9 @@ class MaximumLengthValidator:
 
 
 class TheSamePasswordValidator:
+    """
+    Validate that the new password is different from the old password.
+    """
     def validate(self, password, user=None):
         if user and user.check_password(password):
             raise ValidationError(
