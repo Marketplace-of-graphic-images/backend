@@ -28,7 +28,7 @@ class IsAuthorOrAdminPermission(permissions.BasePermission):
                 or request.user.is_superuser)
 
 
-class CurrentUserOrReadOnlyOrAdmin(permissions.IsAuthenticated):
+class CurrentUserOrReadOnlyOrAdmin(permissions.BasePermission):
     """Only the current user or read only or admin."""
     def has_object_permission(self, request, view, obj):
         user = request.user
