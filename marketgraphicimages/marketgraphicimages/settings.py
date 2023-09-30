@@ -122,6 +122,21 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'core.password_validation.InvalidCharactersValidator',
+    },
+    {
+        'NAME': 'core.password_validation.CyrillicLettersValidator',
+    },
+    {
+        'NAME': 'core.password_validation.EasyPasswordValidator',
+    },
+    {
+        'NAME': 'core.password_validation.MaximumLengthValidator',
+    },
+    {
+        'NAME': 'core.password_validation.TheSamePasswordValidator',
+    },
 ]
 
 LANGUAGE_CODE = 'ru-RU'
