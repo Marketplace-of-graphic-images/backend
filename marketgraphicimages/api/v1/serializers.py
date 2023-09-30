@@ -415,7 +415,7 @@ class UserSerializer(serializers.ModelSerializer):
     count_my_images = serializers.SerializerMethodField(read_only=True)
     my_subscribers = serializers.SerializerMethodField(read_only=True)
     my_subscriptions = serializers.SerializerMethodField(read_only=True)
-    profile_photo = CustomBase64ImageField()
+    profile_photo = Base64ImageField()
     history = serializers.SerializerMethodField(read_only=True)
 
     def get_my_images(self, obj):
