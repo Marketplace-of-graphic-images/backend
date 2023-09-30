@@ -191,6 +191,7 @@ DJOSER = {
     },
     'PERMISSIONS': {
         'password_reset_confirm_code': ['rest_framework.permissions.AllowAny'],
+        'user': ['core.permissions.CurrentUserOrReadOnlyOrAdmin'],
     },
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': white_list,

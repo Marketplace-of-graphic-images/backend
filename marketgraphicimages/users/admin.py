@@ -31,6 +31,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     list_display = (
+        'pk',
         'username',
         'email',
         'profile_photo',
