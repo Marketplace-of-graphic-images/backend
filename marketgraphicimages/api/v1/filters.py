@@ -23,7 +23,7 @@ class ImageFilter(FilterSet):
 
     class Meta:
         model = Image
-        fields = ('tags', 'category')
+        fields = ('tags', 'category',)
 
     def filter_category(self, queryset, _, value):
         """
