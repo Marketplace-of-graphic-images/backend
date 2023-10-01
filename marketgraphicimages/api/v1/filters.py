@@ -1,6 +1,7 @@
 from django_filters.rest_framework import FilterSet, filters
 
 from images.models import Image
+from tags.models import Tag
 
 REGAX_PATTERNS = {
     'raster_image': r'\.(png|jpe?g|webp)$',
@@ -33,3 +34,18 @@ class ImageFilter(FilterSet):
         if value in REGAX_PATTERNS:
             return queryset.filter(image__regex=REGAX_PATTERNS.get(value))
         return queryset
+
+
+class TagFilter(FilterSet):
+    """
+    Filter for tags.
+
+    Parameters:
+    - Filter by name.
+    """
+
+    tags = filters.MultipleChoiceFilter(field_name='tags__name')
+
+    class Meta:
+        model = Tag
+        fields = ('name',)
