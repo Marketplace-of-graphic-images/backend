@@ -163,7 +163,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     def get_tag_images(self, obj):
         if self.context.get('request'):
-            images = Image.objects.filter(tags=obj.name)[:1]
+            images = Image.objects.filter(tags=obj.id)[:1]
             serializer = ImageShortSerializer(images, many=True)
             return serializer.data
 
