@@ -6,7 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import (
     AllowAny,
@@ -281,6 +281,8 @@ class ImageViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ['name', ]
 
     def get_queryset(self):
         return Tag.objects.all()

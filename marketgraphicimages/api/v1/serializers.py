@@ -159,6 +159,13 @@ class AuthSignInSerializer(serializers.Serializer):
 
 class TagSerializer(serializers.ModelSerializer):
     """Serializer for Tag model."""
+    tag_images = serializers.SerializerMethodField()
+
+    def get_tag_images(self, obj):
+        if self.context.get('request'):
+            images = Image.objects.filter(tags=obj.id).order_by('?')[:1]
+            serializer = ImageShortSerializer(images, many=True)
+            return serializer.data
 
     class Meta:
         model = Tag
