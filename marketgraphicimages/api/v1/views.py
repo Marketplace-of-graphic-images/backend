@@ -24,7 +24,7 @@ from .schemas import (
     SIGUP_SHEMA,
     SIGUP_SHEMA_CONFIRMATION,
 )
-from api.v1.filters import ImageFilter, TagFilter
+from api.v1.filters import ImageFilter
 from api.v1.serializers import (
     AuthSignInSerializer,
     AuthSignUpSerializer,
@@ -282,7 +282,6 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filterset_class = TagFilter
     search_fields = ['name', ]
 
     def get_queryset(self):
