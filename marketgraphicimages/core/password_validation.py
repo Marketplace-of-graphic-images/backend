@@ -52,7 +52,7 @@ class EasyPasswordValidator:
             )
 
     def get_help_text(self):
-        return _("You password must contain numbers "
+        return _("Your password must contain numbers "
                  "letters and special characters")
 
 
@@ -73,7 +73,7 @@ class MaximumLengthValidator:
             )
 
     def get_help_text(self):
-        return _("You password must contain a maximum of "
+        return _("Your password must contain a maximum of "
                  f"{self.max_length} characters.")
 
 

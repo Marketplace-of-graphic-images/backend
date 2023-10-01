@@ -167,7 +167,7 @@ class CustomUserViewSet(UserViewSet):
     @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
     def reset_password(self, request, *args, **kwargs):
         '''
-        the method sends a confirmation code to an email 
+        the method sends a confirmation code to an email
         if the email address exists.
         '''
         return super().reset_password(request, *args, **kwargs)

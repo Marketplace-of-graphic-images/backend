@@ -1,12 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.core import exceptions
 from django.core.paginator import Paginator
 from django.db import IntegrityError, models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers, status
-from rest_framework.exceptions import ValidationError
+from rest_framework import serializers
+from rest_framework.exceptions import NotFound, ValidationError
 
 from marketgraphicimages.settings import (
     COMMENTS_PAGINATOR_SIZE,
@@ -45,8 +46,11 @@ class AuthSignUpSerializer(serializers.ModelSerializer):
         Returns:
             dict: The validated data, if the password is valid.
         """
-        validate_password(data.get('password'))
         validate_email(data.get('email'))
+        try:
+            validate_password(data.get('password'))
+        except exceptions.ValidationError as error:
+            raise exceptions.ValidationError({'errors': error})
         return data
 
 
@@ -82,7 +86,6 @@ class ConfirmationSerializer(serializers.ModelSerializer):
         if not verify_value(confirmation_code, email_user.confirmation_code):
             raise ValidationError(
                 detail={'errors': _('Invalid confirmation code')},
-                code=status.HTTP_400_BAD_REQUEST,
             )
         user = self.create_user(data)
         email_user.delete()
@@ -111,7 +114,6 @@ class ConfirmationSerializer(serializers.ModelSerializer):
         except IntegrityError:
             raise ValidationError(
                 detail={'errors': _('User with this data already exist')},
-                code=status.HTTP_400_BAD_REQUEST,
             )
         user.set_password(data.get('password'))
         user.save()
@@ -139,16 +141,12 @@ class AuthSignInSerializer(serializers.Serializer):
 
         Returns:
             - User: The User object if the credentials are valid.
-
-        Raises:
-            - ValidationError: If the provided credentials are invalid.
         """
         try:
             user = User.objects.get(email=data.get('email'))
         except User.DoesNotExist:
-            raise ValidationError(
+            raise NotFound(
                 detail={'errors': _('User with this email does not exist')},
-                code=status.HTTP_404_NOT_FOUND,
             )
         else:
             if user.check_password(data.get("password")):
@@ -156,7 +154,6 @@ class AuthSignInSerializer(serializers.Serializer):
                 return data
             raise ValidationError(
                 detail={'errors': _('Wrong password')},
-                code=status.HTTP_400_BAD_REQUEST,
             )
 
 
@@ -401,8 +398,8 @@ class FavoriteSerialiser(serializers.ModelSerializer):
         image = data.get('image')
         user = data.get('user')
         if image.favoriteimage_set.filter(user=user).exists():
-            raise serializers.ValidationError(
-                'Вы уже подписаны.'
+            raise ValidationError(
+                detail={'error': _('This image is already in favorites.')},
             )
         return data
 
