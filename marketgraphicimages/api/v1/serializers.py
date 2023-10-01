@@ -399,7 +399,7 @@ class FavoriteSerialiser(serializers.ModelSerializer):
         user = data.get('user')
         if image.favoriteimage_set.filter(user=user).exists():
             raise ValidationError(
-                detail={'error': _('This image is already in favorites.')},
+                detail={'errors': _('This image is already in favorites.')},
             )
         return data
 
