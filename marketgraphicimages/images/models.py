@@ -17,7 +17,7 @@ class Image(models.Model):
         PREMIUM = 'premium', _('premium')
 
     created = models.DateTimeField(
-        verbose_name=_('Date of cration'),
+        verbose_name=_('Date of creation'),
         auto_now_add=True,
         help_text=_('Automatically sets the current date and time'),
     )
@@ -70,7 +70,8 @@ class Image(models.Model):
 
     def __str__(self):
         return str(
-            _(f'Author: {str(self.author)} Image name: {self.name[:15]}')
+            (_('Author') + f': {str(self.author)} ' +
+             _('Image name') + f': {self.name[:15]}')
         )
 
 
@@ -78,8 +79,8 @@ class ImageConnection(models.Model):
     image = models.ForeignKey(
         Image,
         on_delete=models.CASCADE,
-        verbose_name='Изображение',
-        help_text='Выберите изображения',
+        verbose_name=_('Image'),
+        help_text=_('Select image'),
     )
 
     class Meta:
@@ -95,8 +96,8 @@ class FavoriteImage(ImageConnection, UserConnection):
                 fields=('image', 'user'),
             ),
         ]
-        verbose_name = 'Любимое изображение'
-        verbose_name_plural = 'Любимые изображения'
+        verbose_name = _('Favorite image')
+        verbose_name_plural = _('Favorite images')
         ordering = ('image',)
 
     def __str__(self) -> str:
@@ -112,16 +113,17 @@ class ShoppingCartImage(ImageConnection, UserConnection):
                 fields=('image', 'user'),
             ),
         ]
-        verbose_name = 'Купленное изображение'
-        verbose_name_plural = 'Купленные изображения'
+        verbose_name = _('Shopping cart image')
+        verbose_name_plural = _('Shopping cart images')
+        ordering = ('image',)
 
 
 class TagImage(ImageConnection):
     tag = models.ForeignKey(
         Tag,
         on_delete=models.DO_NOTHING,
-        verbose_name='Тег',
-        help_text='Выберите из списка тег',
+        verbose_name=_('Tag'),
+        help_text=_('Select tag'),
     )
 
     class Meta:
@@ -131,5 +133,5 @@ class TagImage(ImageConnection):
                 fields=['image', 'tag'],
             ),
         ]
-        verbose_name = 'Тег'
-        verbose_name_plural = 'Теги'
+        verbose_name = _('Tag image')
+        verbose_name_plural = _('Tags image')

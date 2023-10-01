@@ -114,13 +114,17 @@ class ConfirmationCode(models.Model):
         max_length=100,
     )
 
+    class Meta:
+        verbose_name = _('Confirmation code')
+        verbose_name_plural = _('Confirmation codes')
+
 
 class UserConnection(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-        help_text='Выберите из списка пользователя',
+        verbose_name=_('User'),
+        help_text=_('Select user'),
     )
 
     class Meta:
@@ -163,10 +167,17 @@ class UserConfirmationCode(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='code_owner',
+        verbose_name=_('User'),
     )
     confirmation_code = models.CharField(
         max_length=100,
+        verbose_name=_('Confirmation code'),
     )
     is_confirmed = models.BooleanField(
         default=False,
+        verbose_name=_('Is confirmed'),
     )
+
+    class Meta:
+        verbose_name = _('User confirmation code')
+        verbose_name_plural = _('User confirmation codes')
