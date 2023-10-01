@@ -18,12 +18,12 @@ class ImageFilter(FilterSet):
     - Filter by category based on format of image.
     """
 
-    tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
+    tags = filters.AllValuesMultipleFilter(field_name='tags__name')
     category = filters.CharFilter(method='filter_category',)
 
     class Meta:
         model = Image
-        fields = ('tags', 'category',)
+        fields = ('tags', 'category')
 
     def filter_category(self, queryset, _, value):
         """
