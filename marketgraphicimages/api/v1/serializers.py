@@ -228,10 +228,15 @@ class CommentShortSerializer(serializers.ModelSerializer):
 
 class ImageShortSerializer(serializers.ModelSerializer):
     """Serializer for short info about image."""
+    likes = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Image
-        fields = ('id', 'name', 'image')
+        fields = ('id', 'name', 'image', 'likes')
+
+    def get_likes(self, obj):
+        count = FavoriteImage.objects.filter(image=obj.id)
+        return len(count)
 
 
 class ImageGetSerializer(serializers.ModelSerializer):
@@ -414,14 +419,15 @@ class FavoriteSerialiser(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for transferring and modifying user information."""
 
-    favoriteds = serializers.SerializerMethodField(read_only=True)
-    my_images = serializers.SerializerMethodField()
+    #favoriteds = serializers.SerializerMethodField(read_only=True)
+    #my_images = serializers.SerializerMethodField()
     count_my_images = serializers.SerializerMethodField(read_only=True)
     my_subscribers = serializers.SerializerMethodField(read_only=True)
     my_subscriptions = serializers.SerializerMethodField(read_only=True)
     profile_photo = Base64ImageField()
-    history = serializers.SerializerMethodField(read_only=True)
+    #history = serializers.SerializerMethodField(read_only=True)
 
+    '''
     def get_my_images(self, obj):
         if (self.context.get('request')
            and self.context.get('request').user.is_authenticated and
@@ -452,6 +458,7 @@ class UserSerializer(serializers.ModelSerializer):
         images = [favorite_image.image for favorite_image in favorite_images]
         serializer = ImageShortSerializer(images, many=True)
         return serializer.data
+        '''
 
     def get_count_my_images(self, obj):
         if (obj.role == 'Author'):
@@ -475,10 +482,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name',
                   'vk', 'instagram', 'website', 'profile_photo',
-                  'birthday', 'my_images',
-                  'role', 'favoriteds',
+                  'birthday', #'my_images',
+                  'role', #'favoriteds',
                   'count_my_images', 'my_subscribers',
-                  'my_subscriptions', 'history',
+                  'my_subscriptions', #'history',
                   )
 
 
