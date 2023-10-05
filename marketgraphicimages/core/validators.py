@@ -32,7 +32,7 @@ def validate_email(email: str) -> None:
                               ' area: more than 5 and less than 65')
     elif len(domain_area) > 253:
         raise ValidationError('Allowed number of characters in the domain'
-                              ' area: less than 256')
+                              ' area: less than 254')
     elif len(email) > 256:
         raise ValidationError('Maximum email length 256 characters')
     # elif local_area[0] == '.' or local_area[len(local_area) - 1] == '.':
