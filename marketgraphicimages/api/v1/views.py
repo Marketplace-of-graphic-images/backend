@@ -92,7 +92,7 @@ def auth_confirmation(request: Request) -> Response:
     )
     response.set_cookie(
         'jwt', str(access_token), expires=TOKEN_LIFETIME,
-        httponly=True, samesite='None',
+        httponly=True, samesite='None', secure=True
     )
     return response
 
@@ -117,7 +117,7 @@ def get_token_post(request: Request) -> Response:
     )
     response.set_cookie(
         'jwt', str(access_token), expires=TOKEN_LIFETIME,
-        httponly=True, samesite='None',
+        httponly=True, samesite='None', secure=True
     )
     return response
 
