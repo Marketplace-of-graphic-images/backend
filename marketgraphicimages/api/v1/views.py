@@ -286,7 +286,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         image = self.get_object()
         if image.license != Image.LicenseType.FREE:
             return Response(
-                {"errors": _("Only free images can be downloaded.")},
+                {"errors": _("Only free image can be downloaded.")},
                 status=status.HTTP_403_FORBIDDEN)
         response = FileResponse(open(image.image.path, 'rb'))
         response['Content-Disposition'] = (
