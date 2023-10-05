@@ -20,7 +20,7 @@ def validate_email(email: str) -> None:
     regex = re.compile(
         r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
     if not re.fullmatch(regex, email):
-        errors.append('Invalid email')
+        errors.append(_('Invalid email'))
     # try:
     local_area, domain_area = email.split('@')
     # except ValueError:
@@ -29,13 +29,13 @@ def validate_email(email: str) -> None:
     #             code=status.HTTP_400_BAD_REQUEST,
     #     )
     if len(local_area) < 6 or len(local_area) > 64:
-        errors.append('Allowed number of characters in the local'
-                              ' area: more than 5 and less than 65')
+        errors.append(_('Allowed number of characters in the local'
+                              ' area: more than 5 and less than 65'))
     elif len(domain_area) > 253:
-        errors.append('Allowed number of characters in the domain'
-                              ' area: less than 254')
+        errors.append(_('Allowed number of characters in the domain'
+                              ' area: less than 254'))
     elif len(email) > 256:
-        errors.append('Maximum email length 256 characters')
+        errors.append(_('Maximum email length 256 characters'))
     # elif local_area[0] == '.' or local_area[len(local_area) - 1] == '.':
     #     raise ValidationError('A local area cannot begin or end with .')
     # elif local_area.count('.') > 1:
