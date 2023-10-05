@@ -50,7 +50,7 @@ class AuthSignUpSerializer(serializers.ModelSerializer):
         try:
             validate_password(data.get('password'))
         except exceptions.ValidationError as error:
-            raise exceptions.ValidationError({'errors': error})
+            raise exceptions.ValidationError({'password': error})
         return data
 
 
@@ -85,7 +85,7 @@ class ConfirmationSerializer(serializers.ModelSerializer):
         confirmation_code = data.get('confirmation_code')
         if not verify_value(confirmation_code, email_user.confirmation_code):
             raise ValidationError(
-                detail={'errors': _('Invalid confirmation code')},
+                detail={'confirmation_code': _('Invalid confirmation code')},
             )
         user = self.create_user(data)
         email_user.delete()
@@ -146,14 +146,14 @@ class AuthSignInSerializer(serializers.Serializer):
             user = User.objects.get(email=data.get('email'))
         except User.DoesNotExist:
             raise NotFound(
-                detail={'errors': _('User with this email does not exist')},
+                detail={'email': _('User with this email does not exist')},
             )
         else:
             if user.check_password(data.get("password")):
                 data['user'] = user
                 return data
             raise ValidationError(
-                detail={'errors': _('Wrong password')},
+                detail={'password': _('Wrong password')},
             )
 
 
