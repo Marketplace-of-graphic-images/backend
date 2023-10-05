@@ -2,7 +2,6 @@ from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from django.utils.encoding import smart_str
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django_filters.rest_framework import DjangoFilterBackend
@@ -286,11 +285,12 @@ class ImageViewSet(viewsets.ModelViewSet):
         """Download an image."""
         image = self.get_object()
         if image.license != Image.LicenseType.FREE:
-            return Response({"errors": _("Only free images can be downloaded.")},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"errors": _("Only free images can be downloaded.")},
+                status=status.HTTP_403_FORBIDDEN)
         response = FileResponse(open(image.image.path, 'rb'))
         response['Content-Disposition'] = (
-            'attachment; filename="%s"' % smart_str(image.image.name))
+            'attachment; filename="%s"' % _(image.image.name))
         response['Content-Length'] = image.image.size
         return response
 
