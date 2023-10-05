@@ -6,6 +6,11 @@ from django.core.validators import (
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+ROLE_CHOICES = (
+        ('User', 'User'),
+        ('Author', 'Author'),
+    )
+
 
 class User(AbstractUser):
     """Model of users."""
@@ -33,9 +38,11 @@ class User(AbstractUser):
             'unique': _('User with such an email already exists'),
         },
     )
-    author = models.BooleanField(
-        verbose_name=_('Author'),
-        default=False,
+    role = models.CharField(
+        max_length=70,
+        choices=ROLE_CHOICES,
+        verbose_name=_('Role'),
+        default='User',
     )
     profile_photo = models.ImageField(
         upload_to='user_photos',
@@ -43,20 +50,28 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         verbose_name=_('First name'),
-        max_length=20,
+        max_length=265,
         blank=True,
     )
     last_name = models.CharField(
         verbose_name=_('Last name'),
-        max_length=20,
+        max_length=265,
         blank=True,
     )
     birthday = models.DateField(
         verbose_name=_('Date of birth'),
         null=True,
     )
-    telegram_link = models.URLField(
-        verbose_name=_('Telegram profile'),
+    vk = models.URLField(
+        verbose_name=_('VK'),
+        blank=True,
+    )
+    instagram = models.URLField(
+        verbose_name=_('Instagram'),
+        blank=True,
+    )
+    website = models.URLField(
+        verbose_name=_('Website'),
         blank=True,
     )
 
@@ -79,7 +94,7 @@ class User(AbstractUser):
 
     @property
     def is_author(self):
-        return self.author
+        return self.role == 'Author'
 
 
 class ConfirmationCode(models.Model):
@@ -112,7 +127,7 @@ class UserConnection(models.Model):
         abstract = True
 
 
-class Subscription(models.Model):
+class Subscription(UserConnection):
     subscriber = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

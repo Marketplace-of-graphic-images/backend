@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR.parent / 'infra/.env'
-load_dotenv()
+load_dotenv(dotenv_path=ENV_PATH)
 
 
 SECRET_KEY = 'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
@@ -19,7 +19,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     '80.87.107.75',
-    'pictura.acceleratorpracticum.ru',
+    'pictura.acceleratorpracticum.ru'
 ]
 
 DJANGO_APPS = (
@@ -155,20 +155,13 @@ REST_FRAMEWORK = {
 }
 
 
-COMMENTS_PAGINATOR_SIZE = 5
-NUM_OF_RECOMMENDED_IMAGES = 4
-NUM_OTHER_AUTHOR_IMAGES = 4
+IMAGES_PAGINATOR_SIZE = 9
+IMAGES_LIMIT_SIZE = 10
 NUM_OF_POPULAR_IMAGES_BY_CATEGORY = 4
 MAX_NUM_OF_TAGS_RECOMENDED_COMBO = 4
-RASTER = 'raster'
-VECTOR = 'vector'
-GIF = 'gif'
-IMAGE_CATEGORIES = {
-    RASTER: ('JPEG', 'PNG', 'WEBP', 'RAW', 'TIFF', 'PSD'),
-    VECTOR: ('SVG', 'WMF', 'EPS', 'PDF', 'CDR',  'AI'),
-    GIF: ('GIF')
-}
-
+ALLOWED_EXTENSIONS = [
+    'jpeg', 'jpg,' 'png', 'webp', 'raw', 'tiff', 'psd', 'svg'
+]
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
@@ -193,6 +186,9 @@ DJOSER = {
     'SERIALIZERS': {
         'password_reset_confirm': 'users.serializers.PasswordSerializer',
         'password_reset_confirm_code': 'users.serializers.EmailAndTokenSerializer',
+        'user': 'api.v1.serializers.UserSerializer',
+        'current_user': 'api.v1.serializers.UserSerializer',
+
     },
     'EMAIL': {
         'password_reset': 'core.new_password_reset_email.PasswordResetEmail',
@@ -202,6 +198,7 @@ DJOSER = {
     },
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': white_list,
+    'TOKEN_MODEL': None,
 }
 
 AUTHENTICATION_BACKENDS = (
@@ -262,11 +259,11 @@ logger = logging.getLogger('main')
 
 if not DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.yandex.ru'
-    EMAIL_PORT = 465
-    EMAIL_USE_SSL = True
-    EMAIL_HOST_USER = EMAIL_BACKEND_NAME
-    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', default='')
+    EMAIL_HOST = 'skvmrelay.netangels.ru'
+    EMAIL_PORT = 25
+    #EMAIL_USE_SSL = True
+    #EMAIL_HOST_USER = EMAIL_BACKEND_NAME
+    #EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', default='')
 
 DEFAULT_FROM_EMAIL = EMAIL_BACKEND_NAME
 

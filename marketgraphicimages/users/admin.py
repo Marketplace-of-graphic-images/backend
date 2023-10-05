@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 
 from .models import ConfirmationCode, Subscription, UserConfirmationCode
 
@@ -8,16 +9,35 @@ User = get_user_model()
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('subscriber', 'author')
+    list_display = (
+        'pk',
+        'subscriber',
+        'author',
+    )
+    search_fields = (
+        'subscriber',
+        'author',
+    )
+    list_filter = (
+        'subscriber',
+        'author',
+    )
+    list_editable = (
+        'subscriber',
+        'author',
+    )
 
 
 @admin.register(User)
-class CustomUserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
     list_display = (
         'username',
         'email',
-        'profile_photo'
+        'profile_photo',
+        'role',
     )
+    fieldsets = UserAdmin.fieldsets
+    fieldsets[1][1]['fields'] = ('role', 'email',)
     search_fields = (
         "username",
         'email',
