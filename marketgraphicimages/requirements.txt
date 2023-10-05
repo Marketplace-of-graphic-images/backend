@@ -17,6 +17,7 @@ django-allauth==0.54.0
 django-cors-headers==4.2.0
 django-filter==23.2
 django-phonenumber-field==7.1.0
+django-sendfile==0.3.11
 django-templated-mail==1.1.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
@@ -75,10 +76,9 @@ sqlparse==0.4.4
 termcolor==1.1.0
 toml==0.10.2
 tomli==2.0.1
+tqdm==4.66.1
 typing_extensions==4.7.1
 tzdata==2023.3
 uritemplate==4.1.1
 urllib3==1.26.16
 virtualenv==20.24.2
-gunicorn==21.2.0
-tqdm==4.66.1
