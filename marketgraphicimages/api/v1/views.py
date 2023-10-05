@@ -91,7 +91,8 @@ def auth_confirmation(request: Request) -> Response:
         BaseShortUserSerializer(user).data, status=status.HTTP_200_OK
     )
     response.set_cookie(
-        'jwt', str(access_token), expires=TOKEN_LIFETIME, httponly=True
+        'jwt', str(access_token), expires=TOKEN_LIFETIME,
+        httponly=True, samesite='None',
     )
     return response
 
@@ -115,7 +116,8 @@ def get_token_post(request: Request) -> Response:
         BaseShortUserSerializer(user).data, status=status.HTTP_200_OK
     )
     response.set_cookie(
-        'jwt', str(access_token), expires=TOKEN_LIFETIME, httponly=True
+        'jwt', str(access_token), expires=TOKEN_LIFETIME,
+        httponly=True, samesite='None',
     )
     return response
 
