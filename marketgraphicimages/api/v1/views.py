@@ -1,6 +1,9 @@
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from django.utils.encoding import smart_str
+from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
@@ -277,6 +280,19 @@ class ImageViewSet(viewsets.ModelViewSet):
         )
         self.perform_destroy(favorite_image)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=('get',))
+    def download(self, request, pk=None):
+        """Download an image."""
+        image = self.get_object()
+        if image.license != Image.LicenseType.FREE:
+            return Response({"errors": _("Only free images can be downloaded.")},
+                            status=status.HTTP_403_FORBIDDEN)
+        response = FileResponse(open(image.image.path, 'rb'))
+        response['Content-Disposition'] = (
+            'attachment; filename="%s"' % smart_str(image.image.name))
+        response['Content-Length'] = image.image.size
+        return response
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
