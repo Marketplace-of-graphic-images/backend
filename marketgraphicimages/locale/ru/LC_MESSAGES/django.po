@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-12 15:27+0800\n"
+"POT-Creation-Date: 2023-10-01 12:10+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,64 +19,316 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
-#: .\core\validators.py:8
-msgid "Date is not correct."
-msgstr "Дата введена не верно."
+#: .\api\v1\serializers.py:88
+msgid "Invalid confirmation code"
+msgstr "Неверный код подтвержения"
 
-#: .\users\models.py:14
+#: .\api\v1\serializers.py:116
+msgid "User with this data already exist"
+msgstr "Пользователь с этими данными уже существует"
+
+#: .\api\v1\serializers.py:149
+msgid "User with this email does not exist"
+msgstr "Пользователь с этим email не существует"
+
+#: .\api\v1\serializers.py:156
+msgid "Wrong password"
+msgstr "Неверный пароль"
+
+#: .\api\v1\serializers.py:402
+msgid "This image is already in favorites."
+msgstr "Это изображение уже в избранном."
+
+#: .\core\password_validation.py:16
+msgid "This password has invalid characters: @ ,"
+msgstr "Этот пароль имеет неверные символы: @ ,"
+
+#: .\core\password_validation.py:21
+msgid "Your password must not contain invalid characters."
+msgstr "Ваш пароль не должен содержать неверные символы."
+
+#: .\core\password_validation.py:31
+msgid "This password has cyrillic letters"
+msgstr "Этот пароль имеет кириллические буквы"
+
+#: .\core\password_validation.py:36
+msgid "Your password must not contain cyrillic letters."
+msgstr "Ваш пароль не должен содержать кириллические буквы."
+
+#: .\core\password_validation.py:48
+msgid "Password must contain numbers letters and special characters: -_!."
+msgstr "Пароль должен содержать номера буквы и специальные символы: -_!."
+
+#: .\core\password_validation.py:55
+msgid "Your password must contain numbers letters and special characters"
+msgstr "Ваш пароль должен содержать буквы и специальные символы"
+
+#: .\core\password_validation.py:70
+msgid "This password is too long. It must contain a maximum of "
+msgstr "Этот пароль слишком длинный. Он должен содержать максимум "
+
+#: .\core\password_validation.py:76
+msgid "Your password must contain a maximum of "
+msgstr "Ваш пароль должен содержать максимум "
+
+#: .\core\password_validation.py:87 .\core\password_validation.py:92
+msgid "The new password must be different from the old password."
+msgstr "Новый пароль должен отличаться от старого пароля."
+
+#: .\core\validators.py:9
+msgid "Date is not correct."
+msgstr "Данные неверны."
+
+#: .\core\validators.py:21
+msgid "Email can only contain one \"@\""
+msgstr "Электронная почта может содержать только один @"
+
+#: .\images\models.py:15
+msgid "free"
+msgstr "бесплатно"
+
+#: .\images\models.py:16
+msgid "subscribe"
+msgstr "по подписке"
+
+#: .\images\models.py:17
+msgid "premium"
+msgstr "премиум"
+
+#: .\images\models.py:20
+msgid "Date of creation"
+msgstr "Дата создания"
+
+#: .\images\models.py:22
+msgid "Automatically sets the current date and time"
+msgstr "Автоматически устанавливает текущую дату и время"
+
+#: .\images\models.py:28 .\images\models.py:73 .\users\models.py:142
+msgid "Author"
+msgstr "Автор"
+
+#: .\images\models.py:29
+msgid "Image author"
+msgstr "Автор изображения"
+
+#: .\images\models.py:32 .\tags\models.py:7
+msgid "Name"
+msgstr "Название"
+
+#: .\images\models.py:34 .\tags\models.py:10
+msgid "Enter the name"
+msgstr "Введите название"
+
+#: .\images\models.py:37 .\images\models.py:68 .\images\models.py:82
+msgid "Image"
+msgstr "Изображение"
+
+#: .\images\models.py:40
+msgid "Upload an image"
+msgstr "Загрузите изображение"
+
+#: .\images\models.py:43
+msgid "License"
+msgstr "Лицензия"
+
+#: .\images\models.py:46
+msgid "Select license type"
+msgstr "Выберите тип лицензии"
+
+#: .\images\models.py:49
+msgid "Image price"
+msgstr "Цена изображения"
+
+#: .\images\models.py:52
+msgid "Specify a price"
+msgstr "Укажите цену"
+
+#: .\images\models.py:55
+msgid "Format"
+msgstr "Формат"
+
+#: .\images\models.py:57
+msgid "Specify image format"
+msgstr "Укажите формат изображения"
+
+#: .\images\models.py:62 .\images\models.py:125 .\tags\models.py:21
+msgid "Tag"
+msgstr "Тег"
+
+#: .\images\models.py:63
+msgid "Select tags"
+msgstr "Выберите теги"
+
+#: .\images\models.py:69
+msgid "Images"
+msgstr "Изображения"
+
+#: .\images\models.py:74
+msgid "Image name"
+msgstr "Название изображения"
+
+#: .\images\models.py:83
+msgid "Select image"
+msgstr "Выберите изображение"
+
+#: .\images\models.py:99
+msgid "Favorite image"
+msgstr "Избранное изображение"
+
+#: .\images\models.py:100
+msgid "Favorite images"
+msgstr "Избранные изображения"
+
+#: .\images\models.py:116
+msgid "Shopping cart image"
+msgstr "Купленное изображение"
+
+#: .\images\models.py:117
+msgid "Shopping cart images"
+msgstr "Купленные изображения"
+
+#: .\images\models.py:126
+msgid "Select tag"
+msgstr "Выберите тег"
+
+#: .\images\models.py:136
+msgid "Tag image"
+msgstr "Тег изображения"
+
+#: .\images\models.py:137
+msgid "Tags image"
+msgstr "Теги изображения"
+
+#: .\tags\models.py:13
+msgid "Slug"
+msgstr "Slug"
+
+#: .\tags\models.py:15
+msgid "Enter the slug"
+msgstr "Введите slug"
+
+#: .\tags\models.py:22
+msgid "Tags"
+msgstr "Теги"
+
+#: .\users\models.py:19
 msgid "Username"
 msgstr "Имя пользователя"
 
-#: .\users\models.py:17
+#: .\users\models.py:22
 msgid ""
 "Enter the username. Maximum of 30 characters.Use only English letters, "
 "numbers and symbols @/./+/-/_"
-msgstr "Введите имя пользователя. Максимум 30 символов. Используйте только английские буквы, цифры и символы @/./+/-/_"
+msgstr "Введите имя пользователя.Максимум 30 символов. Используйте только английские буквы, цифры и символы @/./+/-/_"
 
-#: .\users\models.py:23
+#: .\users\models.py:28
 msgid "User with such a username already exists"
-msgstr "Пользователь с таким именем уже существует"
+msgstr "Пользователь с таким именем пользователя уже существует"
 
-#: .\users\models.py:31
+#: .\users\models.py:36 .\users\models.py:107
 msgid "Enter the email."
-msgstr "Введите email"
+msgstr "Введите email."
 
-#: .\users\models.py:33
+#: .\users\models.py:38 .\users\models.py:109
 msgid "User with such an email already exists"
 msgstr "Пользователь с таким email уже существует"
 
-#: .\users\models.py:41
-msgid "Name"
-msgstr "Имя"
-
-#: .\users\models.py:42
-msgid "Enter your name"
-msgstr "Введите ваше имя"
+#: .\users\models.py:44
+msgid "Role"
+msgstr "Роль"
 
 #: .\users\models.py:49
-msgid "Surname"
+msgid "Profile photo"
+msgstr "Фото профиля"
+
+#: .\users\models.py:52
+msgid "First name"
+msgstr "Имя"
+
+#: .\users\models.py:57
+msgid "Last name"
 msgstr "Фамилия"
 
-#: .\users\models.py:50
-msgid "Enter your surname"
-msgstr "Введите вашу фамилию"
-
-#: .\users\models.py:54
+#: .\users\models.py:62
 msgid "Date of birth"
 msgstr "Дата рождения"
 
-#: .\users\models.py:56
-msgid "Enter your date of birth"
-msgstr "Введите вашу дату рождения"
+#: .\users\models.py:66
+msgid "VK"
+msgstr "VK"
 
-#: .\users\models.py:59
-msgid "Active"
-msgstr "Активирован"
+#: .\users\models.py:70
+msgid "Instagram"
+msgstr "Instagram"
 
-#: .\users\models.py:64
+#: .\users\models.py:74
+msgid "Website"
+msgstr "Website"
+
+#: .\users\models.py:82 .\users\models.py:122 .\users\models.py:170
 msgid "User"
 msgstr "Пользователь"
 
-#: .\users\models.py:65
+#: .\users\models.py:83
 msgid "Users"
 msgstr "Пользователи"
+
+#: .\users\models.py:113 .\users\models.py:118 .\users\models.py:174
+msgid "Confirmation code"
+msgstr "Код подтвержения"
+
+#: .\users\models.py:119
+msgid "Confirmation codes"
+msgstr "Коды подтвержения"
+
+#: .\users\models.py:123
+msgid "Select user"
+msgstr "Выберите пользователя"
+
+#: .\users\models.py:135
+msgid "Subscriber"
+msgstr "Подписчик"
+
+#: .\users\models.py:136
+msgid "Who is following the user"
+msgstr "Кто подписывается на пользователя"
+
+#: .\users\models.py:143
+msgid "Who the user is following"
+msgstr "На кого подписывается пользователь"
+
+#: .\users\models.py:147
+msgid "Subscription"
+msgstr "Подписка"
+
+#: .\users\models.py:148
+msgid "Subscriptions"
+msgstr "Подписки"
+
+#: .\users\models.py:178
+msgid "Is confirmed"
+msgstr "Подтверждено"
+
+#: .\users\models.py:179
+msgid "User confirmation code"
+msgstr "Код подтверждения пользователя"
+
+#: .\users\models.py:180
+msgid "User confirmation codes"
+msgstr "Коды подтверждения пользователя"
+
+#: .\users\serializers.py:26 .\users\serializers.py:51
+msgid "invalid_email"
+msgstr "неверный email"
+
+#: .\users\serializers.py:34
+msgid "invalid confirmation_code"
+msgstr "неверный код подтвержения"
+
+#: .\users\serializers.py:55
+msgid "confirmation code has not been sent"
+msgstr "Код подтверждения не был отправлен"
+
+#: .\users\serializers.py:59
+msgid "confirmation code is not confirmed"
+msgstr "Код подтверждения не подтвержден"

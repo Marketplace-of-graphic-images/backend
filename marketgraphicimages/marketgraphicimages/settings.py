@@ -122,6 +122,21 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'core.password_validation.InvalidCharactersValidator',
+    },
+    {
+        'NAME': 'core.password_validation.CyrillicLettersValidator',
+    },
+    {
+        'NAME': 'core.password_validation.EasyPasswordValidator',
+    },
+    {
+        'NAME': 'core.password_validation.MaximumLengthValidator',
+    },
+    {
+        'NAME': 'core.password_validation.TheSamePasswordValidator',
+    },
 ]
 
 LANGUAGE_CODE = 'ru-RU'
@@ -155,9 +170,8 @@ REST_FRAMEWORK = {
 }
 
 
-IMAGES_PAGINATOR_SIZE = 9
+IMAGES_PAGINATOR_SIZE = 8
 IMAGES_LIMIT_SIZE = 10
-NUM_OF_POPULAR_IMAGES_BY_CATEGORY = 4
 MAX_NUM_OF_TAGS_RECOMENDED_COMBO = 4
 ALLOWED_EXTENSIONS = [
     'jpeg', 'jpg,' 'png', 'webp', 'raw', 'tiff', 'psd', 'svg'
@@ -195,6 +209,7 @@ DJOSER = {
     },
     'PERMISSIONS': {
         'password_reset_confirm_code': ['rest_framework.permissions.AllowAny'],
+        'user': ['core.permissions.CurrentUserOrReadOnlyOrAdmin'],
     },
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': white_list,

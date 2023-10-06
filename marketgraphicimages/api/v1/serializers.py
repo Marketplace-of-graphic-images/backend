@@ -1,14 +1,14 @@
-import base64
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from django.core.files.base import ContentFile
+from django.core import exceptions
 from django.core.paginator import Paginator
 from django.db import IntegrityError, models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from rest_framework import serializers, status
-from rest_framework.exceptions import ValidationError
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+from rest_framework.exceptions import NotFound, ValidationError
 
 from marketgraphicimages.settings import (
     IMAGES_LIMIT_SIZE,
@@ -44,8 +44,11 @@ class AuthSignUpSerializer(serializers.ModelSerializer):
         Returns:
             dict: The validated data, if the password is valid.
         """
-        validate_password(data.get('password'))
         validate_email(data.get('email'))
+        try:
+            validate_password(data.get('password'))
+        except exceptions.ValidationError as error:
+            raise exceptions.ValidationError({'password': error})
         return data
 
 
@@ -80,8 +83,7 @@ class ConfirmationSerializer(serializers.ModelSerializer):
         confirmation_code = data.get('confirmation_code')
         if not verify_value(confirmation_code, email_user.confirmation_code):
             raise ValidationError(
-                detail={'errors': _('Invalid confirmation code')},
-                code=status.HTTP_400_BAD_REQUEST,
+                detail={'confirmation_code': _('Invalid confirmation code')},
             )
         user = self.create_user(data)
         email_user.delete()
@@ -110,7 +112,6 @@ class ConfirmationSerializer(serializers.ModelSerializer):
         except IntegrityError:
             raise ValidationError(
                 detail={'errors': _('User with this data already exist')},
-                code=status.HTTP_400_BAD_REQUEST,
             )
         user.set_password(data.get('password'))
         user.save()
@@ -138,33 +139,49 @@ class AuthSignInSerializer(serializers.Serializer):
 
         Returns:
             - User: The User object if the credentials are valid.
-
-        Raises:
-            - ValidationError: If the provided credentials are invalid.
         """
         try:
             user = User.objects.get(email=data.get('email'))
         except User.DoesNotExist:
-            raise ValidationError(
-                detail={'errors': _('User with this email does not exist')},
-                code=status.HTTP_404_NOT_FOUND,
+            raise NotFound(
+                detail={'email': _('User with this email does not exist')},
             )
         else:
             if user.check_password(data.get("password")):
                 data['user'] = user
                 return data
             raise ValidationError(
-                detail={'errors': _('Wrong password')},
-                code=status.HTTP_400_BAD_REQUEST,
+                detail={'password': _('Wrong password')},
             )
 
 
-class TagSerializer(serializers.ModelSerializer):
-    """Serializer for Tag model."""
+class BaseTagSerializer(serializers.ModelSerializer):
+    """Base serializer for Tags model."""
 
     class Meta:
         model = Tag
-        fields = '__all__'
+        fields = ('id', 'name', 'slug')
+
+
+class TagShortSerializer(BaseTagSerializer):
+
+    pass
+
+
+class TagSerializer(BaseTagSerializer):
+    """Serializer for Tag model."""
+    tag_images = serializers.SerializerMethodField()
+
+    def get_tag_images(self, obj):
+        if self.context.get('request'):
+            images = Image.objects.filter(tags=obj.id).order_by('?')[:1]
+            serializer = ImageShortSerializer(
+                images, many=True, context=self.context
+            )
+            return serializer.data
+
+    class Meta(BaseTagSerializer.Meta):
+        fields = BaseTagSerializer.Meta.fields + ('tag_images', )
 
 
 class BaseShortUserSerializer(serializers.ModelSerializer):
@@ -241,7 +258,7 @@ class ImageGetSerializer(ImageBaseSerializer):
     in_favorites = serializers.SerializerMethodField(
         method_name='get_in_favorites'
     )
-    tags = TagSerializer(read_only=True, many=True)
+    tags = TagShortSerializer(read_only=True, many=True)
     recommended = serializers.SerializerMethodField(
         method_name='get_recommended'
     )
@@ -305,25 +322,6 @@ class ImageGetSerializer(ImageBaseSerializer):
         return obj.image.name.split('.')[-1].upper()
 
 
-class CustomBase64ImageField(serializers.ImageField):
-    """Custom Base64ImageField with swagger_schema_fields."""
-
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-        return super().to_internal_value(data)
-
-    class Meta:
-        swagger_schema_fields = {
-            'type': 'string',
-            'title': 'Image Content',
-            'description': 'Content of the image base64 encoded',
-            'read_only': False
-        }
-
-
 class ImagePostPutPatchSerializer(serializers.ModelSerializer):
     """Image model serializer for post, put, patch requests."""
 
@@ -381,8 +379,8 @@ class FavoriteSerialiser(serializers.ModelSerializer):
         image = data.get('image')
         user = data.get('user')
         if image.favoriteimage_set.filter(user=user).exists():
-            raise serializers.ValidationError(
-                'Вы уже подписаны.'
+            raise ValidationError(
+                detail={'errors': _('This image is already in favorites.')},
             )
         return data
 
@@ -395,7 +393,7 @@ class UserSerializer(serializers.ModelSerializer):
     count_my_images = serializers.SerializerMethodField(read_only=True)
     my_subscribers = serializers.SerializerMethodField(read_only=True)
     my_subscriptions = serializers.SerializerMethodField(read_only=True)
-    profile_photo = CustomBase64ImageField()
+    profile_photo = Base64ImageField()
     history = serializers.SerializerMethodField(read_only=True)
 
     def get_my_images(self, obj):
