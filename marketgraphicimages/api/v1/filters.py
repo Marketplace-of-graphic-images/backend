@@ -21,7 +21,7 @@ class ImageFilter(FilterSet):
     tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
     category = filters.CharFilter(method='filter_category',)
     author = filters.CharFilter(field_name='author__id',)
-    favoriteimage = filters.CharFilter(field_name='favoriteimage__user',)
+    favorite = filters.CharFilter(field_name='favoriteimage__user',)
     hystory = filters.CharFilter(field_name='license',)
 
     class Meta:
@@ -29,8 +29,8 @@ class ImageFilter(FilterSet):
         fields = (
             'tags',
             'category',
-            'author__id',
-            'favoriteimage__user',
+            'author',
+            'favorite',
             'hystory',
             )
 

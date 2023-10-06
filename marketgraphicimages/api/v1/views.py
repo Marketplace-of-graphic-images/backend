@@ -231,7 +231,6 @@ class ImageViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = ImageFilter
-    search_fields = ['=author__id', '=favoriteimage__user', 'hystory']
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

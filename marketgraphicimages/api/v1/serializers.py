@@ -227,15 +227,10 @@ class CommentShortSerializer(serializers.ModelSerializer):
 
 class ImageShortSerializer(serializers.ModelSerializer):
     """Serializer for short info about image."""
-    likes = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Image
-        fields = ('id', 'name', 'image', 'likes')
-
-    def get_likes(self, obj):
-        count = FavoriteImage.objects.filter(image=obj.id)
-        return len(count)
+        fields = ('id', 'name', 'image')
 
 
 class ImageGetSerializer(serializers.ModelSerializer):
@@ -444,8 +439,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name',
-                  'vk', 'instagram', 'website', 'profile_photo',
-                  'birthday', 'role',
+                  'vk', 'instagram', 'website',
+                  'profile_photo', 'birthday', 'role',
                   'count_my_images', 'my_subscribers',
                   'my_subscriptions',
                   )
