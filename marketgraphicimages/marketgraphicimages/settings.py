@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR.parent / 'infra/.env'
-load_dotenv(dotenv_path=ENV_PATH)
+load_dotenv()
 
 
 SECRET_KEY = 'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
@@ -286,7 +286,7 @@ if not DEBUG:
 DEFAULT_FROM_EMAIL = EMAIL_BACKEND_NAME
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
-"""CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
@@ -310,4 +310,4 @@ CORS_ALLOWED_ORIGINS = (
 CORS_ALLOWED_ORIGIN_REGEXES = (
     'http://localhost:3000',
     'https://marketplace-of-graphic-images.github.io',
-)"""
+)
