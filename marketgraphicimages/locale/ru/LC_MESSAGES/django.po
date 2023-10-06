@@ -57,7 +57,7 @@ msgstr "Ваш пароль не должен содержать кирилли�
 
 #: .\core\password_validation.py:48
 msgid "Password must contain numbers letters and special characters: -_!."
-msgstr "Пароль должен содержать номера буквы и специальные символы: -_!."
+msgstr "Пароль должен содержать цифры, буквы и специальные символы: -_!."
 
 #: .\core\password_validation.py:55
 msgid "Your password must contain numbers letters and special characters"
