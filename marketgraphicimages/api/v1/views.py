@@ -8,7 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, parsers, renderers, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import (
     AllowAny,
@@ -236,6 +236,10 @@ class ImageViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
     search_fields = ('name',)
+    parser_classes = (
+        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
+    )
+    renderer_classes = (renderers.JSONRenderer, )
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

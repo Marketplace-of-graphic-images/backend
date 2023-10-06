@@ -3,7 +3,6 @@ from django_filters.rest_framework import FilterSet, filters
 
 from images.models import Image
 
-
 REGAX_PATTERNS = {
     'raster_image': r'\.(png|jpe?g|webp)$',
     'vector_image': r'\.(eps)$',
