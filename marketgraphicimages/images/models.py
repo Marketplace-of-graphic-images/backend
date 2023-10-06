@@ -1,6 +1,13 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
+
+from django.core.validators import (
+    FileExtensionValidator,
+    MaxValueValidator,
+    MinValueValidator,
+)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from marketgraphicimages.settings import ALLOWED_EXTENSIONS
 
 from tags.models import Tag
 from users.models import User, UserConnection
@@ -33,11 +40,14 @@ class Image(models.Model):
         max_length=200,
         help_text=_('Enter the name'),
     )
-    image = models.ImageField(
+    image = models.FileField(
         verbose_name=_('Image'),
         upload_to='images/',
         unique=True,
         help_text=_('Upload an image'),
+        validators=[
+            FileExtensionValidator(allowed_extensions=ALLOWED_EXTENSIONS)
+        ]
     )
     license = models.CharField(
         verbose_name=_('License'),
@@ -50,11 +60,6 @@ class Image(models.Model):
         null=True,
         validators=[MinValueValidator(0), MaxValueValidator(999999)],
         help_text=_('Specify a price')
-    )
-    format = models.CharField(
-        verbose_name=_('Format'),
-        max_length=5,
-        help_text=_('Specify image format')
     )
     tags = models.ManyToManyField(
         Tag,

@@ -8,7 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status, viewsets, filters
+from rest_framework import filters, parsers, renderers, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import (
     AllowAny,
@@ -155,6 +155,11 @@ class CustomUserViewSet(UserViewSet):
     reset confirmation.
     """
 
+    parser_classes = (
+        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
+    )
+    renderer_classes = (renderers.JSONRenderer, )
+
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
             self.permission_classes = (
@@ -236,6 +241,10 @@ class ImageViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
     search_fields = ('name',)
+    parser_classes = (
+        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
+    )
+    renderer_classes = (renderers.JSONRenderer, )
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -302,6 +311,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
+    permission_classes = (AllowAny, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ['name', ]
 

@@ -1,23 +1,19 @@
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
-from django.core.paginator import Paginator
 from django.db import IntegrityError, models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
 
 from marketgraphicimages.settings import (
-    COMMENTS_PAGINATOR_SIZE,
     IMAGES_LIMIT_SIZE,
+    IMAGES_RECOMENDED_SIZE,
     MAX_NUM_OF_TAGS_RECOMENDED_COMBO,
-    NUM_OF_RECOMMENDED_IMAGES,
-    NUM_OTHER_AUTHOR_IMAGES,
 )
 
-from comments.models import Comment
 from core.encryption_str import verify_value
 from core.validators import validate_email
 from images.models import FavoriteImage, Image, TagImage
@@ -157,19 +153,33 @@ class AuthSignInSerializer(serializers.Serializer):
             )
 
 
-class TagSerializer(serializers.ModelSerializer):
+class BaseTagSerializer(serializers.ModelSerializer):
+    """Base serializer for Tags model."""
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'slug')
+
+
+class TagShortSerializer(BaseTagSerializer):
+
+    pass
+
+
+class TagSerializer(BaseTagSerializer):
     """Serializer for Tag model."""
     tag_images = serializers.SerializerMethodField()
 
     def get_tag_images(self, obj):
         if self.context.get('request'):
             images = Image.objects.filter(tags=obj.id).order_by('?')[:1]
-            serializer = ImageShortSerializer(images, many=True)
+            serializer = ImageShortSerializer(
+                images, many=True, context=self.context
+            )
             return serializer.data
 
-    class Meta:
-        model = Tag
-        fields = '__all__'
+    class Meta(BaseTagSerializer.Meta):
+        fields = BaseTagSerializer.Meta.fields + ('tag_images', )
 
 
 class BaseShortUserSerializer(serializers.ModelSerializer):
@@ -192,7 +202,7 @@ class AuthorSerializer(BaseShortUserSerializer):
 
     class Meta(BaseShortUserSerializer.Meta):
         fields = BaseShortUserSerializer.Meta.fields + (
-            'num_of_author_images', 'is_subscribed'
+            'is_subscribed', 'num_of_author_images'
         )
 
     def get_is_subscribed(self, obj):
@@ -210,81 +220,60 @@ class AuthorSerializer(BaseShortUserSerializer):
         return obj.images.count()
 
 
-class CommentatorShortSerializer(BaseShortUserSerializer):
-    """Serializer for commentator user model."""
+class ImageBaseSerializer(serializers.ModelSerializer):
+    """Image model base serializer."""
 
-    pass
-
-
-class CommentShortSerializer(serializers.ModelSerializer):
-    """Serializer for comment model on image page."""
-
-    commentator = CommentatorShortSerializer(read_only=True)
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'text', 'created', 'commentator')
-
-
-class ImageShortSerializer(serializers.ModelSerializer):
-    """Serializer for short info about image."""
-
-    class Meta:
-        model = Image
-        fields = ('id', 'name', 'image')
-
-
-class ImageGetSerializer(serializers.ModelSerializer):
-    """Image model serializer for get requests."""
-
-    author = AuthorSerializer(read_only=True)
-    tags = TagSerializer(read_only=True, many=True)
-    comments = serializers.SerializerMethodField(
-        method_name='get_paginated_comments'
-    )
+    author = BaseShortUserSerializer(read_only=True)
     is_favorited = serializers.SerializerMethodField(
-        method_name='get_is_favorited'
-    )
-    recommended = serializers.SerializerMethodField(
-        method_name='get_recommended'
-    )
-    other_author_images = serializers.SerializerMethodField(
-        method_name='get_other_author_images'
-    )
+            method_name='get_is_favorited'
+        )
 
     class Meta:
         model = Image
         fields = (
-            'id', 'created', 'author', 'name', 'image', 'license', 'price',
-            'format', 'tags', 'is_favorited', 'comments', 'recommended',
-            'other_author_images'
+            'id', 'created', 'author', 'name', 'image', 'is_favorited'
         )
 
     def get_is_favorited(self, obj):
         """Checking if the specified image is in the favorites list."""
 
-        user = self.context['request'].user
+        user = self.context.get('request').user
         if user.is_authenticated:
             return FavoriteImage.objects.filter(image=obj, user=user).exists()
         return False
 
-    def get_paginated_comments(self, obj):
-        """Own method for getting paginated list of comments based on
-        COMMENTS_PAGINATOR_SIZE params from settings.py."""
 
-        page_size = self.context['request'].query_params.get(
-            'size', COMMENTS_PAGINATOR_SIZE
+class ImageShortSerializer(ImageBaseSerializer):
+    """Serializer for short info about image."""
+
+    pass
+
+
+class ImageGetSerializer(ImageBaseSerializer):
+    """Image model serializer for get requests."""
+
+    author = AuthorSerializer(read_only=True)
+    in_favorites = serializers.SerializerMethodField(
+        method_name='get_in_favorites'
+    )
+    tags = TagShortSerializer(read_only=True, many=True)
+    recommended = serializers.SerializerMethodField(
+        method_name='get_recommended'
+    )
+    extension = serializers.SerializerMethodField(
+        method_name='get_extension'
+    )
+
+    class Meta(ImageBaseSerializer.Meta):
+        fields = ImageBaseSerializer.Meta.fields + (
+            'in_favorites', 'license', 'price', 'tags',
+            'extension', 'recommended',
         )
-        paginator = Paginator(obj.comments.all(), page_size)
-        page = self.context['request'].query_params.get('page', 1)
-        comments = paginator.page(page)
-        serializer = CommentShortSerializer(comments, many=True)
-        return serializer.data
 
     def get_recommended(self, obj):
-        """Getting a list of recommendations based on most popular
-        combo of tags and returns the number of images specified in the
-        NUM_OF_RECOMMENDED_IMAGES, randomly selected."""
+        """Getting a paginated list of recommendations based on most popular
+        combo of tags and returns the [offset:limit] number of images
+        """
 
         tags = Tag.objects.filter(
             id__in=obj.tags.all()
@@ -305,38 +294,31 @@ class ImageGetSerializer(serializers.ModelSerializer):
                 id=obj.id
             ).exclude(
                 id__in=images
-            ).order_by(
-                '?'
             ).distinct()
             images = images | new_images
-            if images.count() >= NUM_OF_RECOMMENDED_IMAGES:
-                break
-        images = images[:NUM_OF_RECOMMENDED_IMAGES]
-        serializer = ImageShortSerializer(images, many=True)
+
+        limit = self.context['request'].query_params.get(
+            'limit', IMAGES_RECOMENDED_SIZE
+        )
+        offset = self.context['request'].query_params.get(
+            'offset', 0
+        )
+        images = images[int(offset):int(limit)]
+        serializer = ImageShortSerializer(
+            images, many=True, context=self.context
+        )
         return serializer.data
 
-    def get_other_author_images(self, obj):
-        """Getting other works of the authorbased on tags and
-        returns the number of images specified in the
-        NUM_OTHER_AUTHOR_IMAGES, randomly selected."""
+    def get_in_favorites(self, obj):
+        """Getting the number of times an image has been added to favorites.
+        """
 
-        images = Image.objects.filter(
-            author=obj.author).exclude(
-                id=obj.id).order_by('?')[:NUM_OTHER_AUTHOR_IMAGES]
-        serializer = ImageShortSerializer(images, many=True)
-        return serializer.data
+        return FavoriteImage.objects.filter(image__id=obj.id).count()
 
+    def get_extension(self, obj):
+        """Getting the extension of image."""
 
-class CustomBase64ImageField(Base64ImageField):
-    """Custom Base64ImageField with swagger_schema_fields."""
-
-    class Meta:
-        swagger_schema_fields = {
-            'type': 'string',
-            'title': 'Image Content',
-            'description': 'Content of the image base64 encoded',
-            'read_only': False
-        }
+        return obj.image.name.split('.')[-1].upper()
 
 
 class ImagePostPutPatchSerializer(serializers.ModelSerializer):
@@ -345,7 +327,6 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all()
     )
-    image = CustomBase64ImageField()
 
     class Meta:
         model = Image
@@ -358,20 +339,12 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         )
         return serializer.data
 
-    @staticmethod
-    def get_extension(validated_data):
-        """Method for getting file extension from validated data."""
-
-        extension = validated_data['image'].content_type.split('/')[-1]
-        return extension.upper()
-
     @transaction.atomic
     def create(self, validated_data):
         """Modified object creation method that gets file extension
         information and creates entries in the TagImage table."""
 
         tags = validated_data.pop('tags')
-        validated_data['format'] = self.get_extension(validated_data)
         new_image = Image.objects.create(**validated_data)
         new_image.tags.set(tags)
         return new_image
@@ -419,7 +392,6 @@ class UserSerializer(serializers.ModelSerializer):
     count_my_images = serializers.SerializerMethodField(read_only=True)
     my_subscribers = serializers.SerializerMethodField(read_only=True)
     my_subscriptions = serializers.SerializerMethodField(read_only=True)
-    profile_photo = Base64ImageField()
     history = serializers.SerializerMethodField(read_only=True)
 
     def get_my_images(self, obj):
@@ -430,7 +402,9 @@ class UserSerializer(serializers.ModelSerializer):
                 'limit', IMAGES_LIMIT_SIZE
             )
             images = obj.images.filter(author=obj.id)[:int(limit)]
-            serializer = ImageShortSerializer(images, many=True)
+            serializer = ImageShortSerializer(
+                images, many=True, context=self.context
+            )
             return serializer.data
 
     def get_history(self, obj):
@@ -440,7 +414,9 @@ class UserSerializer(serializers.ModelSerializer):
                 'limit', IMAGES_LIMIT_SIZE
             )
             images = Image.objects.all()[:int(limit)]
-            serializer = ImageShortSerializer(images, many=True)
+            serializer = ImageShortSerializer(
+                images, many=True, context=self.context
+            )
             return serializer.data
 
     def get_favoriteds(self, obj):
@@ -450,13 +426,17 @@ class UserSerializer(serializers.ModelSerializer):
         favorite_images = FavoriteImage.objects.filter(
             user=obj.id)[:int(limit)]
         images = [favorite_image.image for favorite_image in favorite_images]
-        serializer = ImageShortSerializer(images, many=True)
+        serializer = ImageShortSerializer(
+            images, many=True, context=self.context
+        )
         return serializer.data
 
     def get_count_my_images(self, obj):
         if (obj.role == 'Author'):
             images = obj.images.all()
-            serializer = ImageShortSerializer(images, many=True)
+            serializer = ImageShortSerializer(
+                images, many=True, context=self.context
+            )
             return len(serializer.data)
 
     def get_my_subscribers(self, obj):
