@@ -173,11 +173,11 @@ REST_FRAMEWORK = {
 }
 
 
-IMAGES_PAGINATOR_SIZE = 8
+IMAGES_RECOMENDED_SIZE = 8
 IMAGES_LIMIT_SIZE = 10
 MAX_NUM_OF_TAGS_RECOMENDED_COMBO = 4
 ALLOWED_EXTENSIONS = [
-    'jpeg', 'jpg,' 'png', 'webp', 'raw', 'tiff', 'psd', 'svg'
+    'jpeg', 'jpg,' 'png', 'webp', 'raw', 'tiff', 'psd', 'gif', 'svg'
 ]
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"

@@ -311,6 +311,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
+    permission_classes = (AllowAny, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ['name', ]
 

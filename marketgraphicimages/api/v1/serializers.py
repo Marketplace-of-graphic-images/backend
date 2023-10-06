@@ -2,7 +2,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
-from django.core.paginator import Paginator
 from django.db import IntegrityError, models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -11,7 +10,7 @@ from rest_framework.exceptions import NotFound, ValidationError
 
 from marketgraphicimages.settings import (
     IMAGES_LIMIT_SIZE,
-    IMAGES_PAGINATOR_SIZE,
+    IMAGES_RECOMENDED_SIZE,
     MAX_NUM_OF_TAGS_RECOMENDED_COMBO,
 )
 
@@ -298,12 +297,13 @@ class ImageGetSerializer(ImageBaseSerializer):
             ).distinct()
             images = images | new_images
 
-        page_size = self.context['request'].query_params.get(
-            'size', IMAGES_PAGINATOR_SIZE
+        limit = self.context['request'].query_params.get(
+            'limit', IMAGES_RECOMENDED_SIZE
         )
-        paginator = Paginator(images, page_size)
-        page = self.context['request'].query_params.get('page', 1)
-        images = paginator.page(page)
+        offset = self.context['request'].query_params.get(
+            'offset', 0
+        )
+        images = images[int(offset):int(limit)]
         serializer = ImageShortSerializer(
             images, many=True, context=self.context
         )
