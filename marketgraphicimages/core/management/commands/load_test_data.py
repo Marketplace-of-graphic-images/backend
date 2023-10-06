@@ -6,7 +6,6 @@ from django.core.management import BaseCommand
 from django.db.utils import IntegrityError
 from tqdm import tqdm
 
-from comments.models import Comment
 from core.image_from_google import get_img_file, get_img_from_google
 from images.models import Image
 from tags.models import Tag
@@ -63,26 +62,6 @@ users = (
     },
 )
 
-comments_pool = [
-    'Искусство на высшем уровне!',
-    'Это действительно впечатляет.',
-    'Очаровательное изображение!',
-    'Ваш талант безграничен.',
-    'Прекрасный момент!',
-    'Это такое вдохновение!',
-    'Удивительная работа!',
-    'Великолепно!',
-    'Очень креативно!',
-    'Мне нравится ваш стиль!',
-    'У вас невероятное чувство цвета.',
-    'Просто потрясающе!',
-    'Изумительная композиция.',
-    'Отличная работа с контрастами!',
-    'Каждая деталь на своем месте.',
-    'С таким талантом далеко пойдете!',
-    'Прекрасная работа!',
-]
-
 
 class Command(BaseCommand):
 
@@ -138,22 +117,6 @@ class Command(BaseCommand):
         except IntegrityError:
             pass
 
-    def create_comment(self, images: Image, users: User) -> None:
-        """
-        Create comments.
-        """
-        for image in tqdm(images, desc='Creating comments', colour='green'):
-            user = random.choice(users)
-            try:
-                comment, _ = Comment.objects.get_or_create(
-                    commented_post=image,
-                    commentator=user,
-                )
-                comment.text = random.choice(comments_pool)
-                comment.save()
-            except IntegrityError:
-                pass
-
     def search_params(
             self, max_tags_in_one_name: int, count_name: int) -> list:
         """
@@ -191,5 +154,4 @@ class Command(BaseCommand):
                     tags=tags,
                 )
                 created_img.append(image_model)
-        self.create_comment(images=created_img, users=users)
         print('Done!')

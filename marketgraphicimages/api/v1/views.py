@@ -1,9 +1,9 @@
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from django.views import View
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
+from djoser.social.views import ProviderAuthView
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
@@ -135,17 +135,6 @@ def sign_out(_: Request) -> Response:
     return response
 
 
-class RedirectSocial(View):
-    """
-    Redirect for take 'code' and 'state' from social-auth/.
-    """
-
-    def get(self, request: Request, *args, **kwargs) -> Response:
-        code, state = str(request.GET['code']), str(request.GET['state'])
-        json_obj = {'code': code, 'state': state}
-        return Response(json_obj)
-
-
 class CustomUserViewSet(UserViewSet):
     """
     This viewset inherits from djoser `UserViewSet` and adds custom actions
@@ -228,9 +217,8 @@ class CustomUserViewSet(UserViewSet):
 class ImageViewSet(viewsets.ModelViewSet):
     """ViewSet to work with instances of images."""
 
-    queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
 
@@ -240,6 +228,12 @@ class ImageViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return ImageShortSerializer
         return ImagePostPutPatchSerializer
+
+    def get_queryset(self):
+        limit = self.request.query_params.get('limit')
+        if limit:
+            return Image.objects.all()[:int(limit)]
+        return Image.objects.all()
 
     def get_permissions(self):
         method = self.request.method
@@ -283,6 +277,30 @@ class ImageViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
-        return Tag.objects.all()
+        return Tag.objects.all().order_by('?')
+
+
+class CustomProviderAuthView(ProviderAuthView):
+    """
+    A custom social authentication view that overrides
+    the POST method to include additional functionality.
+    """
+
+    def post(self, request, *args, **kwargs):
+        """
+        Overrides the POST method to include additional functionality.
+        """
+
+        response = super().post(request, *args, **kwargs)
+        response.set_cookie(
+            'jwt', response.data.get('access'), expires=TOKEN_LIFETIME,
+            httponly=True, samesite='None', secure=True
+        )
+        user = User.objects.filter(
+            username__contains=response.data.get('user')
+        ).first()
+        response.data = BaseShortUserSerializer(user).data
+        return response

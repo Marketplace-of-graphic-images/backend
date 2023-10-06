@@ -4,7 +4,7 @@ from images.models import Image
 
 REGAX_PATTERNS = {
     'raster_image': r'\.(png|jpe?g|webp)$',
-    'vector_image': r'\.(eps)$',
+    'vector_image': r'\.(svg)$',
     'gif_image': r'\.(gif)$',
 }
 
@@ -30,6 +30,7 @@ class ImageFilter(FilterSet):
         Filters the given `queryset` based on the `value` parameter.
         """
 
-        if value in REGAX_PATTERNS:
-            return queryset.filter(image__regex=REGAX_PATTERNS.get(value))
-        return queryset
+        regax = REGAX_PATTERNS.get(value)
+        if regax:
+            return queryset.filter(image__regex=regax)
+        return Image.objects.none()
