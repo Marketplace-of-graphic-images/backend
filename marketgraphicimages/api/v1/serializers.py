@@ -272,7 +272,7 @@ class ImageGetSerializer(ImageBaseSerializer):
 
     def get_recommended(self, obj):
         """Getting a paginated list of recommendations based on most popular
-        combo of tags and returns the IMAGES_PAGINATOR_SIZE number of images
+        combo of tags and returns the [offset:limit] number of images
         """
 
         tags = Tag.objects.filter(
