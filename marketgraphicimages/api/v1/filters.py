@@ -1,10 +1,8 @@
-from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django_filters.rest_framework import FilterSet, filters
 
 from images.models import Image
 
-User = get_user_model()
 
 REGAX_PATTERNS = {
     'raster_image': r'\.(png|jpe?g|webp)$',
