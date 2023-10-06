@@ -14,7 +14,6 @@ class ImageAdmin(admin.ModelAdmin):
         'author',
         'created',
         'license',
-        'format',
         'price',
     )
     search_fields = (
