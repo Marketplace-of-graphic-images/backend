@@ -6,7 +6,6 @@ from django.core.paginator import Paginator
 from django.db import IntegrityError, models, transaction
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
 
@@ -393,7 +392,6 @@ class UserSerializer(serializers.ModelSerializer):
     count_my_images = serializers.SerializerMethodField(read_only=True)
     my_subscribers = serializers.SerializerMethodField(read_only=True)
     my_subscriptions = serializers.SerializerMethodField(read_only=True)
-    profile_photo = Base64ImageField()
     history = serializers.SerializerMethodField(read_only=True)
 
     def get_my_images(self, obj):
@@ -404,7 +402,9 @@ class UserSerializer(serializers.ModelSerializer):
                 'limit', IMAGES_LIMIT_SIZE
             )
             images = obj.images.filter(author=obj.id)[:int(limit)]
-            serializer = ImageShortSerializer(images, many=True)
+            serializer = ImageShortSerializer(
+                images, many=True, context=self.context
+            )
             return serializer.data
 
     def get_history(self, obj):
@@ -414,7 +414,9 @@ class UserSerializer(serializers.ModelSerializer):
                 'limit', IMAGES_LIMIT_SIZE
             )
             images = Image.objects.all()[:int(limit)]
-            serializer = ImageShortSerializer(images, many=True)
+            serializer = ImageShortSerializer(
+                images, many=True, context=self.context
+            )
             return serializer.data
 
     def get_favoriteds(self, obj):
@@ -424,13 +426,17 @@ class UserSerializer(serializers.ModelSerializer):
         favorite_images = FavoriteImage.objects.filter(
             user=obj.id)[:int(limit)]
         images = [favorite_image.image for favorite_image in favorite_images]
-        serializer = ImageShortSerializer(images, many=True)
+        serializer = ImageShortSerializer(
+            images, many=True, context=self.context
+        )
         return serializer.data
 
     def get_count_my_images(self, obj):
         if (obj.role == 'Author'):
             images = obj.images.all()
-            serializer = ImageShortSerializer(images, many=True)
+            serializer = ImageShortSerializer(
+                images, many=True, context=self.context
+            )
             return len(serializer.data)
 
     def get_my_subscribers(self, obj):

@@ -155,6 +155,11 @@ class CustomUserViewSet(UserViewSet):
     reset confirmation.
     """
 
+    parser_classes = (
+        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
+    )
+    renderer_classes = (renderers.JSONRenderer, )
+
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
             self.permission_classes = (
