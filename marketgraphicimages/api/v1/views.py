@@ -231,7 +231,7 @@ class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
     permission_classes = (IsAuthenticated, )
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
     search_fields = ('name',)
 
