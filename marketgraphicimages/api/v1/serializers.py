@@ -373,10 +373,7 @@ class FavoriteSerialiser(serializers.ModelSerializer):
 
     class Meta:
         model = FavoriteImage
-        fields = (
-            'image',
-            'user',
-        )
+        fields = ('image', 'user',)
 
     def validate(sels, data):
         image = data.get('image')
