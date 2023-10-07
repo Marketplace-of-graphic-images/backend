@@ -1,12 +1,14 @@
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from django.views import View
+from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
+from djoser.social.views import ProviderAuthView
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status, viewsets, filters
+from rest_framework import filters, parsers, renderers, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import (
     AllowAny,
@@ -91,7 +93,8 @@ def auth_confirmation(request: Request) -> Response:
         BaseShortUserSerializer(user).data, status=status.HTTP_200_OK
     )
     response.set_cookie(
-        'jwt', str(access_token), expires=TOKEN_LIFETIME, httponly=True
+        'jwt', str(access_token), expires=TOKEN_LIFETIME,
+        httponly=True, samesite='None', secure=True
     )
     return response
 
@@ -115,7 +118,8 @@ def get_token_post(request: Request) -> Response:
         BaseShortUserSerializer(user).data, status=status.HTTP_200_OK
     )
     response.set_cookie(
-        'jwt', str(access_token), expires=TOKEN_LIFETIME, httponly=True
+        'jwt', str(access_token), expires=TOKEN_LIFETIME,
+        httponly=True, samesite='None', secure=True
     )
     return response
 
@@ -133,23 +137,17 @@ def sign_out(_: Request) -> Response:
     return response
 
 
-class RedirectSocial(View):
-    """
-    Redirect for take 'code' and 'state' from social-auth/.
-    """
-
-    def get(self, request: Request, *args, **kwargs) -> Response:
-        code, state = str(request.GET['code']), str(request.GET['state'])
-        json_obj = {'code': code, 'state': state}
-        return Response(json_obj)
-
-
 class CustomUserViewSet(UserViewSet):
     """
     This viewset inherits from djoser `UserViewSet` and adds custom actions
     and permission handling for specific user operations, such as password
     reset confirmation.
     """
+
+    parser_classes = (
+        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
+    )
+    renderer_classes = (renderers.JSONRenderer, )
 
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
@@ -226,11 +224,15 @@ class CustomUserViewSet(UserViewSet):
 class ImageViewSet(viewsets.ModelViewSet):
     """ViewSet to work with instances of images."""
 
-    queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
     permission_classes = (IsAuthenticated, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = ImageFilter
+    search_fields = ('name',)
+    parser_classes = (
+        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
+    )
+    renderer_classes = (renderers.JSONRenderer, )
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -238,6 +240,12 @@ class ImageViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return ImageShortSerializer
         return ImagePostPutPatchSerializer
+
+    def get_queryset(self):
+        limit = self.request.query_params.get('limit')
+        if limit:
+            return Image.objects.all()[:int(limit)]
+        return Image.objects.all()
 
     def get_permissions(self):
         method = self.request.method
@@ -277,12 +285,52 @@ class ImageViewSet(viewsets.ModelViewSet):
         self.perform_destroy(favorite_image)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @swagger_auto_schema(
+            responses={200: 'Ok', 403: 'Only free image can be downloaded.'})
+    @action(detail=True, methods=('get',))
+    def download(self, request, pk=None):
+        """Download an image."""
+        image = self.get_object()
+        if image.license != Image.LicenseType.FREE:
+            return Response(
+                {"errors": _("Only free image can be downloaded.")},
+                status=status.HTTP_403_FORBIDDEN)
+        response = FileResponse(open(image.image.path, 'rb'))
+        response['Content-Disposition'] = (
+            'attachment; filename="%s"' % _(image.image.name))
+        response['Content-Length'] = image.image.size
+        return response
+
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
+    permission_classes = (AllowAny, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ['name', ]
 
     def get_queryset(self):
-        return Tag.objects.all()
+        return Tag.objects.all().order_by('?')
+
+
+class CustomProviderAuthView(ProviderAuthView):
+    """
+    A custom social authentication view that overrides
+    the POST method to include additional functionality.
+    """
+
+    def post(self, request, *args, **kwargs):
+        """
+        Overrides the POST method to include additional functionality.
+        """
+
+        response = super().post(request, *args, **kwargs)
+        response.set_cookie(
+            'jwt', response.data.get('access'), expires=TOKEN_LIFETIME,
+            httponly=True, samesite='None', secure=True
+        )
+        user = User.objects.filter(
+            username__contains=response.data.get('user')
+        ).first()
+        response.data = BaseShortUserSerializer(user).data
+        return response

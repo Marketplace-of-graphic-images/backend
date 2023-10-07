@@ -23,7 +23,7 @@ class EmailAndTokenSerializer(serializers.Serializer):
             data['user'] = user
         except (User.DoesNotExist, ValueError, TypeError, OverflowError):
             raise serializers.ValidationError(
-                {'errors': _('invalid_email')},
+                {'email': _('invalid_email')},
             )
         data['user_confirm_code'] = user.code_owner.get()
         if verify_value(confirmation_code,
@@ -31,7 +31,7 @@ class EmailAndTokenSerializer(serializers.Serializer):
             return data
         else:
             raise serializers.ValidationError(
-                {'errors': _('invalid confirmation_code')},
+                {'confirmation_code': _('invalid confirmation_code')},
             )
 
 
@@ -48,20 +48,20 @@ class PasswordSerializer(serializers.Serializer):
             data['user'] = user
         except (User.DoesNotExist, ValueError, TypeError, OverflowError):
             raise serializers.ValidationError(
-                {'errors': _('invalid_email')},
+                {'email': _('invalid_email')},
             )
         if not user.code_owner.exists():
             raise serializers.ValidationError(
-                {'errors': _('confirmation code has not been sent')}
+                {'confirmation_code': _('confirmation code has not been sent')}
             )
         if not user.code_owner.get().is_confirmed:
             raise serializers.ValidationError(
-                {'errors': _('confirmation code is not confirmed')}
+                {'confirmation_code': _('confirmation code is not confirmed')}
             )
         try:
             validate_password(data["new_password"], user)
         except django_exceptions.ValidationError as e:
             raise serializers.ValidationError(
-                {'errors': list(e.messages)}
+                {'new_password': list(e.messages)}
             )
         return super().validate(data)
