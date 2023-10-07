@@ -9,7 +9,6 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
 
 from marketgraphicimages.settings import (
-    IMAGES_LIMIT_SIZE,
     IMAGES_RECOMENDED_SIZE,
     MAX_NUM_OF_TAGS_RECOMENDED_COMBO,
 )
@@ -387,49 +386,9 @@ class FavoriteSerialiser(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for transferring and modifying user information."""
 
-    favoriteds = serializers.SerializerMethodField(read_only=True)
-    my_images = serializers.SerializerMethodField()
     count_my_images = serializers.SerializerMethodField(read_only=True)
     my_subscribers = serializers.SerializerMethodField(read_only=True)
     my_subscriptions = serializers.SerializerMethodField(read_only=True)
-    history = serializers.SerializerMethodField(read_only=True)
-
-    def get_my_images(self, obj):
-        if (self.context.get('request')
-           and self.context.get('request').user.is_authenticated and
-                obj.role == 'Author'):
-            limit = self.context.get('request').query_params.get(
-                'limit', IMAGES_LIMIT_SIZE
-            )
-            images = obj.images.filter(author=obj.id)[:int(limit)]
-            serializer = ImageShortSerializer(
-                images, many=True, context=self.context
-            )
-            return serializer.data
-
-    def get_history(self, obj):
-        if (self.context.get('request')
-           and self.context.get('request').user.is_authenticated):
-            limit = self.context.get('request').query_params.get(
-                'limit', IMAGES_LIMIT_SIZE
-            )
-            images = Image.objects.all()[:int(limit)]
-            serializer = ImageShortSerializer(
-                images, many=True, context=self.context
-            )
-            return serializer.data
-
-    def get_favoriteds(self, obj):
-        limit = self.context.get('request').query_params.get(
-                'limit', IMAGES_LIMIT_SIZE
-            )
-        favorite_images = FavoriteImage.objects.filter(
-            user=obj.id)[:int(limit)]
-        images = [favorite_image.image for favorite_image in favorite_images]
-        serializer = ImageShortSerializer(
-            images, many=True, context=self.context
-        )
-        return serializer.data
 
     def get_count_my_images(self, obj):
         if (obj.role == 'Author'):
@@ -454,11 +413,10 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name',
-                  'vk', 'instagram', 'website', 'profile_photo',
-                  'birthday', 'my_images',
-                  'role', 'favoriteds',
+                  'vk', 'instagram', 'website',
+                  'profile_photo', 'birthday', 'role',
                   'count_my_images', 'my_subscribers',
-                  'my_subscriptions', 'history',
+                  'my_subscriptions',
                   )
 
 

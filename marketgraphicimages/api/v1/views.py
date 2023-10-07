@@ -225,8 +225,8 @@ class ImageViewSet(viewsets.ModelViewSet):
     """ViewSet to work with instances of images."""
 
     serializer_class = ImageGetSerializer
-    permission_classes = (IsAuthenticated,)
-    filter_backends = (DjangoFilterBackend,)
+    permission_classes = (IsAuthenticated, )
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = ImageFilter
     search_fields = ('name',)
     parser_classes = (
