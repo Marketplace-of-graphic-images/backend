@@ -222,7 +222,6 @@ class CustomUserViewSet(UserViewSet):
     @action(['get'], detail=False,)
     @swagger_auto_schema(responses={
         200: 'Ok',
-        204: 'No content',
         400: 'Bad request'})
     def my_dowloaded_images(self, request):
         """Get my dowloaded images."""
