@@ -142,3 +142,4 @@ class DownloadImage(ImageConnection, UserConnection):
         verbose_name = _('My download image')
         verbose_name_plural = _('My download images')
         ordering = ('user',)
+

@@ -20,7 +20,7 @@ from marketgraphicimages.settings import (
 from comments.models import Comment
 from core.encryption_str import verify_value
 from core.validators import validate_email
-from images.models import FavoriteImage, Image, TagImage
+from images.models import DownloadImage, FavoriteImage, Image, TagImage
 from tags.models import Tag
 from users.models import ConfirmationCode, Subscription
 
@@ -488,3 +488,22 @@ class MySubscribers(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = '__all__'
+
+
+class MyDowloadImages(serializers.ModelSerializer):
+    """For saving my downloaded images."""
+    image = ImageShortSerializer()
+    user = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        model = DownloadImage
+        fields = (
+            'image',
+            'user',
+        )
+    
+    
