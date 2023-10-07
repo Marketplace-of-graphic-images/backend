@@ -41,11 +41,16 @@ class AuthSignUpSerializer(serializers.ModelSerializer):
         Returns:
             dict: The validated data, if the password is valid.
         """
-        validate_email(data.get('email'))
+        try:
+            validate_email(data.get('email'))
+        except exceptions.ValidationError as error:
+            raise exceptions.ValidationError({'email': error})
+
         try:
             validate_password(data.get('password'))
         except exceptions.ValidationError as error:
             raise exceptions.ValidationError({'password': error})
+
         return data
 
 
@@ -368,10 +373,7 @@ class FavoriteSerialiser(serializers.ModelSerializer):
 
     class Meta:
         model = FavoriteImage
-        fields = (
-            'image',
-            'user',
-        )
+        fields = ('image', 'user',)
 
     def validate(sels, data):
         image = data.get('image')

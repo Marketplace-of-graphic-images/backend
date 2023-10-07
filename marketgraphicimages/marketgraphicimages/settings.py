@@ -205,7 +205,6 @@ DJOSER = {
         'password_reset_confirm_code': 'users.serializers.EmailAndTokenSerializer',
         'user': 'api.v1.serializers.UserSerializer',
         'current_user': 'api.v1.serializers.UserSerializer',
-
     },
     'EMAIL': {
         'password_reset': 'core.new_password_reset_email.PasswordResetEmail',
@@ -213,6 +212,7 @@ DJOSER = {
     'PERMISSIONS': {
         'password_reset_confirm_code': ['rest_framework.permissions.AllowAny'],
         'user': ['core.permissions.CurrentUserOrReadOnlyOrAdmin'],
+        'short_me': ['rest_framework.permissions.IsAuthenticated'],
     },
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': white_list,

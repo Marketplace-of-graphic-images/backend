@@ -25,7 +25,7 @@ class ImageFilter(FilterSet):
     category = filters.CharFilter(method='filter_category',)
     author = filters.CharFilter(field_name='author__id',)
     favorite = filters.CharFilter(field_name='favoriteimage__user',)
-    hystory = filters.CharFilter(field_name='license',)
+    hystory = filters.CharFilter(field_name='downloadimage__user',)
     name = filters.CharFilter(method='filter_name',)
 
     class Meta:
