@@ -148,11 +148,16 @@ class CustomUserViewSet(UserViewSet):
         parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
     )
     renderer_classes = (renderers.JSONRenderer, )
+    serializer_class = BaseShortUserSerializer
 
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
             self.permission_classes = (
                 djoser_settings.PERMISSIONS.password_reset_confirm_code
+            )
+        if self.action == 'short_me':
+            self.permission_classes = (
+                djoser_settings.PERMISSIONS.short_me
             )
         return super().get_permissions()
 
@@ -210,10 +215,10 @@ class CustomUserViewSet(UserViewSet):
     def set_password(self, request, *args, **kwargs):
         return super().set_password(request, *args, **kwargs)
 
-    @action(('post',), detail=False, permission_classes=(IsAuthenticated,))
+    @action(('post',), detail=False)
     def short_me(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=request.user.id)
-        return Response(BaseShortUserSerializer(user).data)
+        user = get_object_or_404(User, pk=request.user.pk)
+        return Response(self.serializer_class(user).data)
 
     def activation(self, request, *args, **kwargs):
         pass
@@ -235,7 +240,6 @@ class ImageViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = ImageFilter
-    search_fields = ('name',)
     parser_classes = (
         parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
     )

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR.parent / 'infra/.env'
-load_dotenv()
+load_dotenv(ENV_PATH)
 
 
 SECRET_KEY = 'django-insecure-c+@7f59vob3j5knjj&q)2btv2xx3985g@4rb1b4%jak#vyw1wc'
@@ -213,6 +213,7 @@ DJOSER = {
     'PERMISSIONS': {
         'password_reset_confirm_code': ['rest_framework.permissions.AllowAny'],
         'user': ['core.permissions.CurrentUserOrReadOnlyOrAdmin'],
+        'short_me': ['rest_framework.permissions.IsAuthenticated'],
     },
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': white_list,

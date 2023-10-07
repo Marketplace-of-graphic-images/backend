@@ -6,7 +6,8 @@ from .models import (
     FavoriteImage,
     Image,
     ShoppingCartImage,
-    TagImage)
+    TagImage,
+)
 
 User = get_user_model()
 
