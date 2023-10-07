@@ -1,12 +1,14 @@
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
 from djoser.social.views import ProviderAuthView
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status, viewsets
+from rest_framework import filters, parsers, renderers, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import (
     AllowAny,
@@ -142,6 +144,11 @@ class CustomUserViewSet(UserViewSet):
     reset confirmation.
     """
 
+    parser_classes = (
+        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
+    )
+    renderer_classes = (renderers.JSONRenderer, )
+
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
             self.permission_classes = (
@@ -228,6 +235,11 @@ class ImageViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ImageFilter
+    search_fields = ('name',)
+    parser_classes = (
+        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
+    )
+    renderer_classes = (renderers.JSONRenderer, )
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -280,11 +292,29 @@ class ImageViewSet(viewsets.ModelViewSet):
         self.perform_destroy(favorite_image)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @swagger_auto_schema(
+            responses={200: 'Ok', 403: 'Only free image can be downloaded.'})
+    @action(detail=True, methods=('get',))
+    def download(self, request, pk=None):
+        """Download an image."""
+        image = self.get_object()
+        if image.license != Image.LicenseType.FREE:
+            return Response(
+                {"errors": _("Only free image can be downloaded.")},
+                status=status.HTTP_403_FORBIDDEN)
+        response = FileResponse(open(image.image.path, 'rb'))
+        response['Content-Disposition'] = (
+            'attachment; filename="%s"' % _(image.image.name))
+        response['Content-Length'] = image.image.size
+        return response
+
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     pagination_class = None
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny, )
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ['name', ]
 
     def get_queryset(self):
         return Tag.objects.all().order_by('?')
