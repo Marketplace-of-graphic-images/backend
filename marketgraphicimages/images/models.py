@@ -140,3 +140,11 @@ class TagImage(ImageConnection):
         ]
         verbose_name = _('Tag image')
         verbose_name_plural = _('Tags image')
+
+
+class DownloadImage(ImageConnection, UserConnection):
+    class Meta:
+        verbose_name = _('My download image')
+        verbose_name_plural = _('My download images')
+        ordering = ('user',)
+

@@ -204,7 +204,7 @@ class CustomUserViewSet(UserViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(['post'], detail=False)
-    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    @swagger_auto_schema(responses={204: 'No content', 400: 'Bad request'})
     def set_password(self, request, *args, **kwargs):
         return super().set_password(request, *args, **kwargs)
 
@@ -299,6 +299,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = (
             'attachment; filename="%s"' % _(image.image.name))
         response['Content-Length'] = image.image.size
+        image.downloadimage_set.get_or_create(user=self.request.user)
         return response
 
 
