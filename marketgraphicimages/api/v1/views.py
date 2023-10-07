@@ -32,7 +32,6 @@ from api.v1.serializers import (
     AuthSignUpSerializer,
     BaseShortUserSerializer,
     ConfirmationSerializer,
-    MyDowloadImages,
     FavoriteSerialiser,
     ImageGetSerializer,
     ImagePostPutPatchSerializer,
@@ -218,17 +217,6 @@ class CustomUserViewSet(UserViewSet):
     @swagger_auto_schema(responses={204: 'No content', 400: 'Bad request'})
     def set_password(self, request, *args, **kwargs):
         return super().set_password(request, *args, **kwargs)
-
-    @action(['get'], detail=False,)
-    @swagger_auto_schema(responses={
-        200: 'Ok',
-        400: 'Bad request'})
-    def my_dowloaded_images(self, request):
-        """Get my dowloaded images."""
-        user = request.user
-        queryset = user.downloadimage_set.filter()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
     def activation(self, request, *args, **kwargs):
         pass
