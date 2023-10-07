@@ -158,17 +158,11 @@ class CustomUserViewSet(UserViewSet):
             self.permission_classes = (
                 djoser_settings.PERMISSIONS.password_reset_confirm_code
             )
-        if self.action == 'my_download_images':
-            self.permission_classes = (
-                IsAuthenticated
-            )
         return super().get_permissions()
 
     def get_serializer_class(self):
         if self.action == 'reset_password_confirm_code':
             return djoser_settings.SERIALIZERS.password_reset_confirm_code
-        if self.action == 'my_dowloaded_images':
-            return MyDowloadImages
         return super().get_serializer_class()
 
     @action(['post'], detail=False)
