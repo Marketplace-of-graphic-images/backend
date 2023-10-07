@@ -152,6 +152,8 @@ class CustomUserViewSet(UserViewSet):
     def get_serializer_class(self):
         if self.action == 'reset_password_confirm_code':
             return djoser_settings.SERIALIZERS.password_reset_confirm_code
+        if self.action == 'short_me':
+            return BaseShortUserSerializer()
         return super().get_serializer_class()
 
     @action(['post'], detail=False)
@@ -200,6 +202,11 @@ class CustomUserViewSet(UserViewSet):
     @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
     def set_password(self, request, *args, **kwargs):
         return super().set_password(request, *args, **kwargs)
+
+    @action(('post',), detail=False, permission_classes=(IsAuthenticated,))
+    def short_me(self, request, *args, **kwargs):
+        user = get_object_or_404(User, pk=request.user.id)
+        return Response(BaseShortUserSerializer(user).data)
 
     def activation(self, request, *args, **kwargs):
         pass
