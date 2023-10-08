@@ -399,15 +399,7 @@ class FavoriteSerialiser(serializers.ModelSerializer):
     class Meta:
         model = FavoriteImage
         fields = ('image', 'user',)
-
-    def validate(sels, data):
-        image = data.get('image')
-        user = data.get('user')
-        if image.favoriteimage_set.filter(user=user).exists():
-            raise ValidationError(
-                detail={'errors': _('This image is already in favorites.')},
-            )
-        return data
+        read_only_fields = ('image', 'user',)
 
 
 class UserSerializer(serializers.ModelSerializer):
