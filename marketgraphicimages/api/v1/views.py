@@ -34,7 +34,8 @@ from api.v1.serializers import (
     ConfirmationSerializer,
     FavoriteSerialiser,
     ImageGetSerializer,
-    ImagePostPutPatchSerializer,
+    ImagePatchSerializer,
+    ImagePostPutSerializer,
     ImageShortSerializer,
     TagSerializer,
 )
@@ -244,14 +245,19 @@ class ImageViewSet(viewsets.ModelViewSet):
     parser_classes = (
         parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
     )
-    renderer_classes = (renderers.JSONRenderer, )
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return ImageGetSerializer
-        if self.action == 'list':
+        elif self.action == 'partial_update':
+            return ImagePatchSerializer
+        elif self.action == 'list':
             return ImageShortSerializer
-        return ImagePostPutPatchSerializer
+        elif self.action == 'create' or self.action == 'update':
+            return ImagePostPutSerializer
+        elif self.action == 'favorite':
+            return FavoriteSerialiser
+        return ImagePostPutSerializer
 
     def get_permissions(self):
         method = self.request.method
