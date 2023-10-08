@@ -273,8 +273,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-    
+ 
     @action(methods=('post', 'delete',),
             detail=True)
     @swagger_auto_schema(
