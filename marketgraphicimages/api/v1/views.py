@@ -34,7 +34,8 @@ from api.v1.serializers import (
     ConfirmationSerializer,
     FavoriteSerialiser,
     ImageGetSerializer,
-    ImagePostPutPatchSerializer,
+    ImagePatchSerializer,
+    ImagePostPutSerializer,
     ImageShortSerializer,
     TagSerializer,
 )
@@ -247,11 +248,15 @@ class ImageViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return ImageGetSerializer
-        if self.action == 'list':
+        elif self.action == 'partial_update':
+            return ImagePatchSerializer
+        elif self.action == 'list':
             return ImageShortSerializer
-        if self.action == 'favorite':
+        elif self.action in ['create', 'update']:
+            return ImagePostPutSerializer
+        elif self.action == 'favorite':
             return FavoriteSerialiser
-        return ImagePostPutPatchSerializer
+        return ImagePostPutSerializer
 
     def get_queryset(self):
         limit = self.request.query_params.get('limit')

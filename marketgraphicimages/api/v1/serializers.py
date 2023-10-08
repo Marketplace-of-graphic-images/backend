@@ -224,7 +224,7 @@ class AuthorSerializer(BaseShortUserSerializer):
         return obj.images.count()
 
 
-class ImageBaseSerializer(serializers.ModelSerializer):
+class ImageBaseGetSerializer(serializers.ModelSerializer):
     """Image model base serializer."""
 
     author = BaseShortUserSerializer(read_only=True)
@@ -247,13 +247,13 @@ class ImageBaseSerializer(serializers.ModelSerializer):
         return False
 
 
-class ImageShortSerializer(ImageBaseSerializer):
+class ImageShortSerializer(ImageBaseGetSerializer):
     """Serializer for short info about image."""
 
     pass
 
 
-class ImageGetSerializer(ImageBaseSerializer):
+class ImageGetSerializer(ImageBaseGetSerializer):
     """Image model serializer for get requests."""
 
     author = AuthorSerializer(read_only=True)
@@ -268,8 +268,8 @@ class ImageGetSerializer(ImageBaseSerializer):
         method_name='get_extension'
     )
 
-    class Meta(ImageBaseSerializer.Meta):
-        fields = ImageBaseSerializer.Meta.fields + (
+    class Meta(ImageBaseGetSerializer.Meta):
+        fields = ImageBaseGetSerializer.Meta.fields + (
             'in_favorites', 'license', 'price', 'tags',
             'extension', 'recommended',
         )
@@ -325,11 +325,13 @@ class ImageGetSerializer(ImageBaseSerializer):
         return obj.image.name.split('.')[-1].upper()
 
 
-class ImagePostPutPatchSerializer(serializers.ModelSerializer):
-    """Image model serializer for post, put, patch requests."""
+class ImageBaseCreateAndEditSerializer(serializers.ModelSerializer):
+    """Base serializer for post, put and patch requests."""
 
     tags = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Tag.objects.all()
+        many=True,
+        queryset=Tag.objects.all(),
+        required=True,
     )
 
     class Meta:
@@ -344,28 +346,51 @@ class ImagePostPutPatchSerializer(serializers.ModelSerializer):
         return serializer.data
 
     @transaction.atomic
+    def update(self, instance, validated_data):
+        """Modified object editing method that edit entries in the
+        TagImage table."""
+
+        if 'tags' in validated_data:
+            TagImage.objects.filter(image=instance).delete()
+            tags = validated_data.pop('tags')
+            instance.tags.set(tags)
+        super().update(instance, validated_data)
+        return instance
+
+
+class ImagePostPutSerializer(ImageBaseCreateAndEditSerializer):
+    """Custom serializer for Post and Put requests."""
+
+    @transaction.atomic
     def create(self, validated_data):
-        """Modified object creation method that gets file extension
-        information and creates entries in the TagImage table."""
+        """Modified object creation method that creates entries in the
+        TagImage table."""
 
         tags = validated_data.pop('tags')
         new_image = Image.objects.create(**validated_data)
         new_image.tags.set(tags)
         return new_image
 
-    @transaction.atomic
-    def update(self, instance, validated_data):
-        """Modified object editing method that gets file extension
-        information and edit entries in the TagImage table."""
+    def validate_tags(self, value):
+        if not value:
+            raise serializers.ValidationError(_('Required field.'))
+        return value
 
-        if 'tags' in validated_data:
-            TagImage.objects.filter(image=instance).delete()
-            tags = validated_data.pop('tags')
-            instance.tags.set(tags)
-        if 'image' in validated_data:
-            validated_data['format'] = self.get_extension(validated_data)
-        super().update(instance, validated_data)
-        return instance
+
+class ImagePatchSerializer(ImageBaseCreateAndEditSerializer):
+    """Custom serializer for Patch requests."""
+
+    class Meta(ImageBaseCreateAndEditSerializer.Meta):
+        extra_kwargs = {
+            'name': {'required': False},
+            'image': {'required': False},
+            'license': {'required': False},
+            'price': {'required': False},
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['tags'].required = False
 
 
 class FavoriteSerialiser(serializers.ModelSerializer):
