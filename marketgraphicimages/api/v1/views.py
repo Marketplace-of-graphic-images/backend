@@ -273,7 +273,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
- 
+
     @action(methods=('post', 'delete',),
             detail=True)
     @swagger_auto_schema(
@@ -286,14 +286,15 @@ class ImageViewSet(viewsets.ModelViewSet):
         """Add and delete favorite image."""
         image = get_object_or_404(Image, pk=pk)
         user = request.user
+        favorite_exists = image.favoriteimage_set.filter(user=user).exists()
         if request.method == 'POST':
-            if image.favoriteimage_set.filter(user=user).exists():
+            if favorite_exists:
                 return Response(status=status.HTTP_302_FOUND)
             serializer = self.get_serializer(data={})
             serializer.is_valid(raise_exception=True)
             serializer.save(user=request.user, image=image)
             return Response(status=status.HTTP_201_CREATED)
-        if not image.favoriteimage_set.filter(user=request.user).exists():
+        if not favorite_exists:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         favorite_image = get_object_or_404(
             FavoriteImage,
