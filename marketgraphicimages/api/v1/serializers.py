@@ -359,6 +359,7 @@ class ImageBaseCreateAndEditSerializer(serializers.ModelSerializer):
 
 
 class ImagePostPutSerializer(ImageBaseCreateAndEditSerializer):
+    """Custom serializer for Post and Put requests."""
 
     @transaction.atomic
     def create(self, validated_data):
@@ -377,6 +378,7 @@ class ImagePostPutSerializer(ImageBaseCreateAndEditSerializer):
 
 
 class ImagePatchSerializer(ImageBaseCreateAndEditSerializer):
+    """Custom serializer for Patch requests."""
 
     class Meta(ImageBaseCreateAndEditSerializer.Meta):
         extra_kwargs = {
