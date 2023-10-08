@@ -1,13 +1,24 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from .models import FavoriteImage, Image, ShoppingCartImage, TagImage
+from .models import (
+    DownloadImage,
+    FavoriteImage,
+    Image,
+    ShoppingCartImage,
+    TagImage,
+)
 
 User = get_user_model()
 
 
+class TagImageInLine(admin.TabularInline):
+    model = TagImage
+
+
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
+    inlines = (TagImageInLine,)
     list_display = (
         'pk',
         'name',
@@ -63,4 +74,17 @@ class TagImageAdmin(admin.ModelAdmin):
     list_filter = (
         'image',
         'tag',
+    )
+
+
+@admin.register(DownloadImage)
+class DownloadImageAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'image',
+        'user',
+    )
+    list_filter = (
+        'image',
+        'user',
     )

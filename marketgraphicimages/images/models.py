@@ -1,4 +1,3 @@
-
 from django.core.validators import (
     FileExtensionValidator,
     MaxValueValidator,
@@ -20,8 +19,7 @@ class Image(models.Model):
         """Class of choices licese types of images."""
 
         FREE = 'free', _('free')
-        SUBSCRIBE = 'subscribe', _('subscribe')
-        PREMIUM = 'premium', _('premium')
+        PAID = 'paid', _('paid')
 
     created = models.DateTimeField(
         verbose_name=_('Date of creation'),
@@ -140,3 +138,10 @@ class TagImage(ImageConnection):
         ]
         verbose_name = _('Tag image')
         verbose_name_plural = _('Tags image')
+
+
+class DownloadImage(ImageConnection, UserConnection):
+    class Meta:
+        verbose_name = _('My download image')
+        verbose_name_plural = _('My download images')
+        ordering = ('user',)

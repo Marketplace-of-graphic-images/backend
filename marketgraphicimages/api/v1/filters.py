@@ -5,7 +5,7 @@ from images.models import Image
 
 REGAX_PATTERNS = {
     'raster_image': r'\.(png|jpe?g|webp)$',
-    'vector_image': r'\.(eps)$',
+    'vector_image': r'\.(svg)$',
     'gif_image': r'\.(gif)$',
 }
 
@@ -23,20 +23,31 @@ class ImageFilter(FilterSet):
 
     tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
     category = filters.CharFilter(method='filter_category',)
+    author = filters.CharFilter(field_name='author__id',)
+    favorite = filters.CharFilter(field_name='favoriteimage__user',)
+    hystory = filters.CharFilter(field_name='downloadimage__user',)
     name = filters.CharFilter(method='filter_name',)
 
     class Meta:
         model = Image
-        fields = ('tags', 'category', 'name',)
+        fields = (
+            'tags',
+            'category',
+            'author',
+            'favorite',
+            'hystory',
+            'name',
+            )
 
     def filter_category(self, queryset, _, value):
         """
         Filters the given `queryset` based on the `value` parameter.
         """
 
-        if value in REGAX_PATTERNS:
-            return queryset.filter(image__regex=REGAX_PATTERNS.get(value))
-        return queryset
+        regax = REGAX_PATTERNS.get(value)
+        if regax:
+            return queryset.filter(image__regex=regax)
+        return Image.objects.none()
 
     def filter_name(self, queryset, _, value):
         """

@@ -3,9 +3,9 @@ from django.contrib.auth import get_user_model
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from django.views import View
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.conf import settings as djoser_settings
+from djoser.social.views import ProviderAuthView
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, parsers, renderers, status, viewsets
@@ -138,17 +138,6 @@ def sign_out(_: Request) -> Response:
     return response
 
 
-class RedirectSocial(View):
-    """
-    Redirect for take 'code' and 'state' from social-auth/.
-    """
-
-    def get(self, request: Request, *args, **kwargs) -> Response:
-        code, state = str(request.GET['code']), str(request.GET['state'])
-        json_obj = {'code': code, 'state': state}
-        return Response(json_obj)
-
-
 class CustomUserViewSet(UserViewSet):
     """
     This viewset inherits from djoser `UserViewSet` and adds custom actions
@@ -159,12 +148,17 @@ class CustomUserViewSet(UserViewSet):
     parser_classes = (
         parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
     )
-    renderer_classes = (renderers.JSONRenderer, )
+    renderer_classes = (renderers.JSONRenderer,)
+    serializer_class = BaseShortUserSerializer
 
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
             self.permission_classes = (
                 djoser_settings.PERMISSIONS.password_reset_confirm_code
+            )
+        if self.action == 'short_me':
+            self.permission_classes = (
+                djoser_settings.PERMISSIONS.short_me
             )
         return super().get_permissions()
 
@@ -216,9 +210,15 @@ class CustomUserViewSet(UserViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(['post'], detail=False)
-    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    @swagger_auto_schema(responses={204: 'No content', 400: 'Bad request'})
     def set_password(self, request, *args, **kwargs):
         return super().set_password(request, *args, **kwargs)
+
+    @action(('get',), detail=False)
+    @swagger_auto_schema(responses={200: 'OK', 401: 'Unauthorized'})
+    def short_me(self, request, *args, **kwargs):
+        user = get_object_or_404(User, pk=request.user.pk)
+        return Response(self.serializer_class(user).data)
 
     def activation(self, request, *args, **kwargs):
         pass
@@ -236,15 +236,14 @@ class CustomUserViewSet(UserViewSet):
 class ImageViewSet(viewsets.ModelViewSet):
     """ViewSet to work with instances of images."""
 
-    queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
     permission_classes = (IsAuthenticated, )
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = ImageFilter
-    search_fields = ('name',)
     parser_classes = (
-        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
+        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser,
     )
+    renderer_classes = (renderers.JSONRenderer,)
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -253,11 +252,17 @@ class ImageViewSet(viewsets.ModelViewSet):
             return ImagePatchSerializer
         elif self.action == 'list':
             return ImageShortSerializer
-        elif self.action == 'create' or self.action == 'update':
+        elif self.action in ['create', 'update']:
             return ImagePostPutSerializer
         elif self.action == 'favorite':
             return FavoriteSerialiser
         return ImagePostPutSerializer
+
+    def get_queryset(self):
+        limit = self.request.query_params.get('limit')
+        if limit:
+            return Image.objects.all()[:int(limit)]
+        return Image.objects.all()
 
     def get_permissions(self):
         method = self.request.method
@@ -311,6 +316,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = (
             'attachment; filename="%s"' % _(image.image.name))
         response['Content-Length'] = image.image.size
+        image.downloadimage_set.get_or_create(user=self.request.user)
         return response
 
 
@@ -322,4 +328,27 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ['name', ]
 
     def get_queryset(self):
-        return Tag.objects.all()
+        return Tag.objects.all().order_by('?')
+
+
+class CustomProviderAuthView(ProviderAuthView):
+    """
+    A custom social authentication view that overrides
+    the POST method to include additional functionality.
+    """
+
+    def post(self, request, *args, **kwargs):
+        """
+        Overrides the POST method to include additional functionality.
+        """
+
+        response = super().post(request, *args, **kwargs)
+        response.set_cookie(
+            'jwt', response.data.get('access'), expires=TOKEN_LIFETIME,
+            httponly=True, samesite='None', secure=True
+        )
+        user = User.objects.filter(
+            username__contains=response.data.get('user')
+        ).first()
+        response.data = BaseShortUserSerializer(user).data
+        return response
