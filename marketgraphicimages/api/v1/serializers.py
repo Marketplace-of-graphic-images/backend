@@ -388,6 +388,9 @@ class FavoriteSerialiser(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for transferring and modifying user information."""
 
+    username = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    profile_photo = serializers.FileField(required=False)
     count_my_images = serializers.SerializerMethodField(read_only=True)
     my_subscribers = serializers.SerializerMethodField(read_only=True)
     my_subscriptions = serializers.SerializerMethodField(read_only=True)
