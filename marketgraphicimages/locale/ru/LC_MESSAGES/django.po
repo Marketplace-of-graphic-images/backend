@@ -261,9 +261,9 @@ msgstr "Дата рождения"
 msgid "VK"
 msgstr "VK"
 
-#: .\users\models.py:70
-msgid "Instagram"
-msgstr "Instagram"
+#: .\users\models.py:72
+msgid "Telegram"
+msgstr "Telegram"
 
 #: .\users\models.py:74
 msgid "Website"

@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 
 from core.validators import validate_email
 
-
 ROLE_CHOICES = (
         ('User', 'User'),
         ('Author', 'Author'),
