@@ -326,7 +326,8 @@ class ImageViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = (
             'attachment; filename="%s"' % _(image.image.name))
         response['Content-Length'] = image.image.size
-        image.downloadimage_set.get_or_create(user=self.request.user)
+        if self.request.user.is_authenticated:
+            image.downloadimage_set.get_or_create(user=self.request.user)
         return response
 
 
