@@ -22,6 +22,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .schemas import (
     LOGIN_DONE_SCHEMA,
     SIGNIN_SCHEMA,
+    SIGNOUT_SCHEMA,
     SIGNUP_DONE_SCHEMA,
     SIGUP_SHEMA,
     SIGUP_SHEMA_CONFIRMATION,
@@ -125,15 +126,13 @@ def get_token_post(request: Request) -> Response:
     return response
 
 
-@swagger_auto_schema(
-    method='post',
-    responses={
-        204: '',
-    },
-)
+@swagger_auto_schema(method='post', responses={200: SIGNOUT_SCHEMA, },)
 @api_view(['POST'])
-def sign_out(_: Request) -> Response:
-    response = Response(status=status.HTTP_204_NO_CONTENT)
+def sign_out(request: Request) -> Response:
+    response = Response(
+        data={'signout': _('Successfull sign out!')},
+        status=status.HTTP_200_OK
+    )
     response.delete_cookie('jwt', samesite='None',)
     return response
 
