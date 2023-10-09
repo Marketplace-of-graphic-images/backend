@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
@@ -81,3 +82,14 @@ SIGNUP_DONE_SCHEMA = openapi.Schema(
 )
 
 LOGIN_DONE_SCHEMA = SIGNUP_DONE_SCHEMA
+
+SIGNOUT_SCHEMA = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    required=('signout',),
+    properties={
+        'signout': openapi.Schema(
+            type=openapi.TYPE_STRING,
+            default=_('Successfull sign out!')
+        )
+    }
+)
