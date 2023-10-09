@@ -213,6 +213,7 @@ DJOSER = {
     'PERMISSIONS': {
         'password_reset_confirm_code': ['rest_framework.permissions.AllowAny'],
         'user': ['core.permissions.CurrentUserOrReadOnlyOrAdmin'],
+        'current_user': ['core.permissions.OwnerPermission'],
         'short_me': ['rest_framework.permissions.IsAuthenticated'],
     },
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
