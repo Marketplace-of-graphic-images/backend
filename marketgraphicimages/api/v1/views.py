@@ -94,7 +94,7 @@ def auth_confirmation(request: Request) -> Response:
     )
     response.set_cookie(
         'jwt', str(access_token), expires=TOKEN_LIFETIME,
-        httponly=True, samesite='None', secure=True
+        httponly=True, samesite='None', secure=True,
     )
     return response
 
@@ -119,7 +119,7 @@ def get_token_post(request: Request) -> Response:
     )
     response.set_cookie(
         'jwt', str(access_token), expires=TOKEN_LIFETIME,
-        httponly=True, samesite='None', secure=True
+        httponly=True, samesite='None', secure=True,
     )
     return response
 
@@ -133,7 +133,7 @@ def get_token_post(request: Request) -> Response:
 @api_view(['POST'])
 def sign_out(_: Request) -> Response:
     response = Response(status=status.HTTP_204_NO_CONTENT)
-    response.delete_cookie('jwt')
+    response.delete_cookie('jwt', samesite='None',)
     return response
 
 
@@ -155,9 +155,13 @@ class CustomUserViewSet(UserViewSet):
             self.permission_classes = (
                 djoser_settings.PERMISSIONS.password_reset_confirm_code
             )
-        if self.action == 'short_me':
+        elif self.action == 'short_me':
             self.permission_classes = (
                 djoser_settings.PERMISSIONS.short_me
+            )
+        elif self.action == 'me':
+            self.permission_classes = (
+                djoser_settings.PERMISSIONS.current_user
             )
         return super().get_permissions()
 

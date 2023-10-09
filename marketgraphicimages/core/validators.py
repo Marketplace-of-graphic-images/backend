@@ -25,8 +25,5 @@ def validate_email(email: str) -> None:
     if len(domain_area) > 253:
         errors.append(_('Allowed number of characters in the domain'
                         ' area: less than 254'))
-    elif len(email) > 256:
-        errors.append(_('Maximum email length 256 characters'))
-
     if errors:
         raise ValidationError(errors)

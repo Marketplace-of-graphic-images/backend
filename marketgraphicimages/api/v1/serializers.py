@@ -418,7 +418,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'id', 'username',
                   'first_name', 'last_name',
-                  'vk', 'instagram', 'website',
+                  'vk', 'telegram', 'website',
                   'profile_photo', 'birthday', 'role',
                   'count_my_images', 'my_subscribers',
                   'my_subscriptions',

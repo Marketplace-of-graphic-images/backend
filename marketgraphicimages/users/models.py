@@ -6,6 +6,9 @@ from django.core.validators import (
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from core.validators import validate_email
+
+
 ROLE_CHOICES = (
         ('User', 'User'),
         ('Author', 'Author'),
@@ -29,10 +32,10 @@ class User(AbstractUser):
         },
     )
     email = models.EmailField(
-        max_length=320,
+        max_length=256,
         verbose_name='Email',
         unique=True,
-        validators=[ASCIIUsernameValidator()],
+        validators=[ASCIIUsernameValidator(), validate_email],
         help_text=_('Enter the email.'),
         error_messages={
             'unique': _('User with such an email already exists'),
@@ -66,8 +69,8 @@ class User(AbstractUser):
         verbose_name=_('VK'),
         blank=True,
     )
-    instagram = models.URLField(
-        verbose_name=_('Instagram'),
+    telegram = models.URLField(
+        verbose_name=_('Telegram'),
         blank=True,
     )
     website = models.URLField(
