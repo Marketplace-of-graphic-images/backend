@@ -444,13 +444,13 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_email(self, value):
         lower_email = value.lower()
         if User.objects.filter(email__iexact=lower_email).exists():
-            raise serializers.ValidationError('Duplicate')
+            raise serializers.ValidationError(_('Email already to used'))
         return lower_email
 
     def validate_username(self, value):
         lower_username = value.lower()
         if User.objects.filter(username__iexact=lower_username).exists():
-            raise serializers.ValidationError('Duplicate')
+            raise serializers.ValidationError(_('Username already to used'))
         return lower_username
 
 
