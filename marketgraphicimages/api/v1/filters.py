@@ -27,6 +27,7 @@ class ImageFilter(FilterSet):
     favorite = filters.CharFilter(field_name='favoriteimage__user',)
     hystory = filters.CharFilter(field_name='downloadimage__user',)
     name = filters.CharFilter(method='filter_name',)
+    license = filters.CharFilter(field_name='license',)
 
     class Meta:
         model = Image
@@ -37,6 +38,7 @@ class ImageFilter(FilterSet):
             'favorite',
             'hystory',
             'name',
+            'license',
             )
 
     def filter_category(self, queryset, _, value):
