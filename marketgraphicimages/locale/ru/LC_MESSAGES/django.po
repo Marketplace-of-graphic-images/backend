@@ -39,6 +39,14 @@ msgstr "Неверный пароль"
 msgid "This image is already in favorites."
 msgstr "Это изображение уже в избранном."
 
+#: .\api\v1\serializers.py:447
+msgid "Email already to used"
+msgstr "Пользователь с этим Email уже существует"
+
+#: .\api\v1\serializers.py:453
+msgid "Username already to used"
+msgstr "Пользователь с этим Username уже существует"
+
 #: .\core\password_validation.py:16
 msgid "This password has invalid characters: @ ,"
 msgstr "Этот пароль имеет неверные символы: @ ,"
