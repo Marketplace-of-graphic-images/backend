@@ -45,6 +45,7 @@ from core.permissions import (
     OwnerOrAdminPermission,
     OwnerPermission,
 )
+from core.paginator import PaginatorForImage
 from images.models import FavoriteImage, Image
 from tags.models import Tag
 
@@ -238,6 +239,7 @@ class CustomUserViewSet(UserViewSet):
 class ImageViewSet(viewsets.ModelViewSet):
     """ViewSet to work with instances of images."""
 
+    queryset = Image.objects.all()
     serializer_class = ImageGetSerializer
     permission_classes = (IsAuthenticated, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
@@ -246,6 +248,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser,
     )
     renderer_classes = (renderers.JSONRenderer,)
+    pagination_class = PaginatorForImage
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -255,12 +258,6 @@ class ImageViewSet(viewsets.ModelViewSet):
         if self.action == 'favorite':
             return FavoriteSerialiser
         return ImagePostPutPatchSerializer
-
-    def get_queryset(self):
-        limit = self.request.query_params.get('limit')
-        if limit:
-            return Image.objects.all()[:int(limit)]
-        return Image.objects.all()
 
     def get_permissions(self):
         method = self.request.method

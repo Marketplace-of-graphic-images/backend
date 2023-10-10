@@ -109,7 +109,6 @@ class Command(BaseCommand):
                 license='free',
                 price=0,
                 image=image,
-                format=name.split('.')[-1].upper(),
             )
             new_image.tags.set(tags)
             new_image.save()
