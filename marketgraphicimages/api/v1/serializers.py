@@ -235,7 +235,14 @@ class ImageBaseGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = (
-            'id', 'created', 'author', 'name', 'image', 'is_favorited'
+            'id',
+            'created',
+            'author',
+            'name',
+            'image',
+            'is_favorited',
+            'license',
+            'price',
         )
 
     def get_is_favorited(self, obj):
@@ -270,7 +277,7 @@ class ImageGetSerializer(ImageBaseGetSerializer):
 
     class Meta(ImageBaseGetSerializer.Meta):
         fields = ImageBaseGetSerializer.Meta.fields + (
-            'in_favorites', 'license', 'price', 'tags',
+            'in_favorites', 'tags',
             'extension', 'recommended',
         )
 
@@ -440,6 +447,18 @@ class UserSerializer(serializers.ModelSerializer):
                   'count_my_images', 'my_subscribers',
                   'my_subscriptions',
                   )
+
+    def validate_email(self, value):
+        lower_email = value.lower()
+        if User.objects.filter(email__iexact=lower_email).exists():
+            raise serializers.ValidationError('Duplicate')
+        return lower_email
+
+    def validate_username(self, value):
+        lower_username = value.lower()
+        if User.objects.filter(username__iexact=lower_username).exists():
+            raise serializers.ValidationError('Duplicate')
+        return lower_username
 
 
 class MySubscribers(serializers.ModelSerializer):
