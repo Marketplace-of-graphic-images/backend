@@ -441,6 +441,18 @@ class UserSerializer(serializers.ModelSerializer):
                   'my_subscriptions',
                   )
 
+    def validate_email(self, value):
+        lower_email = value.lower()
+        if User.objects.filter(email__iexact=lower_email).exists():
+            raise serializers.ValidationError('Duplicate')
+        return lower_email
+
+    def validate_username(self, value):
+        lower_username = value.lower()
+        if User.objects.filter(username__iexact=lower_username).exists():
+            raise serializers.ValidationError('Duplicate')
+        return lower_username
+
 
 class MySubscribers(serializers.ModelSerializer):
     """Serializer for Subscription model."""
