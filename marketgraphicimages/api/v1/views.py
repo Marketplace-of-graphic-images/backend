@@ -145,11 +145,17 @@ class CustomUserViewSet(UserViewSet):
     reset confirmation.
     """
 
-    parser_classes = (
-        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser
-    )
     renderer_classes = (renderers.JSONRenderer,)
     serializer_class = BaseShortUserSerializer
+
+    def get_parsers(self):
+        if self.request.method in ('PUT', 'PATCH'):
+            return (
+                parsers.FormParser(),
+                parsers.MultiPartParser(),
+                parsers.FileUploadParser()
+            )
+        return super().get_parsers()
 
     def get_permissions(self):
         if self.action == 'reset_password_confirm_code':
@@ -240,10 +246,16 @@ class ImageViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, )
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = ImageFilter
-    parser_classes = (
-        parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser,
-    )
     renderer_classes = (renderers.JSONRenderer,)
+
+    def get_parsers(self):
+        if self.request.method in ('POST', 'PUT', 'PATCH'):
+            return (
+                parsers.FormParser(),
+                parsers.MultiPartParser(),
+                parsers.FileUploadParser()
+            )
+        return super().get_parsers()
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

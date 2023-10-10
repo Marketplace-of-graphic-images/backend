@@ -235,7 +235,8 @@ class ImageBaseGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = (
-            'id', 'created', 'author', 'name', 'image', 'is_favorited'
+            'id', 'created', 'author', 'name', 'image', 'is_favorited',
+            'license', 'price',
         )
 
     def get_is_favorited(self, obj):
@@ -270,8 +271,7 @@ class ImageGetSerializer(ImageBaseGetSerializer):
 
     class Meta(ImageBaseGetSerializer.Meta):
         fields = ImageBaseGetSerializer.Meta.fields + (
-            'in_favorites', 'license', 'price', 'tags',
-            'extension', 'recommended',
+            'in_favorites', 'tags', 'extension', 'recommended',
         )
 
     def get_recommended(self, obj):
