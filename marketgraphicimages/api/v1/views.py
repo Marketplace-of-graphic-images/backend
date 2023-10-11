@@ -302,7 +302,8 @@ class ImageViewSet(viewsets.ModelViewSet):
             user=self.request.user,
         )
         self.perform_destroy(favorite_image)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        detail = {"detail": "Item was successfully deleted"}
+        return Response(detail, status=status.HTTP_204_NO_CONTENT)
 
     @swagger_auto_schema(
             responses={200: 'Ok', 403: 'Only free image can be downloaded.'})
