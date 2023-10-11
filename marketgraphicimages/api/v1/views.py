@@ -293,7 +293,7 @@ class ImageViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data={})
             serializer.is_valid(raise_exception=True)
             serializer.save(user=user, image=image)
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         if not favorite_exists:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         favorite_image = get_object_or_404(
