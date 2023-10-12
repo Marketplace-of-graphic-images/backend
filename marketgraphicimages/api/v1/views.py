@@ -4,6 +4,7 @@ from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.compat import get_user_email
 from djoser.conf import settings as djoser_settings
 from djoser.social.views import ProviderAuthView
 from djoser.views import UserViewSet
@@ -173,7 +174,16 @@ class CustomUserViewSet(UserViewSet):
         the method sends a confirmation code to an email
         if the email address exists.
         '''
-        return super().reset_password(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.get_user()
+
+        if user:
+            context = {"user": user}
+            to = [get_user_email(user)]
+            djoser_settings.EMAIL.password_reset(self.request, context).send(to)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(['post'], detail=False)
     @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
@@ -187,7 +197,7 @@ class CustomUserViewSet(UserViewSet):
             is_token_valid = serializer.validated_data.get('user_confirm_code')
             is_token_valid.is_confirmed = True
             is_token_valid.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(['post'], detail=False)
@@ -206,7 +216,7 @@ class CustomUserViewSet(UserViewSet):
             to = [serializer.validated_data.get('email')]
             djoser_settings.EMAIL.password_changed_confirmation(
                 self.request, context).send(to)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(['post'], detail=False)
     @swagger_auto_schema(responses={204: 'No content', 400: 'Bad request'})
