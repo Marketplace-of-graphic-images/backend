@@ -4,6 +4,7 @@ from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.compat import get_user_email
 from djoser.conf import settings as djoser_settings
 from djoser.social.views import ProviderAuthView
 from djoser.views import UserViewSet
@@ -178,16 +179,25 @@ class CustomUserViewSet(UserViewSet):
         return super().get_serializer_class()
 
     @action(['post'], detail=False)
-    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    @swagger_auto_schema(responses={200: 'Ok', 400: 'Bad request'})
     def reset_password(self, request, *args, **kwargs):
         '''
         the method sends a confirmation code to an email
         if the email address exists.
         '''
-        return super().reset_password(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.get_user()
+
+        if user:
+            context = {"user": user}
+            to = [get_user_email(user)]
+            djoser_settings.EMAIL.password_reset(self.request, context).send(to)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(['post'], detail=False)
-    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    @swagger_auto_schema(responses={200: 'Ok', 400: 'Bad request'})
     def reset_password_confirm_code(self, request, *args, **kwargs):
         """
         Checks the confirmation code.
@@ -198,11 +208,11 @@ class CustomUserViewSet(UserViewSet):
             is_token_valid = serializer.validated_data.get('user_confirm_code')
             is_token_valid.is_confirmed = True
             is_token_valid.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(['post'], detail=False)
-    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    @swagger_auto_schema(responses={200: 'Ok', 400: 'Bad request'})
     def reset_password_confirm(self, request, *args, **kwargs):
         """This method changes the password after successful
          confirmation of the code."""
@@ -217,7 +227,7 @@ class CustomUserViewSet(UserViewSet):
             to = [serializer.validated_data.get('email')]
             djoser_settings.EMAIL.password_changed_confirmation(
                 self.request, context).send(to)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(['post'], detail=False)
     @swagger_auto_schema(responses={204: 'No content', 400: 'Bad request'})
@@ -297,7 +307,7 @@ class ImageViewSet(viewsets.ModelViewSet):
             responses={
                 201: 'CREATED',
                 302: 'FOUND',
-                204: 'NO CONTENT',
+                200: 'Ok',
                 400: 'BAD REQUEST'})
     def favorite(self, request, pk=None):
         """Add and delete favorite image."""
