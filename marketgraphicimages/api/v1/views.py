@@ -290,7 +290,7 @@ class ImageViewSet(viewsets.ModelViewSet):
             responses={
                 201: 'CREATED',
                 302: 'FOUND',
-                204: 'NO CONTENT',
+                200: 'Ok',
                 400: 'BAD REQUEST'})
     def favorite(self, request, pk=None):
         """Add and delete favorite image."""
