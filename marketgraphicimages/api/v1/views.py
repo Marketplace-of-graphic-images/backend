@@ -168,7 +168,7 @@ class CustomUserViewSet(UserViewSet):
         return super().get_serializer_class()
 
     @action(['post'], detail=False)
-    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    @swagger_auto_schema(responses={200: 'Ok', 400: 'Bad request'})
     def reset_password(self, request, *args, **kwargs):
         '''
         the method sends a confirmation code to an email
@@ -186,7 +186,7 @@ class CustomUserViewSet(UserViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(['post'], detail=False)
-    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    @swagger_auto_schema(responses={200: 'Ok', 400: 'Bad request'})
     def reset_password_confirm_code(self, request, *args, **kwargs):
         """
         Checks the confirmation code.
@@ -201,7 +201,7 @@ class CustomUserViewSet(UserViewSet):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(['post'], detail=False)
-    @swagger_auto_schema(responses={204: 'No Content', 400: 'Bad request'})
+    @swagger_auto_schema(responses={200: 'Ok', 400: 'Bad request'})
     def reset_password_confirm(self, request, *args, **kwargs):
         """This method changes the password after successful
          confirmation of the code."""
