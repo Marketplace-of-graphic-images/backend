@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Count
 from django_filters.rest_framework import FilterSet, filters
 
 from images.models import Image
@@ -48,7 +48,9 @@ class ImageFilter(FilterSet):
 
         regax = REGAX_PATTERNS.get(value)
         if regax:
-            return queryset.filter(image__regex=regax)
+            return queryset.filter(image__regex=regax).annotate(
+                favorite_count=Count('favoriteimage__image')
+            ).order_by('-favorite_count')
         return Image.objects.none()
 
     def filter_name(self, queryset, _, value):
