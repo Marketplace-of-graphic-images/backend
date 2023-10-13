@@ -205,6 +205,7 @@ DJOSER = {
         'password_reset_confirm_code': 'users.serializers.EmailAndTokenSerializer',
         'user': 'api.v1.serializers.UserSerializer',
         'current_user': 'api.v1.serializers.UserSerializer',
+        'short_me': 'api.v1.serializers.BaseShortUserSerializer',
 
     },
     'EMAIL': {
