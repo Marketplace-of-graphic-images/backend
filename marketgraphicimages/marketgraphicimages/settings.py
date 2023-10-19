@@ -19,7 +19,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     '80.87.107.75',
-    'pictura.acceleratorpracticum.ru'
+    'pictura.acceleratorpracticum.ru',
+    'graphic-images.lex-v.ru'
 ]
 
 DJANGO_APPS = (
@@ -194,6 +195,7 @@ white_list = [
     'https://80.87.107.75:8000/api/v1/accounts/profile/',
     'http://pictura.acceleratorpracticum.ru/api/v1/accounts/profile/',
     'https://pictura.acceleratorpracticum.ru/api/v1/accounts/profile/',
+    'https://graphic-images.lex-v.ru/api/v1/accounts/profile/',
 ]
 
 DJOSER = {
@@ -279,11 +281,11 @@ logger = logging.getLogger('main')
 
 if not DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'skvmrelay.netangels.ru'
-    EMAIL_PORT = 25
-    #EMAIL_USE_SSL = True
-    #EMAIL_HOST_USER = EMAIL_BACKEND_NAME
-    #EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', default='')
+    EMAIL_HOST = 'smtp.yandex.ru'
+    EMAIL_PORT = 465
+    EMAIL_USE_SSL = True
+    EMAIL_HOST_USER = EMAIL_BACKEND_NAME
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', default='')
 
 DEFAULT_FROM_EMAIL = EMAIL_BACKEND_NAME
 
