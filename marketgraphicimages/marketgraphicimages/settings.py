@@ -23,6 +23,8 @@ ALLOWED_HOSTS = [
     'graphic-images.lex-v.ru'
 ]
 
+CSRF_TRUSTED_ORIGINS = ['http://graphic-images.lex-v.ru', 'https://graphic-images.lex-v.ru']
+
 DJANGO_APPS = (
     "django.contrib.admin",
     "django.contrib.auth",
@@ -282,7 +284,7 @@ logger = logging.getLogger('main')
 
 if not DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.yandex.ru'
+    EMAIL_HOST = 'smtp.yandex.ru'  # 'skvmrelay.netangels.ru'
     EMAIL_PORT = 465
     EMAIL_USE_SSL = True
     EMAIL_HOST_USER = EMAIL_BACKEND_NAME
