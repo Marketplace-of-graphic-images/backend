@@ -298,6 +298,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
+    'http://localhost:80',
     'https://marketplace-of-graphic-images.github.io',
     'http://graphic-images.lex-v.ru',
     'https://graphic-images.lex-v.ru',
@@ -314,12 +315,14 @@ CORS_ALLOW_METHODS = (
 
 CORS_ALLOWED_ORIGINS = (
     'http://localhost:3000',
+    'http://localhost:80',
     'https://marketplace-of-graphic-images.github.io',
     'http://graphic-images.lex-v.ru',
     'https://graphic-images.lex-v.ru',
 )
 CORS_ALLOWED_ORIGIN_REGEXES = (
     'http://localhost:3000',
+    'http://localhost:80',
     'https://marketplace-of-graphic-images.github.io',
     'http://graphic-images.lex-v.ru',
     'https://graphic-images.lex-v.ru',
