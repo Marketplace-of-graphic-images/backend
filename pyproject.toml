@@ -1,0 +1,29 @@
+[tool.ruff]
+line-length = 80
+select = ["E", "F", "I"]
+exclude = [
+    ".git",
+    ".ruff_cache",
+    ".venv",
+    ".env",
+    "venv",
+    "env",
+    "migrations",
+    "infra",
+    "docs",
+    ".vscode",
+]
+
+[tool.ruff.per-file-ignores]
+"*/settings.py" = ["E501"]
+
+[tool.ruff.isort]
+combine-as-imports = true
+known-local-folder = ["images", "users", "api", "core", "tags", "comments",]
+
+[tool.pytest.ini_options]
+python_paths = "marketgraphicimages"
+addopts = "-vv -p no:cacheprovider -W ignore::DeprecationWarning"
+testpaths = "tests/"
+DJANGO_SETTINGS_MODULE = "marketgraphicimages.settings"
+python_files = "test_*.py"

@@ -39,24 +39,34 @@ jobs:
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
-        passphrase: ${{ secrets.SERVER_PASSWORD }}
+        password: ${{ secrets.SERVER_PASSWORD }}
         script: |
+          cd marketplace/infra/
           sudo docker-compose stop
           sudo docker-compose rm -f
           sudo docker-compose pull          
           sudo rm .env
           touch .env
-          echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+          echo DB_ENGINE=${{ secrets.DB_ENGINE }} > .env
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
           echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-          echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
+          echo YANDEX_KEY="${{ secrets.YANDEX_KEY }}" >> .env
+          echo YANDEX_SECRET="${{ secrets.YANDEX_SECRET }}" >> .env
+          echo EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
+          echo DEBUG="${{ secrets.DEBUG }}" >> .env
+          echo GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" >> .env
+          echo GOOGLE_PROJECT_CX="${{ secrets.GOOGLE_PROJECT_CX }}" >> .env         
           sudo docker-compose up -d         
-          sudo docker-compose exec -T web python manage.py migrate
-          sudo docker-compose exec -T web python manage.py collectstatic --no-input        
+          sudo docker-compose exec -T backend python manage.py makemigrations
+          sudo docker-compose exec -T backend python manage.py migrate
+          sudo docker-compose exec -T backend python manage.py collectstatic --no-input
+          sudo docker-compose exec -T backend python manage.py compilemessages
+          sudo docker-compose restart        
 
+          
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
@@ -66,4 +76,4 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: ${{ github.workflow }} успешно выполнен!
+        message: ${{ github.workflow }} успешно выполнен! Документация доступна по ссылке https://pictura.acceleratorpracticum.ru/api/v1/swagger/
